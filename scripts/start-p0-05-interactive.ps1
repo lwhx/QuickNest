@@ -5,6 +5,7 @@ param(
     [ValidateSet('FileDrop','Dpi')]
     [string] $Mode = 'FileDrop'
 )
+throw 'BLOCKED: historical desktop/system fixture has no current sandbox and owned-process acceptance contract. Migrate before execution; no acceptance is claimed.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

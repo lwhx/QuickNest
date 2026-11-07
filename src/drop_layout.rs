@@ -14,6 +14,9 @@ pub const CATEGORY_BAR_WIDTH: f32 = 160.0;
 pub const STATUS_BAR_HEIGHT: f32 = 32.0;
 
 const GROUP_PADDING_LEFT: f32 = 14.0;
+const GROUP_PADDING_RIGHT: f32 = 8.0;
+const GROUP_OVERFLOW_WIDTH: f32 = 28.0;
+const GROUP_OVERFLOW_SPACING: f32 = 8.0;
 const GROUP_PADDING_TOP: f32 = 8.0;
 const GROUP_TAB_HEIGHT: f32 = 24.0;
 const GROUP_TAB_SPACING: f32 = 24.0;
@@ -112,7 +115,11 @@ pub fn hit_test_scrolled(
     if y < group_bar_bottom {
         let tab_top = content_top + GROUP_PADDING_TOP;
         let tab_bottom = tab_top + GROUP_TAB_HEIGHT;
-        if y < tab_top || y > tab_bottom {
+        let viewport_right =
+            width - GROUP_PADDING_RIGHT - GROUP_OVERFLOW_WIDTH - GROUP_OVERFLOW_SPACING;
+        // Clip in viewport coordinates before applying scroll. Neither the
+        // left padding nor the fixed overflow button/gap is part of a tab.
+        if y < tab_top || y >= tab_bottom || x < GROUP_PADDING_LEFT || x >= viewport_right {
             return DropZone::None;
         }
         // The pointer is in viewport coordinates: add the scroll offset to
@@ -275,6 +282,85 @@ mod tests {
         assert_eq!(hit_at(30.0, -100.0), DropZone::None);
         // 非有限偏移整体拒绝。
         assert_eq!(hit_at(30.0, f32::NAN), DropZone::None);
+    }
+
+    #[test]
+    fn group_viewport_excludes_fixed_padding_gap_and_overflow_before_scrolling() {
+        let groups = [group("wide", 4096.0)];
+        for width in [680.0, 760.0, 1200.0] {
+            let right = width - 8.0 - 28.0 - 8.0;
+            for scroll in [0.0, 20.0, 450.0] {
+                let hit = |x| {
+                    hit_test_scrolled(
+                        x,
+                        60.0,
+                        width,
+                        600.0,
+                        &groups,
+                        &[],
+                        ScrollOffsets {
+                            group_x: scroll,
+                            category_y: 0.0,
+                        },
+                    )
+                };
+                for x in [
+                    0.0,
+                    5.0,
+                    13.999,
+                    right,
+                    right + 7.0,
+                    width - 36.0,
+                    width - 8.0,
+                    width - 1.0,
+                ] {
+                    assert_eq!(
+                        hit(x),
+                        DropZone::None,
+                        "width={width}, x={x}, scroll={scroll}"
+                    );
+                }
+                assert_eq!(hit(14.0), DropZone::Group("wide".into()));
+                assert_eq!(hit(right - 0.001), DropZone::Group("wide".into()));
+            }
+        }
+    }
+
+    #[test]
+    fn group_tabs_have_half_open_edges_and_preserve_overscroll_whitespace() {
+        let groups = [group("g1", 60.0), group("g2", 40.0)];
+        let hit = |x, y, group_x| {
+            hit_test_scrolled(
+                x,
+                y,
+                760.0,
+                520.0,
+                &groups,
+                &[],
+                ScrollOffsets {
+                    group_x,
+                    category_y: 0.0,
+                },
+            )
+        };
+        assert_eq!(hit(14.0, 52.0, 0.0), DropZone::Group("g1".into()));
+        assert_eq!(hit(14.0, 51.999, 0.0), DropZone::None);
+        assert_eq!(hit(14.0, 75.999, 0.0), DropZone::Group("g1".into()));
+        assert_eq!(hit(14.0, 76.0, 0.0), DropZone::None);
+        assert_eq!(hit(73.999, 60.0, 0.0), DropZone::Group("g1".into()));
+        assert_eq!(hit(74.0, 60.0, 0.0), DropZone::None);
+        assert_eq!(hit(98.0, 60.0, 0.0), DropZone::Group("g2".into()));
+        assert_eq!(hit(138.0, 60.0, 0.0), DropZone::None);
+        assert_eq!(hit(53.999, 60.0, 20.0), DropZone::Group("g1".into()));
+        assert_eq!(hit(54.0, 60.0, 20.0), DropZone::None);
+        assert_eq!(hit(78.0, 60.0, 20.0), DropZone::Group("g2".into()));
+        assert_eq!(hit(14.0, 60.0, -20.0), DropZone::None);
+        assert_eq!(hit(34.0, 60.0, -20.0), DropZone::Group("g1".into()));
+        assert_eq!(hit(94.0, 60.0, -20.0), DropZone::None);
+        assert_eq!(hit(14.0, 60.0, 1000.0), DropZone::None);
+        for scroll in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+            assert_eq!(hit(30.0, 60.0, scroll), DropZone::None);
+        }
     }
 
     #[test]

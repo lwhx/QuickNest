@@ -8,6 +8,7 @@ param(
  [ValidateSet('Drop','Leave','Cancel')][string]$Action='Drop',
  [string]$Capture
 )
+throw 'BLOCKED: historical desktop/system fixture has no current sandbox and owned-process acceptance contract. Migrate before execution; no acceptance is claimed.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'p0-05-desktop.ps1')

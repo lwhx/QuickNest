@@ -23,5 +23,6 @@ windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_UI_W
 slint-build = { version = "=1.18.1", default-features = false, features = ["compat-1-18", "renderer-software"] }
 
 [dev-dependencies]
+i-slint-backend-testing = { version = "=1.18.1", features = ["renderer-software"] }
 windows-sys = { version = "=0.61.2", features = ["Win32_System_Com"] }
 windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Ole", "Win32_UI_Shell", "Win32_UI_Shell_Common"] }

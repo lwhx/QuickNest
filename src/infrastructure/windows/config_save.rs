@@ -49,6 +49,8 @@ pub enum SaveError {
     },
     /// The parent directory does not exist.
     MissingDirectory(PathBuf),
+    /// Recovery must not replace a live config written in another schema.
+    UnsupportedSchemaVersion(u64),
     /// Recovery was asked to run but the live config is a supported Library.
     TargetAlreadyValid,
     /// The backup is not a readable schema-2 Library.
@@ -71,6 +73,11 @@ impl std::fmt::Display for SaveError {
             Self::MissingDirectory(path) => {
                 write!(f, "target directory missing: {}", path.display())
             }
+            Self::UnsupportedSchemaVersion(version) => write!(
+                f,
+                "recovery refused: config schema {version} is incompatible with supported schema {}",
+                crate::config_transfer::SUPPORTED_SCHEMA
+            ),
             Self::TargetAlreadyValid => {
                 f.write_str("recovery refused: the live config is a supported Library")
             }
@@ -345,6 +352,20 @@ pub struct RecoveryReport {
     pub corrupted_path: Option<PathBuf>,
 }
 
+/// Read only the version field, ignoring library structures this build may not
+/// understand. A damaged JSON document still follows the normal recovery path.
+pub(crate) fn unsupported_schema_version(content: &str) -> Option<u64> {
+    #[derive(serde::Deserialize)]
+    struct SchemaHeader {
+        schema_version: u64,
+    }
+
+    let content = content.strip_prefix('\u{feff}').unwrap_or(content);
+    let header: SchemaHeader = serde_json::from_str(content).ok()?;
+    (header.schema_version != u64::from(crate::config_transfer::SUPPORTED_SCHEMA))
+        .then_some(header.schema_version)
+}
+
 /// Shared validation for every backup entry point, including UTF-8 BOM files.
 pub(crate) fn parse_supported_library(content: &str) -> Option<crate::library_model::Library> {
     let content = content.strip_prefix('\u{feff}').unwrap_or(content);
@@ -357,12 +378,16 @@ pub fn recover_latest_backup(target: &Path) -> Result<RecoveryReport, SaveError>
     let Some(_guard) = acquire_write_lock() else {
         return Err(SaveError::Busy);
     };
-    // The recovery contract (15.8) is "startup config parse failed"; refuse
-    // to run against a live file that is still valid.
-    if let Ok(content) = fs::read_to_string(target)
-        && parse_supported_library(&content).is_some()
-    {
-        return Err(SaveError::TargetAlreadyValid);
+    // Check the version before the full model: a future schema can introduce
+    // fields or item kinds that this build cannot deserialize.
+    if let Ok(content) = fs::read_to_string(target) {
+        if let Some(version) = unsupported_schema_version(&content) {
+            return Err(SaveError::UnsupportedSchemaVersion(version));
+        }
+        // Recovery is only for damaged data, never a valid live Library.
+        if parse_supported_library(&content).is_some() {
+            return Err(SaveError::TargetAlreadyValid);
+        }
     }
     let (directory, name) = split_target(target)?;
     let stem = name.strip_suffix(".json").unwrap_or(&name);
@@ -1042,6 +1067,30 @@ mod tests {
         let error = recover_latest_backup(&target).expect_err("must refuse");
         assert!(matches!(error, SaveError::TargetAlreadyValid));
         fs::remove_dir_all(&directory).expect("cleanup");
+    }
+
+    #[test]
+    fn recovery_refuses_unknown_schema_even_when_its_structure_is_unrecognized() {
+        let _serialization = test_guard();
+        let supported = serde_json::to_string(&crate::library_model::Library::default()).unwrap();
+        for content in [
+            "{\"schema_version\":3,\"future_groups\":{}}",
+            "\u{feff}{\"schema_version\":3,\"groups\":[{\"new_type\":true}]}",
+            "{\"schema_version\":4294967296,\"groups\":[]}",
+        ] {
+            let directory = temp_dir("unknown-schema");
+            let target = directory.join("config.json");
+            let backup = directory.join("config.backup.20260101-000000-000.json");
+            fs::write(&target, content).unwrap();
+            fs::write(&backup, &supported).unwrap();
+            let error = recover_latest_backup(&target)
+                .expect_err("unknown live schema must never be replaced by an older backup");
+            assert!(error.to_string().contains("schema"));
+            assert_eq!(read_config(&target), content);
+            assert_eq!(fs::read_to_string(&backup).unwrap(), supported);
+            assert_eq!(fs::read_dir(&directory).unwrap().count(), 2);
+            fs::remove_dir_all(directory).unwrap();
+        }
     }
 
     #[test]

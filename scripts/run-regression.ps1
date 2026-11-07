@@ -24,6 +24,17 @@ try {
     if ($PreflightOnly) {
         & (Join-Path $root 'scripts\verify-sandbox-preflight.ps1')
     } else {
+        # Refuse obsolete selections before allocating a run, acknowledging a
+        # desktop, or launching any child. BLOCKED must never become an exit-0 row.
+        $blocked = @()
+        foreach ($candidate in $scripts) {
+            $tokens = $null; $errors = $null
+            $ast = [Management.Automation.Language.Parser]::ParseFile($candidate.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors.Count) { throw ('script parse failed: ' + $candidate.Name) }
+            $reason = Get-QnScriptBlockReason $ast
+            if ($reason) { $blocked += ($candidate.Name + ': ' + $reason) }
+        }
+        if ($blocked.Count) { throw ($blocked -join "`r`n") }
         if ($AllowIsolatedDesktop) { $env:QUICKNEST_TEST_ISOLATED_DESKTOP = '1' }
         if ($DisposableAccount) { $env:QUICKNEST_TEST_DISPOSABLE_ACCOUNT = $DisposableAccount }
         Assert-QnDisposableDesktop

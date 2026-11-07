@@ -2,6 +2,7 @@
 # P2-12 acceptance (baseline 16.1/21): light, dark and follow-system themes
 # switch without restart, persist to settings.theme, and the accent color
 # updates the semantic palette.
+throw 'BLOCKED: obsolete flat settings-menu fixture; current UI uses a settings panel and right-click submenus. Core control/callback regression coverage is maintained in src/ui_regression_tests.rs and tests/ui_layout.rs; this script cannot certify desktop behavior until migrated.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

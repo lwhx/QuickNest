@@ -2,6 +2,7 @@
 # shortcut (Shortcut.Target = feature name, the shape Windows Installer uses
 # for install-on-demand), installs it, and cleans it up. Test-only helper:
 # the product/package/component codes are supplied by the caller.
+throw 'BLOCKED: historical desktop/system fixture has no current sandbox and owned-process acceptance contract. Migrate before execution; no acceptance is claimed.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 

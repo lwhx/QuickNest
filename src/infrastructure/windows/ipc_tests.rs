@@ -92,6 +92,41 @@ fn assert_bounded_drop(server: PipeServer) {
 }
 
 #[test]
+fn ipc_preclosed_client_is_disconnected_and_next_clients_are_served() {
+    let name = unique_name();
+    let pipe = create_server_pipe(&name).unwrap();
+    let stop = Arc::new(StopEvent::new().unwrap());
+    let server_sid = current_user_sid_bytes().unwrap();
+    // Do not start the pump until the peer has already connected and closed.
+    // This establishes ERROR_NO_DATA deterministically, without a timing race.
+    let peer = client(&name);
+    drop(peer);
+    assert_eq!(
+        accept(&pipe, Instant::now() + CONNECT_BUDGET, &stop),
+        Err(IpcError::Failed(ERROR_NO_DATA))
+    );
+    // The failed accept leaves the instance connected to the closed peer.
+    // Only the production pump's DisconnectNamedPipe can make it reusable.
+    let (events_tx, events_rx) = channel();
+    let thread_stop = Arc::clone(&stop);
+    let thread = std::thread::spawn(move || pump(pipe, thread_stop, events_tx, server_sid));
+    let server = PipeServer {
+        name,
+        events: Some(events_rx),
+        thread: Some(thread),
+        stop,
+    };
+    for _ in 0..3 {
+        assert_eq!(
+            send_message(server.name(), &IpcMessage::new(IpcCommand::Show)),
+            Ok(true)
+        );
+        receive_command(&server);
+    }
+    assert_bounded_drop(server);
+}
+
+#[test]
 fn ipc_idle_client_expires_and_next_client_is_served() {
     let server = server();
     let idle = client(server.name());
@@ -260,6 +295,58 @@ fn ipc_ready_errors_are_returned_before_start_succeeds() {
         start_server_named("invalid-pipe-path".into()),
         Err(IpcError::Failed(_))
     ));
+}
+
+fn assert_rejected_payload(server: &PipeServer, payload: &[u8]) {
+    assert!(matches!(
+        IpcMessage::parse(payload),
+        Err(IpcError::BadFrame(_))
+    ));
+    let mut frame = (payload.len() as u32).to_le_bytes().to_vec();
+    frame.extend_from_slice(payload);
+    assert_eq!(send_raw(server.name(), &frame), Ok(Some(false)));
+    assert_eq!(
+        server
+            .events
+            .as_ref()
+            .unwrap()
+            .recv_timeout(Duration::from_millis(40)),
+        Err(RecvTimeoutError::Timeout)
+    );
+}
+
+#[test]
+fn ipc_wrong_versions_deliver_rejected_ack_without_dispatch() {
+    let server = server();
+    for version in [0, 2, u32::MAX] {
+        let payload = serde_json::to_vec(&serde_json::json!({
+            "version": version, "command": "show", "source": "secondary_instance"
+        }))
+        .unwrap();
+        assert_rejected_payload(&server, &payload);
+    }
+    assert_eq!(
+        send_message(server.name(), &IpcMessage::new(IpcCommand::Show)),
+        Ok(true)
+    );
+    receive_command(&server);
+}
+
+#[test]
+fn ipc_unknown_fields_deliver_rejected_ack_without_dispatch() {
+    let server = server();
+    for payload in [
+        br#"{"version":1,"command":"show","source":"secondary_instance","args":["x"]}"#.as_slice(),
+        br#"{"version":1,"command":"show","source":"secondary_instance","path":"unexpected"}"#
+            .as_slice(),
+    ] {
+        assert_rejected_payload(&server, payload);
+    }
+    assert_eq!(
+        send_message(server.name(), &IpcMessage::new(IpcCommand::Show)),
+        Ok(true)
+    );
+    receive_command(&server);
 }
 
 #[test]

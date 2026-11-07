@@ -10,6 +10,11 @@ use slint::{ComponentHandle, Model, ModelRc, Timer, TimerMode, VecModel};
 
 slint::include_modules!();
 
+mod appearance_ui;
+
+#[cfg(test)]
+mod ui_regression_tests;
+
 /// P1-18: shared focus state machine (UI-thread only).
 type SharedFocusMachine = Rc<RefCell<quicknest::window_state::FocusStateMachine>>;
 
@@ -426,7 +431,7 @@ fn start_update_check(
             ui.set_update_confirm_status(
                 "签名和文件校验已通过。确认后将退出并安装，失败保留恢复报告。".into(),
             );
-            ui.set_update_confirm_visible(true);
+            show_update_confirmation(ui);
         }
         return;
     }
@@ -478,7 +483,7 @@ fn start_update_check(
                         "签名和 SHA-256 校验已通过。请确认是否退出并安装。".into(),
                     );
                     if manual {
-                        ui.set_update_confirm_visible(true);
+                        show_update_confirmation(&ui);
                     }
                     ui.set_validation_status(
                         format!("发现新版本 {version}，请从检查更新入口确认安装").into(),
@@ -1038,6 +1043,87 @@ fn refresh_ui(
         }
         None => {}
     }
+}
+
+fn register_settings_panel_callbacks(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+) {
+    let weak = ui.as_weak();
+    let state = Rc::clone(controller);
+    ui.on_settings_open_requested(move || {
+        refresh_ui(&state, &weak);
+        if let Some(ui) = weak.upgrade() {
+            ui.set_settings_panel_visible(true);
+        }
+    });
+    let weak = ui.as_weak();
+    let state = Rc::clone(controller);
+    ui.on_settings_panel_closed(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.set_settings_panel_visible(false);
+        }
+        refresh_ui(&state, &weak);
+    });
+}
+
+fn register_backup_open_callback(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    paths: &Rc<RefCell<Vec<std::path::PathBuf>>>,
+) {
+    let weak = ui.as_weak();
+    let controller = Rc::clone(controller);
+    let paths = Rc::clone(paths);
+    ui.on_backup_menu_opened(move || {
+        let Some(ui) = weak.upgrade() else { return };
+        let entries = controller.borrow().backup_entries();
+        let labels: Vec<slint::SharedString> = entries
+            .iter()
+            .map(|entry| entry.display_label().into())
+            .collect();
+        *paths.borrow_mut() = entries.iter().map(|entry| entry.path.clone()).collect();
+        ui.set_backup_dialog_selected(labels.first().cloned().unwrap_or_default());
+        ui.set_backup_dialog_items(ModelRc::new(VecModel::from(labels)));
+        ui.set_backup_dialog_selected_index(if entries.is_empty() { -1 } else { 0 });
+        ui.set_backup_dialog_status("".into());
+        ui.set_backup_dialog_error(false);
+        ui.set_settings_panel_visible(false);
+        ui.set_backup_dialog_visible(true);
+    });
+}
+
+fn register_transfer_open_callback(ui: &MainWindow) {
+    let weak = ui.as_weak();
+    ui.on_transfer_menu_opened(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.set_transfer_dialog_status("".into());
+            ui.set_transfer_dialog_error(false);
+            ui.set_settings_panel_visible(false);
+            ui.set_transfer_dialog_visible(true);
+        }
+    });
+}
+
+fn show_update_confirmation(ui: &MainWindow) {
+    ui.set_settings_panel_visible(false);
+    ui.set_update_confirm_visible(true);
+}
+
+fn prepare_category_delete(
+    controller: &RefCell<quicknest::library_controller::LibraryController>,
+    category_id: &str,
+) -> Option<(usize, Vec<quicknest::library_controller::CategoryRow>)> {
+    controller.borrow_mut().select_category(category_id);
+    let outcome = controller.borrow_mut().delete_category(category_id);
+    let item_count = outcome.err()?;
+    let targets = controller
+        .borrow()
+        .category_rows()
+        .into_iter()
+        .filter(|row| row.id != category_id)
+        .collect();
+    Some((item_count, targets))
 }
 
 #[cfg(windows)]
@@ -2073,25 +2159,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             });
         }
-        // UI 体验修复（2026-11-07 第三批）：应用内设置面板的打开/关闭。
-        // 打开前 refresh 一次，保证面板选项读到当前快照。
-        {
-            let weak = ui.as_weak();
-            let controller = Rc::clone(&controller);
-            ui.on_settings_open_requested(move || {
-                refresh_ui(&controller, &weak);
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_settings_panel_visible(true);
-                }
-            });
-        }
-        {
-            let weak = ui.as_weak();
-            let controller = Rc::clone(&controller);
-            ui.on_settings_panel_closed(move || {
-                refresh_ui(&controller, &weak);
-            });
-        }
+        register_settings_panel_callbacks(&ui, &controller);
 
         {
             let weak = ui.as_weak();
@@ -3324,22 +3392,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let migrate_ids = Rc::clone(&category_migrate_ids);
                 ui.on_category_menu_delete(move |category_id: slint::SharedString| {
                     let id = category_id.to_string();
-                    controller
-                        .borrow_mut()
-                        .select_category(category_id.as_ref());
-                    if let Err(item_count) = controller.borrow_mut().delete_category(&id) {
-                        // Baseline 2.3: confirm — migrate or drop.
-                        // 旧实现从不写入 dialog_target，“删除项目”按钮会作用在
-                        // 过期目标上（或静默无效）。
+                    if let Some((item_count, targets)) = prepare_category_delete(&controller, &id) {
                         *dialog_target_for_delete.borrow_mut() = Some(id.clone());
-                        let rows = controller.borrow().category_rows();
                         let mut names: Vec<slint::SharedString> = Vec::new();
                         let mut ids: Vec<String> = Vec::new();
-                        for row in rows {
-                            if row.id != id {
-                                names.push(row.name.clone().into());
-                                ids.push(row.id.clone());
-                            }
+                        for row in targets {
+                            names.push(row.name.into());
+                            ids.push(row.id);
                         }
                         *migrate_ids.borrow_mut() = ids;
                         if let Some(ui) = weak.upgrade() {
@@ -3837,29 +3896,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // the selected one; a restore reloads the library so the panel shows
         // the restored content immediately.
         let backup_paths: Rc<RefCell<Vec<std::path::PathBuf>>> = Rc::new(RefCell::new(Vec::new()));
-        {
-            let weak = ui.as_weak();
-            let controller = Rc::clone(&controller);
-            let paths = Rc::clone(&backup_paths);
-            ui.on_backup_menu_opened(move || {
-                let Some(ui) = weak.upgrade() else {
-                    return;
-                };
-                let entries = controller.borrow().backup_entries();
-                let labels: Vec<slint::SharedString> = entries
-                    .iter()
-                    .map(|entry| entry.display_label().into())
-                    .collect();
-                *paths.borrow_mut() = entries.iter().map(|entry| entry.path.clone()).collect();
-                let first = labels.first().cloned().unwrap_or_default();
-                ui.set_backup_dialog_items(ModelRc::new(VecModel::from(labels)));
-                ui.set_backup_dialog_selected(first);
-                ui.set_backup_dialog_selected_index(if entries.is_empty() { -1 } else { 0 });
-                ui.set_backup_dialog_status("".into());
-                ui.set_backup_dialog_error(false);
-                ui.set_backup_dialog_visible(true);
-            });
-        }
+        register_backup_open_callback(&ui, &controller, &backup_paths);
         {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
@@ -3982,16 +4019,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // P2-17 (baseline 17.4): configuration export and import. The file is
         // chosen with the native dialog; an import backs the live config up
         // before it applies anything (baseline 15.7).
-        {
-            let weak = ui.as_weak();
-            ui.on_transfer_menu_opened(move || {
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_transfer_dialog_status("".into());
-                    ui.set_transfer_dialog_error(false);
-                    ui.set_transfer_dialog_visible(true);
-                }
-            });
-        }
+        register_transfer_open_callback(&ui);
         {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
@@ -4450,98 +4478,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
         });
     }
-    // P2-12: theme + accent menu (title-bar "设置"). Both apply immediately
-    // and persist; the system mode is polled by the timer above.
-    {
-        let weak = ui.as_weak();
-        let controller = Rc::clone(&controller);
-        ui.on_theme_menu_selected(move |mode: slint::SharedString| {
-            let Some(ui) = weak.upgrade() else {
-                return;
-            };
-            let parsed = quicknest::theme::ThemeMode::parse(mode.as_ref());
-            controller.borrow_mut().library_mut().settings.theme = parsed.as_str().to_string();
-            let _ = controller.borrow().persist();
-            apply_theme(&ui, &controller);
-            let label = match parsed {
-                quicknest::theme::ThemeMode::Light => "浅色",
-                quicknest::theme::ThemeMode::Dark => "深色",
-                quicknest::theme::ThemeMode::System => "跟随系统",
-            };
-            ui.set_validation_status(format!("主题：{label}").into());
-        });
-    }
-    {
-        let weak = ui.as_weak();
-        let controller = Rc::clone(&controller);
-        ui.on_accent_menu_selected(move |color: slint::SharedString| {
-            let Some(ui) = weak.upgrade() else {
-                return;
-            };
-            let accent = quicknest::theme::normalize_accent(color.as_ref());
-            controller.borrow_mut().library_mut().settings.accent_color = accent.clone();
-            let _ = controller.borrow().persist();
-            apply_theme(&ui, &controller);
-            ui.set_validation_status(format!("强调色：{accent}").into());
-        });
-    }
-    // P2-13 (baseline 16.2): opacity presets + rounded-corner toggle. Both
-    // apply immediately through apply_theme and persist.
-    {
-        let weak = ui.as_weak();
-        let controller = Rc::clone(&controller);
-        ui.on_opacity_menu_selected(move |value: slint::SharedString| {
-            let Some(ui) = weak.upgrade() else {
-                return;
-            };
-            let parsed: f64 = value.to_string().parse().unwrap_or(0.95);
-            let opacity = quicknest::library_model::normalize_opacity(parsed);
-            controller.borrow_mut().library_mut().settings.opacity = opacity;
-            let _ = controller.borrow().persist();
-            apply_theme(&ui, &controller);
-            ui.set_validation_status(
-                format!("透明度：{}%", (opacity * 100.0).round() as i32).into(),
-            );
-        });
-    }
-    {
-        let weak = ui.as_weak();
-        let controller = Rc::clone(&controller);
-        ui.on_corners_menu_selected(move |value: slint::SharedString| {
-            let Some(ui) = weak.upgrade() else {
-                return;
-            };
-            let rounded = &*value == "on";
-            controller
-                .borrow_mut()
-                .library_mut()
-                .settings
-                .rounded_corners = rounded;
-            let _ = controller.borrow().persist();
-            apply_theme(&ui, &controller);
-            ui.set_validation_status(if rounded {
-                "圆角：开".into()
-            } else {
-                "圆角：关".into()
-            });
-        });
-    }
-    // P2-14 (baseline 16.3): DWM system backdrop selection; applies and
-    // persists immediately through apply_theme.
-    {
-        let weak = ui.as_weak();
-        let controller = Rc::clone(&controller);
-        ui.on_backdrop_menu_selected(move |value: slint::SharedString| {
-            let Some(ui) = weak.upgrade() else {
-                return;
-            };
-            let backdrop = quicknest::theme::normalize_backdrop(value.as_ref());
-            controller.borrow_mut().library_mut().settings.backdrop = backdrop.to_string();
-            let _ = controller.borrow().persist();
-            apply_theme(&ui, &controller);
-            ui.set_validation_status(format!("背景：{backdrop}").into());
-        });
-    }
+    appearance_ui::register(&ui, &controller);
     ui.window().on_close_requested(|| {
         if let Err(error) = slint::quit_event_loop() {
             eprintln!("Failed to close validation window: {error}");

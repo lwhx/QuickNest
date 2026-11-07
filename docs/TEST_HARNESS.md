@@ -1,6 +1,6 @@
 # 测试夹具与隔离用法
 
-本文只记录 `scripts/` 的测试隔离契约、历史夹具局限与使用方式。产品当前验收状态见 [本轮修复记录](AUDIT_FIXES_2026-11-07.md)。本轮文档收尾不运行桌面回归。
+本文记录测试隔离契约、历史夹具局限与使用方式。最新产品修复及验证结果见 [再次审核修复记录](AUDIT_REPAIRS_2026-11-07.md)；此前构建记录保留在 [第一轮修复记录](AUDIT_FIXES_2026-11-07.md)。
 
 ## 1. 先运行安全 preflight
 
@@ -11,9 +11,18 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-regression
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-sandbox-preflight.ps1 -Fixture
 ```
 
-最新实际结果为 **51 个脚本 safe preflight + fixtures 通过**，覆盖脚本解析、安全规则检查、调用者环境保留、run root 唯一性、路径穿越/junction 拒绝、归属进程清理和准备失败返回非零。它不表示 51 个桌面脚本执行通过，也不认证 Win10/Win11 全矩阵。
+本机实际文件系统清点为 **91 个 PowerShell 脚本**：36 个 `BLOCKED`、41 个 verification-contract、3 个 support-library、9 个 utility、2 个 infrastructure。预检递归枚举所有实际 `.ps1`，包含未被 Git 跟踪或被忽略的本机补充入口；不同检出目录的总数可能不同。解析、安全分类及无桌面 fixtures 通过，不代表这些脚本的桌面行为验收通过。旧“51 个脚本”只覆盖了较窄的文件名集合，不能用于当前全入口安全结论。
 
-full lib 最新为 **272 passed / 0 failed / 3 ignored**；三项 ignored 分别为 panic helper（父测调用）、CMD native probe（父测调用两次）、signed_fixture（独立脚本显式执行已通过）；默认汇总中的 ignored 与实际子探针覆盖应分别记录。updater 11、签名 fixture 1、transport 4 与 full lib 存在重叠，不累计为新的通过总数。PS 5.1 临时 HTTPS manifest / 404 / 降级 redirect 验证已通过；它不替代生产更新链路验收。
+旧主题补充脚本及未迁移的历史桌面入口以首条无条件 `BLOCKED` 拒绝；旧菜单的 7 个 verify 选择在分配 sandbox 前非零退出，不计为通过。不要删除门禁以复用旧坐标。核心 UI 回归改用正式界面的 Slint 测试后端：
+
+```powershell
+cargo test --locked --offline --bin quicknest ui_regression_tests -- --test-threads=1
+cargo test --locked --offline --test ui_layout -- --test-threads=1
+```
+
+这些测试点击正式控件并检查实际回调、可见性、保存、选中值、焦点和布局。它们不操作现有桌面，也不证明 Windows 实机 DPI、多显示器和 Shell 行为。仅保存截图的旧 `target/ui-smoke.ps1` 已禁止执行，不能用 `SMOKE_OK` 代替行为断言。
+
+此前发布构建的 full lib 为 **272 passed / 0 failed / 3 ignored**，不代表本轮源码；三项 ignored 分别为 panic helper（父测调用）、CMD native probe（父测调用两次）、signed_fixture（独立脚本显式执行已通过）；默认汇总中的 ignored 与实际子探针覆盖应分别记录。updater 11、签名 fixture 1、transport 4 与 full lib 存在重叠，不累计为新的通过总数。PS 5.1 临时 HTTPS manifest / 404 / 降级 redirect 验证已通过；它不替代生产更新链路验收。
 
 ## 2. 数据、namespace 与文件归属
 
@@ -65,4 +74,4 @@ Win11 的 `System32\notepad.exe` 可能是打包应用启动器，多次启动�
 
 历史观察包括注入输入未送达、窗口遮挡、焦点变化、WinHTTP err=87。观察本身不能证明防护组件拦截、系统封锁或某个传输栈唯一可用；保留失败日志、当时 PID/令牌/窗口信息与可重复对照后再判断原因，不为跑通修改 UAC、账户或系统策略。
 
-旧“48 脚本全绿”、批跑 45/48 后三个独立复跑通过，以及更早批次结果均属于历史构建证据；不能认证当前构建。最终冻结源码门禁已通过：fmt、check all-targets、strict clippy；串行 cargo test --all-targets 为 lib 272 passed / 0 failed / 3 ignored、main 4 passed、integration 14 passed；doc 3 passed。更新器等定向专项与 full lib 存在重叠，不另累计。Release 构建与当前产物核验通过，哈希见 [本轮修复记录](AUDIT_FIXES_2026-11-07.md)。
+旧“48 脚本全绿”、批跑失败后的独立复跑以及更早的测试数、Release 哈希均属历史证据，不能认证本轮源码。最新命令、通过数量、跳过项目和产物范围统一见 [再次审核修复记录](AUDIT_REPAIRS_2026-11-07.md)。

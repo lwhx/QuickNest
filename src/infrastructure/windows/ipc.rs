@@ -9,8 +9,8 @@ use std::time::{Duration, Instant};
 
 use serde::{Deserialize, Serialize};
 use windows_sys::Win32::Foundation::{
-    ERROR_FILE_NOT_FOUND, ERROR_IO_PENDING, ERROR_MORE_DATA, ERROR_PIPE_CONNECTED, GetLastError,
-    HANDLE, HLOCAL, INVALID_HANDLE_VALUE, LocalFree, WAIT_OBJECT_0, WAIT_TIMEOUT,
+    ERROR_FILE_NOT_FOUND, ERROR_IO_PENDING, ERROR_MORE_DATA, ERROR_NO_DATA, ERROR_PIPE_CONNECTED,
+    GetLastError, HANDLE, HLOCAL, INVALID_HANDLE_VALUE, LocalFree, WAIT_OBJECT_0, WAIT_TIMEOUT,
 };
 use windows_sys::Win32::Security::Authorization::ConvertStringSecurityDescriptorToSecurityDescriptorW;
 use windows_sys::Win32::Security::{
@@ -65,6 +65,7 @@ pub enum IpcSource {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct IpcMessage {
     version: u32,
     command: IpcCommand,
@@ -90,8 +91,12 @@ impl IpcMessage {
         }
         let text =
             std::str::from_utf8(payload).map_err(|_| IpcError::BadFrame("payload is not UTF-8"))?;
-        serde_json::from_str(text)
-            .map_err(|_| IpcError::BadFrame("payload is not a valid IPC message"))
+        let message: Self = serde_json::from_str(text)
+            .map_err(|_| IpcError::BadFrame("payload is not a valid IPC message"))?;
+        if message.version != 1 {
+            return Err(IpcError::BadFrame("unsupported IPC version"));
+        }
+        Ok(message)
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, IpcError> {
@@ -708,6 +713,10 @@ fn pump(
         match accept(&pipe, Instant::now() + CONNECT_BUDGET, &stop) {
             Ok(()) => serve_client(&pipe, &server_sid, &events, &stop),
             Err(IpcError::TimedOut) => {}
+            Err(IpcError::Failed(ERROR_NO_DATA)) => {
+                // The client connected and closed before ConnectNamedPipe.
+                // Disconnect below resets this instance before the next accept.
+            }
             Err(error) => {
                 eprintln!("IPC accept failed: {error:?}");
                 break;

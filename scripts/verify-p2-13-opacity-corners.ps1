@@ -3,6 +3,7 @@
 # and rounded corners. A solid red reference form sits behind the panel so
 # the composited pixel proves the layered alpha; corner pixels prove the DWM
 # rounded/square shape; menu switching, persistence and clamping are covered.
+throw 'BLOCKED: obsolete flat settings-menu fixture; current UI uses a settings panel and right-click submenus. Core control/callback regression coverage is maintained in src/ui_regression_tests.rs and tests/ui_layout.rs; this script cannot certify desktop behavior until migrated.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

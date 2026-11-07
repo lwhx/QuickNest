@@ -3174,6 +3174,7 @@ name = "quicknest"
 version = "1.2.0"
 dependencies = [
  "blake3",
+ "i-slint-backend-testing",
  "pinyin",
  "raw-window-handle",
  "serde",

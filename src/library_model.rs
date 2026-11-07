@@ -1205,6 +1205,7 @@ impl Library {
         if self.group(target_group_id).is_none() {
             return false;
         }
+        let source_was_active = self.active_group_id() == Some(group_id);
         let source = self.groups.remove(index);
         let Some(target) = self.group_mut(target_group_id) else {
             return false;
@@ -1220,6 +1221,9 @@ impl Library {
                 category.id = new_uuid();
             }
             target.categories.push(category);
+        }
+        if source_was_active {
+            self.current_group_id = Some(target_group_id.to_string());
         }
         true
     }
@@ -1866,6 +1870,34 @@ mod tests {
             !library.migrate_group_into(&second_id, &second_id),
             "no self-migration"
         );
+    }
+
+    #[test]
+    fn active_group_migration_repairs_explicit_and_fallback_selection() {
+        for current in [Some("source"), None, Some("other"), Some("target")] {
+            let mut library = Library::default();
+            for id in ["source", "other", "target"] {
+                library.add_group(id, id);
+                library.add_category(id, id, format!("{id}-category"));
+            }
+            library.current_group_id = current.map(str::to_string);
+            assert!(library.migrate_group_into("source", "target"));
+            let expected = match current {
+                None | Some("source") => "target",
+                Some(id) => id,
+            };
+            assert_eq!(library.current_group_id.as_deref(), Some(expected));
+            assert_eq!(library.active_group_id(), Some(expected));
+            assert!(library.active_category().is_some());
+            assert!(library.group("source").is_none());
+            assert!(
+                library
+                    .group("target")
+                    .unwrap()
+                    .category("source-category")
+                    .is_some()
+            );
+        }
     }
 
     #[test]

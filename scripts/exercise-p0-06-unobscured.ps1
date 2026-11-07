@@ -1,6 +1,7 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param([long]$SourceHwnd=594970,[long]$TargetHwnd=2168044,[string]$RunDir,[int]$ExpectedDpi=120)
+throw 'BLOCKED: historical desktop/system fixture has no current sandbox and owned-process acceptance contract. Migrate before execution; no acceptance is claimed.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'p0-05-desktop.ps1')

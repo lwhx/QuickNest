@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::infrastructure::windows::config_save::{
-    SaveOutcome, prune_backups, recover_latest_backup, save_atomic,
+    SaveOutcome, prune_backups, recover_latest_backup, save_atomic, unsupported_schema_version,
 };
 use crate::library_model::{DeleteOutcome, IconSize, Item, ItemDraft, ItemKind, Library, new_uuid};
 use crate::pinyin_index::PinyinIndex;
@@ -128,19 +128,27 @@ impl LibraryController {
             return Self::loaded(sample_library(), config_path, LoadState::Loaded);
         };
         match std::fs::read_to_string(&path) {
-            Ok(content) => match parse_library(&content) {
-                Some(library) if library.schema_version == 2 => {
-                    Self::loaded(library, config_path, LoadState::Loaded)
+            Ok(content) => {
+                if let Some(version) = unsupported_schema_version(&content) {
+                    return Self::safe_mode(
+                        config_path,
+                        format!("配置版本 {version} 与当前版本 2 不兼容，未写入"),
+                    );
                 }
-                Some(library) => Self::safe_mode(
-                    config_path,
-                    format!(
-                        "配置版本 {} 与当前版本 2 不兼容，未写入",
-                        library.schema_version
+                match parse_library(&content) {
+                    Some(library) if library.schema_version == 2 => {
+                        Self::loaded(library, config_path, LoadState::Loaded)
+                    }
+                    Some(library) => Self::safe_mode(
+                        config_path,
+                        format!(
+                            "配置版本 {} 与当前版本 2 不兼容，未写入",
+                            library.schema_version
+                        ),
                     ),
-                ),
-                None => Self::recover(&path, config_path),
-            },
+                    None => Self::recover(&path, config_path),
+                }
+            }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 Self::loaded(sample_library(), config_path, LoadState::Loaded)
             }
@@ -1313,7 +1321,7 @@ mod tests {
     }
 
     #[test]
-    fn locked_live_file_rolls_back_update_import_and_restore() {
+    fn locked_live_file_rolls_back_update_import_restore_and_group_migration() {
         use std::os::windows::fs::OpenOptionsExt;
         let _serial = crate::infrastructure::windows::config_save::test_lock();
         let dir = temp_config_dir();
@@ -1346,6 +1354,8 @@ mod tests {
         );
         assert_eq!(controller.library, before);
         assert!(controller.restore_backup(&imported).is_err());
+        assert_eq!(controller.library, before);
+        assert!(!controller.migrate_group_into(&before.groups[0].id, &before.groups[1].id));
         assert_eq!(controller.library, before);
         assert_eq!(std::fs::read_to_string(&path).unwrap(), json);
         drop(lock);
@@ -1485,6 +1495,45 @@ mod tests {
             9,
             "the migrated categories arrive in the target group"
         );
+    }
+
+    #[test]
+    fn active_group_migration_persists_selection_and_preserves_combination_ids() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        for implicit_selection in [false, true] {
+            let dir = temp_config_dir();
+            let path = dir.join("config.json");
+            let mut before = sample_library();
+            let source = before.groups[0].id.clone();
+            let target = before.groups[1].id.clone();
+            let category = before.groups[0].categories[0].id.clone();
+            let item = before.groups[0].categories[0].items[0].clone();
+            let combination = before.add_combination("keep references", vec![item.id.clone()]);
+            if implicit_selection {
+                before.current_group_id = None;
+            }
+            std::fs::write(&path, serde_json::to_string(&before).unwrap()).unwrap();
+            let mut controller = LibraryController::load(Some(path.clone()));
+            assert!(controller.migrate_group_into(&source, &target));
+            assert_eq!(
+                controller.active_group_id().as_deref(),
+                Some(target.as_str())
+            );
+            assert!(!controller.category_rows().is_empty());
+            assert_eq!(controller.library.find_item(&item.id), Some(&item));
+            assert_eq!(controller.library.combinations, before.combinations);
+            let mut reloaded = LibraryController::load(Some(path));
+            assert_eq!(reloaded.active_group_id().as_deref(), Some(target.as_str()));
+            assert!(reloaded.library.group(&source).is_none());
+            assert!(reloaded.select_category(&category));
+            assert_eq!(reloaded.library.active_category_item(&item.id), Some(&item));
+            assert_eq!(
+                reloaded.combination_item_ids(&combination.id),
+                Some(vec![item.id])
+            );
+            assert!(reloaded.add_category("after migration").is_some());
+            std::fs::remove_dir_all(dir).unwrap();
+        }
     }
 
     #[test]
@@ -1842,6 +1891,47 @@ mod tests {
             "file untouched"
         );
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn unknown_schema_with_new_structure_stays_read_only_even_with_valid_backup() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let supported = serde_json::to_string(&sample_library()).unwrap();
+        let mut future: serde_json::Value = serde_json::from_str(&supported).unwrap();
+        future["schema_version"] = 3.into();
+        future["groups"][0]["categories"][0]["items"][0]["item_type"] = "future_kind".into();
+        for content in [
+            future.to_string(),
+            "\u{feff}{\"schema_version\":3,\"future_groups\":{}}".to_string(),
+            "{\"schema_version\":4294967296,\"groups\":[]}".to_string(),
+        ] {
+            let dir = temp_config_dir();
+            let path = dir.join("config.json");
+            let backup = dir.join("config.backup.20260101-000000-000.json");
+            std::fs::write(&path, &content).unwrap();
+            std::fs::write(&backup, &supported).unwrap();
+            let mut controller = LibraryController::load(Some(path.clone()));
+            assert!(matches!(
+                controller.load_state(),
+                LoadState::SafeMode { .. }
+            ));
+            let before = controller.library.clone();
+            assert!(controller.persist().is_err());
+            assert!(controller.backup_now().is_err());
+            for mode in [
+                crate::config_transfer::ImportMode::Merge,
+                crate::config_transfer::ImportMode::Overwrite,
+            ] {
+                assert!(controller.import_from(&backup, mode).is_err());
+            }
+            assert!(controller.restore_backup(&backup).is_err());
+            assert!(controller.add_group("must not be saved").is_none());
+            assert_eq!(controller.library, before);
+            assert_eq!(std::fs::read_to_string(&path).unwrap(), content);
+            assert_eq!(std::fs::read_to_string(&backup).unwrap(), supported);
+            assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 2);
+            std::fs::remove_dir_all(dir).unwrap();
+        }
     }
 
     #[test]

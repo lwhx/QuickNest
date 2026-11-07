@@ -2,6 +2,7 @@
 # WM_LBUTTONUP until the native settings menu closes. Used by
 # verify-p2-12-theme-headless.ps1 on a locked workstation.
 param([long]$Hwnd, [int]$X, [int]$Y)
+throw 'BLOCKED: historical desktop/system fixture has no current sandbox and owned-process acceptance contract. Migrate before execution; no acceptance is claimed.'
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;

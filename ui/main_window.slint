@@ -532,7 +532,6 @@ export component MainWindow inherits Window {
             if (root.item-press-active || root.item-drag-active) {
                 root.cancel-item-drag();
             }
-            modal-scope.focus();
         } else {
             focus-scope.focus();
         }
@@ -548,13 +547,24 @@ export component MainWindow inherits Window {
         return transparent;
     }
 
-    // 根容器：手动画布。Slint 的 Window 会自动给直接子元素套一层布局，
-    // 直接摆放标题栏与主布局会被布局覆盖（标题栏被压在下面，标题栏鼠标
-    // 事件因此永远收不到——P1-01 实测教训）。这里用一个 Rectangle 承载
-    // 全部内容，坐标与层序完全由声明顺序决定。
-    canvas := Rectangle {
+    // Shared keyboard ancestor for the canvas, title bar and modal overlays.
+    // Children keep their own focus, editing and Tab handling. Escape bubbles
+    // here even when opening a modal leaves focus on a background control.
+    canvas := FocusScope {
         width: parent.width;
         height: parent.height;
+        focus-on-click: false;
+        focus-on-tab-navigation: false;
+        key-pressed(event) => {
+            if (event.text == "\u{1b}" && root.any-modal-open) {
+                if (root.search-visible && !root.dialog-modal-open && !root.settings-panel-visible) {
+                    root.search-dismissed();
+                } else {
+                    root.escape-pressed();
+                }
+                accept
+            } else { reject }
+        }
 
         VerticalLayout {
             y: title-bar.height;
@@ -574,10 +584,13 @@ export component MainWindow inherits Window {
                     // 溢出下拉（▼）保留全部分组的快捷切换。拖放命中在
                     // drop_layout 中以 group-scroll-offset 补偿。
                     group-tabs-scroll := Flickable {
-                        width: parent.width - overflow-column.width - parent.spacing;
-                        height: parent.height;
+                        horizontal-stretch: 1;
+                        min-width: 0px;
+                        max-width: group-bar.width;
+                        preferred-width: 0px;
+                        height: 24px;
                         content-width: max(root.group-tabs-content-width * 1px, self.width);
-                        content-height: parent.height;
+                        content-height: self.height;
                         HorizontalLayout {
                             spacing: 24px;
                             for group in root.groups: group-tab := Rectangle {
@@ -640,7 +653,7 @@ export component MainWindow inherits Window {
                     }
                     overflow-column := Rectangle {
                         width: 28px;
-                        height: parent.height;
+                        height: 24px;
                         background: transparent;
                         // UI 体验修复（2026-11-07）：▼ 改为真实的分组溢出下拉——
                         // 旧实现点击却是"新建分组"，与注释承诺的入口不符。
@@ -1308,7 +1321,6 @@ export component MainWindow inherits Window {
             Rectangle { width: parent.width; height: 1px; background: root.theme.border; }
         }
         }
-    }
 
     // 标题栏声明在主布局之后：层序更高，确保覆盖主布局顶部且接收鼠标
     // 事件（基线 2.5：标题栏可拖动窗口）。
@@ -1500,23 +1512,6 @@ export component MainWindow inherits Window {
         }
         init => {
             self.focus();
-        }
-    }
-
-    // UI 体验修复（2026-11-07）：模态键盘入口——模态打开时主 FocusScope
-    // 被禁用、卡片无焦点，Esc 此前无任何接收路径（全部对话框的 Esc 关闭
-    // 实际失效）。0 尺寸 FocusScope 持有焦点即可收键；enabled 随模态门，
-    // Esc 统一交给 escape-pressed 的顺序关闭链（Rust 端逐个模态处理）。
-    modal-scope := FocusScope {
-        x: 0px;
-        y: 0px;
-        width: 0px;
-        height: 0px;
-        enabled: root.any-modal-open;
-        focus-on-tab-navigation: false;
-        key-pressed(event) => {
-            if (event.text == "\u{1b}") { root.escape-pressed(); accept }
-            else { reject }
         }
     }
 
@@ -1797,6 +1792,7 @@ export component MainWindow inherits Window {
         width: parent.width;
         height: parent.height;
         background: #00000033;
+        init => { backup-cancel.focus(); }
                 // 模态屏障：吸收对话框外的点击（P4 审核）。
                 TouchArea { width: parent.width; height: parent.height; }
         Rectangle {
@@ -1868,7 +1864,7 @@ export component MainWindow inherits Window {
                     spacing: 10px;
                     Button { text: "立即备份"; clicked => { root.backup-now-requested(); } }
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    Button { text: "取消"; clicked => { root.backup-dialog-cancelled(); } }
+                    backup-cancel := Button { text: "取消"; clicked => { root.backup-dialog-cancelled(); } }
                     Button {
                         text: "恢复所选";
                         primary: true;
@@ -1888,6 +1884,7 @@ export component MainWindow inherits Window {
         width: parent.width;
         height: parent.height;
         background: #00000033;
+        init => { transfer-cancel.focus(); }
                 // 模态屏障：吸收对话框外的点击（P4 审核）。
                 TouchArea { width: parent.width; height: parent.height; }
         Rectangle {
@@ -1928,7 +1925,7 @@ export component MainWindow inherits Window {
                 HorizontalLayout {
                     spacing: 10px;
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    Button { text: "取消"; clicked => { root.transfer-dialog-cancelled(); } }
+                    transfer-cancel := Button { text: "取消"; clicked => { root.transfer-dialog-cancelled(); } }
                 }
             }
         }
@@ -2318,20 +2315,8 @@ export component MainWindow inherits Window {
         width: parent.width;
         height: parent.height;
         background: #00000033;
+        init => { update-cancel.focus(); }
         TouchArea { width: parent.width; height: parent.height; }
-        FocusScope {
-            width: parent.width;
-            height: parent.height;
-            focus-on-click: false;
-            focus-on-tab-navigation: false;
-            key-pressed(event) => {
-                if (event.text == "\u{1b}") {
-                    root.update-install-cancelled();
-                    accept
-                } else { reject }
-            }
-            init => { self.focus(); }
-        }
         Rectangle {
             x: (parent.width - 460px) / 2;
             y: (parent.height - 300px) / 2;
@@ -2358,7 +2343,7 @@ export component MainWindow inherits Window {
                 HorizontalLayout {
                     spacing: 10px;
                     Rectangle { horizontal-stretch: 1; }
-                    Button { text: "取消"; clicked => { root.update-install-cancelled(); } }
+                    update-cancel := Button { text: "取消"; clicked => { root.update-install-cancelled(); } }
                     Button {
                         text: "确认安装";
                         primary: true;
@@ -2520,6 +2505,7 @@ export component MainWindow inherits Window {
             }
         }
     }
+    } // canvas: keyboard ancestor for all modal controls
 
     // P1-04 悬停提示（基线 2.4）：完整名称/路径/备注。声明在画布之后，
     // 保证层序最高（与标题栏同一层序规则）。

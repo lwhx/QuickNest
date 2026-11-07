@@ -36,6 +36,25 @@ function Assert-QnContainedPath([string]$Path, [string]$Root) {
     }
     return $full
 }
+function Get-QnScriptBlockReason([Management.Automation.Language.ScriptBlockAst]$Ast) {
+    # Recognize only an unconditional, literal first-statement refusal. A comment,
+    # conditional throw, parameter initializer, trap or using statement is not a gate.
+    if ($null -eq $Ast -or $null -eq $Ast.EndBlock -or $Ast.EndBlock.Statements.Count -eq 0) { return $null }
+    if ($Ast.BeginBlock -or $Ast.ProcessBlock -or $Ast.DynamicParamBlock -or $Ast.UsingStatements.Count -gt 0 -or $Ast.EndBlock.Traps) { return $null }
+    if ($Ast.ParamBlock) {
+        $initializers = @($Ast.ParamBlock.FindAll({ param($node)
+            $node -is [Management.Automation.Language.CommandAst] -or
+            $node -is [Management.Automation.Language.InvokeMemberExpressionAst] -or
+            $node -is [Management.Automation.Language.ScriptBlockExpressionAst]
+        }, $true))
+        if ($initializers.Count) { return $null }
+    }
+    $first = $Ast.EndBlock.Statements[0]
+    if ($first -isnot [Management.Automation.Language.ThrowStatementAst] -or $null -eq $first.Pipeline) { return $null }
+    $expression = $first.Pipeline.GetPureExpression()
+    if ($expression -is [Management.Automation.Language.StringConstantExpressionAst] -and $expression.Value.StartsWith('BLOCKED: ', [StringComparison]::Ordinal)) { return $expression.Value }
+    return $null
+}
 function Assert-QnDisposableDesktop {
     if ($env:QUICKNEST_TEST_ISOLATED_DESKTOP -ne '1') { throw 'Desktop acceptance refused. Use an independent disposable Windows account/VM and explicitly enable isolated desktop testing.' }
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name

@@ -10,6 +10,7 @@
 #    which runs the same controller calls against real files. The native save
 #    dialog cancels under automation (its OK path stalls on a hidden shell
 #    confirmation), so the live script verifies that it opens and cancels.
+throw 'BLOCKED: obsolete flat settings-menu fixture; current UI uses a settings panel and right-click submenus. Core control/callback regression coverage is maintained in src/ui_regression_tests.rs and tests/ui_layout.rs; this script cannot certify desktop behavior until migrated.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

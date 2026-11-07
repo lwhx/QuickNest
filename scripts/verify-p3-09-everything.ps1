@@ -11,6 +11,7 @@
 # Phases: handoff probe → settings-menu toggle off (no handoff row, Enter on
 # an empty result list does nothing) → restart with a missing configured path
 # (resolve falls back / reports 未找到, app unaffected) → exit=0.
+throw 'BLOCKED: obsolete flat settings-menu fixture; current UI uses a settings panel and right-click submenus. Core control/callback regression coverage is maintained in src/ui_regression_tests.rs and tests/ui_layout.rs; this script cannot certify desktop behavior until migrated.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

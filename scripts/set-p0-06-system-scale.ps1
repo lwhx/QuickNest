@@ -1,6 +1,7 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param([ValidateSet(100,125,150,175,200)][int]$Percent=100,[switch]$ListOnly)
+throw 'BLOCKED: historical desktop/system fixture has no current sandbox and owned-process acceptance contract. Migrate before execution; no acceptance is claimed.'
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName UIAutomationClient

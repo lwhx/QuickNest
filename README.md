@@ -2,9 +2,9 @@
 
 QuickNest 是依据 [V1.2 开发基线](QuickNest_V1.2_正式开发基线.md) 开发的 Windows 原生快捷启动器，工程版本 **1.2.0**。支持分组/分类与项目管理、EXE/LNK/文件/文件夹/URI/UWP/MSI 入口、搜索与拼音、热键与托盘、拖拽、批量/组合/延时启动、主题、备份及导入导出；提供逐用户安装与便携打包方式。
 
-**当前状态：2026-11-07 审核修复、本地构建与产物核验已完成，P4 完整发布尚未通过，不宣称全矩阵验收。** 源码门禁 fmt/check all-targets/strict clippy 通过；串行测试为 lib **272 passed / 0 failed / 3 ignored**、main 4 passed、integration 14 passed、doc 3 passed。ignored 实际执行方式、51 脚本安全检查与更新专项的覆盖边界见 [本轮修复记录](docs/AUDIT_FIXES_2026-11-07.md)，重叠结果不相加。
+**当前状态：2026-11-07 再次审核后的 12 项问题已修复，并通过统一安全回归与本地 Release 构建；P4 完整发布尚未通过，不宣称全矩阵验收。** 最新源码修复、验证命令、真实结果及跳过项目见 [再次审核修复记录](docs/AUDIT_REPAIRS_2026-11-07.md)。先前的测试数量和截图完成声明不代表本轮源码。
 
-Release 构建、安装包和便携包打包、x64 PE/权限清单/运行库依赖核对及便携包程序一致性检查均通过，完整 SHA-256 见 [本轮修复记录](docs/AUDIT_FIXES_2026-11-07.md)。完整发布仍待 Win10、安装完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点。更新仅支持 raw，setup/portablezip 在下载前拒绝；旧测试密钥已披露，不受生产信任。runasoriginaluser 和 asInvoker 不保证所有上下文都降到 Medium。
+本轮只重建本地 `target/release/quicknest.exe`；已发布 v1.2.0 的安装包和便携包仍对应此前构建，其历史哈希见 [发布构建记录](docs/AUDIT_FIXES_2026-11-07.md)，不能用于认证本轮修复。完整发布仍待 Win10、安装完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点。更新仅支持 raw，setup/portablezip 在下载前拒绝；旧测试密钥已披露，不受生产信任。runasoriginaluser 和 asInvoker 不保证所有上下文都降到 Medium。
 
 配置、图标、备份与崩溃日志使用统一数据根；安装版默认 %APPDATA%/QuickNest，便携版为程序目录下 data。详见 [发布说明](RELEASE_NOTES.md) 与 [测试隔离用法](docs/TEST_HARNESS.md)。
 
