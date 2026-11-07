@@ -1,0 +1,32 @@
+﻿[
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-06\\final-100\\interactive-4fd078cb\\fixtures\\中文 folder",
+        "directory":  true,
+        "length":  0,
+        "sha256":  null
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-06\\final-100\\interactive-4fd078cb\\fixtures\\sample application.exe",
+        "directory":  false,
+        "length":  360448,
+        "sha256":  "1552F6A579B77B61460DF56CB4B2CE0A34FE96B6176829D7916275B806EDC2BB"
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-06\\final-100\\interactive-4fd078cb\\fixtures\\second file.txt",
+        "directory":  false,
+        "length":  29,
+        "sha256":  "7B7CF914C7CB49D2259F58659C182E796D27950E47F02B72D1D755BDF556DEDE"
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-06\\final-100\\interactive-4fd078cb\\fixtures\\中文 link.lnk",
+        "directory":  false,
+        "length":  827,
+        "sha256":  "6B77BFE836BF3213E23AC7CCD8AE97782B1D773E456324ED65C91297FF84BA69"
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-06\\final-100\\interactive-4fd078cb\\fixtures\\中文 sample.txt",
+        "directory":  false,
+        "length":  37,
+        "sha256":  "12D1450DAD09C033F4FF03F24BC6C6F5EFA6E564628048CD8B23B26FDEEA76DC"
+    }
+]

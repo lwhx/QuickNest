@@ -1,0 +1,1331 @@
+elapsed_ms	phase	data
+59	registered	pid=14092 tid=21016 hwnd=2168044
+1044	heartbeat	40
+2058	heartbeat	80
+3071	heartbeat	120
+4085	heartbeat	160
+5097	heartbeat	200
+6111	heartbeat	240
+7125	heartbeat	280
+8141	heartbeat	320
+9157	heartbeat	360
+10172	heartbeat	400
+11182	heartbeat	440
+12198	heartbeat	480
+13213	heartbeat	520
+14228	heartbeat	560
+15243	heartbeat	600
+16259	heartbeat	640
+17271	heartbeat	680
+18284	heartbeat	720
+19300	heartbeat	760
+20317	heartbeat	800
+21330	heartbeat	840
+22344	heartbeat	880
+23360	heartbeat	920
+24375	heartbeat	960
+25391	heartbeat	1000
+26407	heartbeat	1040
+27423	heartbeat	1080
+28439	heartbeat	1120
+29455	heartbeat	1160
+30471	heartbeat	1200
+31486	heartbeat	1240
+32502	heartbeat	1280
+33517	heartbeat	1320
+34530	heartbeat	1360
+35543	heartbeat	1400
+36557	heartbeat	1440
+37572	heartbeat	1480
+38587	heartbeat	1520
+39602	heartbeat	1560
+40615	heartbeat	1600
+41629	heartbeat	1640
+42645	heartbeat	1680
+43659	heartbeat	1720
+44673	heartbeat	1760
+45686	heartbeat	1800
+46699	heartbeat	1840
+47712	heartbeat	1880
+48729	heartbeat	1920
+49742	heartbeat	1960
+50760	heartbeat	2000
+51774	heartbeat	2040
+52790	heartbeat	2080
+53806	heartbeat	2120
+54820	heartbeat	2160
+55836	heartbeat	2200
+56851	heartbeat	2240
+57868	heartbeat	2280
+58883	heartbeat	2320
+59899	heartbeat	2360
+60914	heartbeat	2400
+61928	heartbeat	2440
+62942	heartbeat	2480
+63956	heartbeat	2520
+64972	heartbeat	2560
+65983	heartbeat	2600
+66998	heartbeat	2640
+68012	heartbeat	2680
+69027	heartbeat	2720
+70043	heartbeat	2760
+71059	heartbeat	2800
+72073	heartbeat	2840
+73087	heartbeat	2880
+74103	heartbeat	2920
+75116	heartbeat	2960
+76132	heartbeat	3000
+77145	heartbeat	3040
+78160	heartbeat	3080
+79177	heartbeat	3120
+80188	heartbeat	3160
+80687	coordinate	phase=pointer sx=960 sy=540 cx=232 cy=489 lx=232.0000 ly=489.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=bottom_left
+80687	reference	x=232.0000 y=489.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+81203	heartbeat	3200
+81768	coordinate	phase=pointer sx=730 sy=53 cx=2 cy=2 lx=2.0000 ly=2.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=top_left
+81769	reference	x=2.0000 y=2.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=top_left
+82019	coordinate	phase=pointer sx=1709 sy=53 cx=981 cy=2 lx=981.0000 ly=2.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=top_right
+82019	reference	x=981.0000 y=2.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=top_right
+82238	heartbeat	3240
+82253	coordinate	phase=pointer sx=730 sy=859 cx=2 cy=808 lx=2.0000 ly=808.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=bottom_left
+82253	reference	x=2.0000 y=808.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+82486	coordinate	phase=pointer sx=1709 sy=859 cx=981 cy=808 lx=981.0000 ly=808.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=bottom_right
+82486	reference	x=981.0000 y=808.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+82719	coordinate	phase=pointer sx=1219 sy=455 cx=491 cy=404 lx=491.0000 ly=404.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=top_left
+82719	reference	x=491.0000 y=404.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=top_left
+82952	coordinate	phase=pointer sx=1220 sy=457 cx=492 cy=406 lx=492.0000 ly=406.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=bottom_right
+82953	reference	x=492.0000 y=406.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+83170	coordinate	phase=pointer sx=829 sy=254 cx=101 cy=203 lx=101.0000 ly=203.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=984 ch=811 sw=984 sh=811 ox=728 oy=51 lw=984.0000 lh=811.0000 region=top_left
+83170	reference	x=101.0000 y=203.0000 width=984.0000 height=811.0000 dx=0.0000 dy=0.0000 expected_region=top_left
+83251	heartbeat	3280
+84263	heartbeat	3320
+85276	heartbeat	3360
+86290	heartbeat	3400
+87305	heartbeat	3440
+88319	heartbeat	3480
+89333	heartbeat	3520
+90350	heartbeat	3560
+91363	heartbeat	3600
+92379	heartbeat	3640
+93392	heartbeat	3680
+94405	heartbeat	3720
+95420	heartbeat	3760
+96435	heartbeat	3800
+97445	heartbeat	3840
+98460	heartbeat	3880
+99474	heartbeat	3920
+100489	heartbeat	3960
+101502	heartbeat	4000
+102519	heartbeat	4040
+103534	heartbeat	4080
+104548	heartbeat	4120
+105561	heartbeat	4160
+106574	heartbeat	4200
+107590	heartbeat	4240
+108603	heartbeat	4280
+109619	heartbeat	4320
+110636	heartbeat	4360
+111650	heartbeat	4400
+112664	heartbeat	4440
+113679	heartbeat	4480
+114694	heartbeat	4520
+115707	heartbeat	4560
+116721	heartbeat	4600
+117734	heartbeat	4640
+118747	heartbeat	4680
+119764	heartbeat	4720
+120779	heartbeat	4760
+121794	heartbeat	4800
+122808	heartbeat	4840
+123822	heartbeat	4880
+124834	heartbeat	4920
+125849	heartbeat	4960
+126863	heartbeat	5000
+127881	heartbeat	5040
+128897	heartbeat	5080
+129911	heartbeat	5120
+130925	heartbeat	5160
+131939	heartbeat	5200
+132953	heartbeat	5240
+133968	heartbeat	5280
+134982	heartbeat	5320
+135996	heartbeat	5360
+137012	heartbeat	5400
+138026	heartbeat	5440
+139040	heartbeat	5480
+140052	heartbeat	5520
+141069	heartbeat	5560
+142082	heartbeat	5600
+143098	heartbeat	5640
+144116	heartbeat	5680
+145131	heartbeat	5720
+146146	heartbeat	5760
+147162	heartbeat	5800
+148177	heartbeat	5840
+149191	heartbeat	5880
+150208	heartbeat	5920
+151221	heartbeat	5960
+152233	heartbeat	6000
+153245	heartbeat	6040
+154257	heartbeat	6080
+155104	coordinate	phase=pointer sx=960 sy=540 cx=273 cy=502 lx=218.4000 ly=401.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1230 ch=1014 sw=1230 sh=1014 ox=687 oy=38 lw=984.0000 lh=811.2000 region=top_left
+155104	reference	x=218.4000 y=401.6000 width=984.0000 height=811.2000 dx=0.0000 dy=0.0000 expected_region=top_left
+155756	heartbeat	6120
+156621	coordinate	phase=pointer sx=960 sy=540 cx=231 cy=482 lx=184.8000 ly=385.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=false scale_match=true cw=1082 ch=853 sw=1230 sh=1014 ox=729 oy=58 lw=984.0000 lh=811.2000 region=top_left
+156621	reference	x=184.8000 y=385.6000 width=984.0000 height=811.2000 dx=0.0000 dy=0.0000 expected_region=top_left
+156774	heartbeat	6160
+157688	coordinate	phase=pointer sx=914 sy=75 cx=185 cy=17 lx=148.0000 ly=13.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+157688	reference	x=148.0000 y=13.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+157787	heartbeat	6200
+158605	coordinate	phase=pointer sx=1586 sy=604 cx=857 cy=546 lx=685.6000 ly=436.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+158605	reference	x=685.6000 y=436.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+158800	heartbeat	6240
+158855	coordinate	phase=pointer sx=1588 sy=606 cx=859 cy=548 lx=687.2000 ly=438.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+158855	reference	x=687.2000 y=438.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+159088	coordinate	phase=pointer sx=1038 sy=326 cx=309 cy=268 lx=247.2000 ly=214.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+159088	reference	x=247.2000 y=214.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+159814	heartbeat	6280
+160827	heartbeat	6320
+161841	heartbeat	6360
+162858	heartbeat	6400
+163874	heartbeat	6440
+164890	heartbeat	6480
+165901	heartbeat	6520
+166913	heartbeat	6560
+167927	heartbeat	6600
+168944	heartbeat	6640
+169959	heartbeat	6680
+170974	heartbeat	6720
+171987	heartbeat	6760
+173003	heartbeat	6800
+174018	heartbeat	6840
+175033	heartbeat	6880
+176048	heartbeat	6920
+177064	heartbeat	6960
+178078	heartbeat	7000
+179096	heartbeat	7040
+180113	heartbeat	7080
+181128	heartbeat	7120
+182143	heartbeat	7160
+183158	heartbeat	7200
+184175	heartbeat	7240
+185189	heartbeat	7280
+186206	heartbeat	7320
+187221	heartbeat	7360
+188235	heartbeat	7400
+189249	heartbeat	7440
+190065	coordinate	phase=pointer sx=1038 sy=327 cx=309 cy=269 lx=247.2000 ly=215.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190065	reference	x=247.2000 y=215.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190075	coordinate	phase=pointer sx=1038 sy=326 cx=309 cy=268 lx=247.2000 ly=214.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190075	reference	x=247.2000 y=214.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190083	coordinate	phase=pointer sx=1039 sy=326 cx=310 cy=268 lx=248.0000 ly=214.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190083	reference	x=248.0000 y=214.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190091	coordinate	phase=pointer sx=1040 sy=323 cx=311 cy=265 lx=248.8000 ly=212.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190091	reference	x=248.8000 y=212.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190100	coordinate	phase=pointer sx=1047 sy=321 cx=318 cy=263 lx=254.4000 ly=210.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190101	reference	x=254.4000 y=210.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190107	coordinate	phase=pointer sx=1064 sy=321 cx=335 cy=263 lx=268.0000 ly=210.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190108	reference	x=268.0000 y=210.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190115	coordinate	phase=pointer sx=1087 sy=321 cx=358 cy=263 lx=286.4000 ly=210.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190116	reference	x=286.4000 y=210.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190123	coordinate	phase=pointer sx=1126 sy=328 cx=397 cy=270 lx=317.6000 ly=216.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190123	reference	x=317.6000 y=216.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190132	coordinate	phase=pointer sx=1176 sy=337 cx=447 cy=279 lx=357.6000 ly=223.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190132	reference	x=357.6000 y=223.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190139	coordinate	phase=pointer sx=1226 sy=350 cx=497 cy=292 lx=397.6000 ly=233.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+190139	reference	x=397.6000 y=233.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+190147	coordinate	phase=pointer sx=1274 sy=364 cx=545 cy=306 lx=436.0000 ly=244.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_right
+190148	reference	x=436.0000 y=244.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_right
+190155	coordinate	phase=pointer sx=1304 sy=382 cx=575 cy=324 lx=460.0000 ly=259.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_right
+190156	reference	x=460.0000 y=259.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_right
+190165	coordinate	phase=pointer sx=1328 sy=408 cx=599 cy=350 lx=479.2000 ly=280.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_right
+190165	reference	x=479.2000 y=280.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_right
+190172	coordinate	phase=pointer sx=1339 sy=439 cx=610 cy=381 lx=488.0000 ly=304.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_right
+190172	reference	x=488.0000 y=304.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_right
+190180	coordinate	phase=pointer sx=1350 sy=476 cx=621 cy=418 lx=496.8000 ly=334.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_right
+190180	reference	x=496.8000 y=334.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_right
+190187	coordinate	phase=pointer sx=1361 sy=530 cx=632 cy=472 lx=505.6000 ly=377.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+190187	reference	x=505.6000 y=377.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+190195	coordinate	phase=pointer sx=1379 sy=607 cx=650 cy=549 lx=520.0000 ly=439.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+190195	reference	x=520.0000 y=439.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+190203	coordinate	phase=pointer sx=1407 sy=705 cx=678 cy=647 lx=542.4000 ly=517.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+190204	reference	x=542.4000 y=517.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+190211	coordinate	phase=pointer sx=1437 sy=813 cx=708 cy=755 lx=566.4000 ly=604.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+190212	reference	x=566.4000 y=604.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+190262	heartbeat	7480
+191279	heartbeat	7520
+192293	heartbeat	7560
+193308	heartbeat	7600
+194325	heartbeat	7640
+195341	heartbeat	7680
+196354	heartbeat	7720
+196772	coordinate	phase=pointer sx=1018 sy=894 cx=289 cy=836 lx=231.2000 ly=668.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196772	reference	x=231.2000 y=668.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196780	coordinate	phase=pointer sx=987 sy=873 cx=258 cy=815 lx=206.4000 ly=652.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196780	reference	x=206.4000 y=652.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196787	coordinate	phase=pointer sx=958 sy=849 cx=229 cy=791 lx=183.2000 ly=632.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196787	reference	x=183.2000 y=632.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196795	coordinate	phase=pointer sx=937 sy=831 cx=208 cy=773 lx=166.4000 ly=618.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196796	reference	x=166.4000 y=618.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196804	coordinate	phase=pointer sx=916 sy=815 cx=187 cy=757 lx=149.6000 ly=605.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196804	reference	x=149.6000 y=605.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196811	coordinate	phase=pointer sx=901 sy=803 cx=172 cy=745 lx=137.6000 ly=596.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196811	reference	x=137.6000 y=596.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196819	coordinate	phase=pointer sx=892 sy=795 cx=163 cy=737 lx=130.4000 ly=589.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196819	reference	x=130.4000 y=589.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196827	coordinate	phase=pointer sx=887 sy=791 cx=158 cy=733 lx=126.4000 ly=586.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196827	reference	x=126.4000 y=586.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196835	coordinate	phase=pointer sx=885 sy=787 cx=156 cy=729 lx=124.8000 ly=583.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196835	reference	x=124.8000 y=583.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196843	coordinate	phase=pointer sx=884 sy=783 cx=155 cy=725 lx=124.0000 ly=580.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196843	reference	x=124.0000 y=580.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196851	coordinate	phase=pointer sx=882 sy=781 cx=153 cy=723 lx=122.4000 ly=578.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196851	reference	x=122.4000 y=578.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196859	coordinate	phase=pointer sx=882 sy=780 cx=153 cy=722 lx=122.4000 ly=577.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196859	reference	x=122.4000 y=577.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+196875	coordinate	phase=pointer sx=882 sy=779 cx=153 cy=721 lx=122.4000 ly=576.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+196875	reference	x=122.4000 y=576.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+197368	heartbeat	7760
+198383	heartbeat	7800
+199400	heartbeat	7840
+200411	heartbeat	7880
+201427	heartbeat	7920
+202443	heartbeat	7960
+203458	heartbeat	8000
+204471	heartbeat	8040
+205482	heartbeat	8080
+206494	heartbeat	8120
+207509	heartbeat	8160
+208523	heartbeat	8200
+209535	heartbeat	8240
+210549	heartbeat	8280
+211563	heartbeat	8320
+212576	heartbeat	8360
+213590	heartbeat	8400
+214606	heartbeat	8440
+215620	heartbeat	8480
+216631	heartbeat	8520
+217646	heartbeat	8560
+218659	heartbeat	8600
+219674	heartbeat	8640
+220687	heartbeat	8680
+221702	heartbeat	8720
+222714	heartbeat	8760
+223728	heartbeat	8800
+224742	heartbeat	8840
+225757	heartbeat	8880
+226769	heartbeat	8920
+227782	heartbeat	8960
+228795	heartbeat	9000
+229812	heartbeat	9040
+230827	heartbeat	9080
+231842	heartbeat	9120
+232856	heartbeat	9160
+233869	heartbeat	9200
+234882	heartbeat	9240
+235894	heartbeat	9280
+236908	heartbeat	9320
+237922	heartbeat	9360
+238935	heartbeat	9400
+239947	heartbeat	9440
+240958	heartbeat	9480
+241971	heartbeat	9520
+242983	heartbeat	9560
+243994	heartbeat	9600
+245007	heartbeat	9640
+246022	heartbeat	9680
+247034	heartbeat	9720
+248049	heartbeat	9760
+249062	heartbeat	9800
+250074	heartbeat	9840
+251087	heartbeat	9880
+252101	heartbeat	9920
+253114	heartbeat	9960
+254128	heartbeat	10000
+255143	heartbeat	10040
+256158	heartbeat	10080
+257172	heartbeat	10120
+258188	heartbeat	10160
+259203	heartbeat	10200
+260217	heartbeat	10240
+261234	heartbeat	10280
+262248	heartbeat	10320
+263261	heartbeat	10360
+264272	heartbeat	10400
+265287	heartbeat	10440
+266299	heartbeat	10480
+267312	heartbeat	10520
+268327	heartbeat	10560
+269339	heartbeat	10600
+270356	heartbeat	10640
+271369	heartbeat	10680
+272382	heartbeat	10720
+273395	heartbeat	10760
+274409	heartbeat	10800
+275422	heartbeat	10840
+276436	heartbeat	10880
+277449	heartbeat	10920
+278461	heartbeat	10960
+279475	heartbeat	11000
+280488	heartbeat	11040
+281501	heartbeat	11080
+282513	heartbeat	11120
+283525	heartbeat	11160
+284538	heartbeat	11200
+285553	heartbeat	11240
+286569	heartbeat	11280
+287583	heartbeat	11320
+288594	heartbeat	11360
+289155	coordinate	phase=pointer sx=882 sy=777 cx=153 cy=719 lx=122.4000 ly=575.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289155	reference	x=122.4000 y=575.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289163	coordinate	phase=pointer sx=882 sy=776 cx=153 cy=718 lx=122.4000 ly=574.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289163	reference	x=122.4000 y=574.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289171	coordinate	phase=pointer sx=883 sy=776 cx=154 cy=718 lx=123.2000 ly=574.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289171	reference	x=123.2000 y=574.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289179	coordinate	phase=pointer sx=888 sy=776 cx=159 cy=718 lx=127.2000 ly=574.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289179	reference	x=127.2000 y=574.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289187	coordinate	phase=pointer sx=896 sy=777 cx=167 cy=719 lx=133.6000 ly=575.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289187	reference	x=133.6000 y=575.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289195	coordinate	phase=pointer sx=905 sy=778 cx=176 cy=720 lx=140.8000 ly=576.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289195	reference	x=140.8000 y=576.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289203	coordinate	phase=pointer sx=911 sy=780 cx=182 cy=722 lx=145.6000 ly=577.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289204	reference	x=145.6000 y=577.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289211	coordinate	phase=pointer sx=913 sy=782 cx=184 cy=724 lx=147.2000 ly=579.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289212	reference	x=147.2000 y=579.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289219	coordinate	phase=pointer sx=915 sy=783 cx=186 cy=725 lx=148.8000 ly=580.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289219	reference	x=148.8000 y=580.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289227	coordinate	phase=pointer sx=917 sy=783 cx=188 cy=725 lx=150.4000 ly=580.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289227	reference	x=150.4000 y=580.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289235	coordinate	phase=pointer sx=918 sy=783 cx=189 cy=725 lx=151.2000 ly=580.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289235	reference	x=151.2000 y=580.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289243	coordinate	phase=pointer sx=920 sy=783 cx=191 cy=725 lx=152.8000 ly=580.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289243	reference	x=152.8000 y=580.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289251	coordinate	phase=pointer sx=921 sy=782 cx=192 cy=724 lx=153.6000 ly=579.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289251	reference	x=153.6000 y=579.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289259	coordinate	phase=pointer sx=921 sy=781 cx=192 cy=723 lx=153.6000 ly=578.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289259	reference	x=153.6000 y=578.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289267	coordinate	phase=pointer sx=921 sy=779 cx=192 cy=721 lx=153.6000 ly=576.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289267	reference	x=153.6000 y=576.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289275	coordinate	phase=pointer sx=920 sy=776 cx=191 cy=718 lx=152.8000 ly=574.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289275	reference	x=152.8000 y=574.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289283	coordinate	phase=pointer sx=912 sy=771 cx=183 cy=713 lx=146.4000 ly=570.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289283	reference	x=146.4000 y=570.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289292	coordinate	phase=pointer sx=902 sy=763 cx=173 cy=705 lx=138.4000 ly=564.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289292	reference	x=138.4000 y=564.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289299	coordinate	phase=pointer sx=900 sy=761 cx=171 cy=703 lx=136.8000 ly=562.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289299	reference	x=136.8000 y=562.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289307	coordinate	phase=pointer sx=892 sy=761 cx=163 cy=703 lx=130.4000 ly=562.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289307	reference	x=130.4000 y=562.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289524	coordinate	phase=pointer sx=888 sy=761 cx=159 cy=703 lx=127.2000 ly=562.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289524	reference	x=127.2000 y=562.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289539	coordinate	phase=pointer sx=887 sy=761 cx=158 cy=703 lx=126.4000 ly=562.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289539	reference	x=126.4000 y=562.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289547	coordinate	phase=pointer sx=885 sy=762 cx=156 cy=704 lx=124.8000 ly=563.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289547	reference	x=124.8000 y=563.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289555	coordinate	phase=pointer sx=883 sy=762 cx=154 cy=704 lx=123.2000 ly=563.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289555	reference	x=123.2000 y=563.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289595	coordinate	phase=pointer sx=883 sy=764 cx=154 cy=706 lx=123.2000 ly=564.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289595	reference	x=123.2000 y=564.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289603	coordinate	phase=pointer sx=882 sy=765 cx=153 cy=707 lx=122.4000 ly=565.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289604	reference	x=122.4000 y=565.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289608	heartbeat	11400
+289611	coordinate	phase=pointer sx=882 sy=768 cx=153 cy=710 lx=122.4000 ly=568.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289611	reference	x=122.4000 y=568.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289619	coordinate	phase=pointer sx=882 sy=769 cx=153 cy=711 lx=122.4000 ly=568.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289619	reference	x=122.4000 y=568.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289627	coordinate	phase=pointer sx=882 sy=770 cx=153 cy=712 lx=122.4000 ly=569.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289627	reference	x=122.4000 y=569.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289667	coordinate	phase=pointer sx=879 sy=770 cx=150 cy=712 lx=120.0000 ly=569.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289667	reference	x=120.0000 y=569.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289683	coordinate	phase=pointer sx=878 sy=770 cx=149 cy=712 lx=119.2000 ly=569.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289683	reference	x=119.2000 y=569.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+289915	coordinate	phase=pointer sx=878 sy=769 cx=149 cy=711 lx=119.2000 ly=568.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+289915	reference	x=119.2000 y=568.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+290623	heartbeat	11440
+291308	coordinate	phase=pointer sx=878 sy=768 cx=149 cy=710 lx=119.2000 ly=568.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+291308	reference	x=119.2000 y=568.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+291636	heartbeat	11480
+292650	heartbeat	11520
+292739	coordinate	phase=pointer sx=877 sy=767 cx=148 cy=709 lx=118.4000 ly=567.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+292739	reference	x=118.4000 y=567.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+292747	coordinate	phase=pointer sx=876 sy=766 cx=147 cy=708 lx=117.6000 ly=566.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+292747	reference	x=117.6000 y=566.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+292819	coordinate	phase=pointer sx=874 sy=766 cx=145 cy=708 lx=116.0000 ly=566.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+292819	reference	x=116.0000 y=566.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+292851	coordinate	phase=pointer sx=873 sy=766 cx=144 cy=708 lx=115.2000 ly=566.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+292851	reference	x=115.2000 y=566.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+293227	coordinate	phase=pointer sx=871 sy=766 cx=142 cy=708 lx=113.6000 ly=566.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+293227	reference	x=113.6000 y=566.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+293665	heartbeat	11560
+294155	coordinate	phase=pointer sx=870 sy=766 cx=141 cy=708 lx=112.8000 ly=566.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294155	reference	x=112.8000 y=566.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294163	coordinate	phase=pointer sx=869 sy=766 cx=140 cy=708 lx=112.0000 ly=566.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294163	reference	x=112.0000 y=566.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294187	coordinate	phase=pointer sx=869 sy=764 cx=140 cy=706 lx=112.0000 ly=564.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294187	reference	x=112.0000 y=564.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294299	coordinate	phase=pointer sx=869 sy=763 cx=140 cy=705 lx=112.0000 ly=564.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294299	reference	x=112.0000 y=564.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294315	coordinate	phase=pointer sx=868 sy=763 cx=139 cy=705 lx=111.2000 ly=564.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294315	reference	x=111.2000 y=564.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294379	coordinate	phase=pointer sx=867 sy=763 cx=138 cy=705 lx=110.4000 ly=564.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294379	reference	x=110.4000 y=564.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294404	coordinate	phase=pointer sx=865 sy=762 cx=136 cy=704 lx=108.8000 ly=563.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294404	reference	x=108.8000 y=563.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294443	coordinate	phase=pointer sx=864 sy=761 cx=135 cy=703 lx=108.0000 ly=562.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294443	reference	x=108.0000 y=562.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294467	coordinate	phase=pointer sx=863 sy=760 cx=134 cy=702 lx=107.2000 ly=561.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294467	reference	x=107.2000 y=561.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294539	coordinate	phase=pointer sx=862 sy=760 cx=133 cy=702 lx=106.4000 ly=561.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294540	reference	x=106.4000 y=561.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294571	coordinate	phase=pointer sx=860 sy=759 cx=131 cy=701 lx=104.8000 ly=560.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294571	reference	x=104.8000 y=560.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294674	heartbeat	11600
+294675	coordinate	phase=pointer sx=859 sy=759 cx=130 cy=701 lx=104.0000 ly=560.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294675	reference	x=104.0000 y=560.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294691	coordinate	phase=pointer sx=859 sy=758 cx=130 cy=700 lx=104.0000 ly=560.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294691	reference	x=104.0000 y=560.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294699	coordinate	phase=pointer sx=858 sy=757 cx=129 cy=699 lx=103.2000 ly=559.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294699	reference	x=103.2000 y=559.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294715	coordinate	phase=pointer sx=857 sy=757 cx=128 cy=699 lx=102.4000 ly=559.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294715	reference	x=102.4000 y=559.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294724	coordinate	phase=pointer sx=857 sy=756 cx=128 cy=698 lx=102.4000 ly=558.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294724	reference	x=102.4000 y=558.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294731	coordinate	phase=pointer sx=855 sy=755 cx=126 cy=697 lx=100.8000 ly=557.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294731	reference	x=100.8000 y=557.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294747	coordinate	phase=pointer sx=853 sy=755 cx=124 cy=697 lx=99.2000 ly=557.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294747	reference	x=99.2000 y=557.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294763	coordinate	phase=pointer sx=853 sy=754 cx=124 cy=696 lx=99.2000 ly=556.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294763	reference	x=99.2000 y=556.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294771	coordinate	phase=pointer sx=852 sy=754 cx=123 cy=696 lx=98.4000 ly=556.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294771	reference	x=98.4000 y=556.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294971	coordinate	phase=pointer sx=851 sy=754 cx=122 cy=696 lx=97.6000 ly=556.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294972	reference	x=97.6000 y=556.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+294995	coordinate	phase=pointer sx=850 sy=753 cx=121 cy=695 lx=96.8000 ly=556.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+294995	reference	x=96.8000 y=556.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+295099	coordinate	phase=pointer sx=848 sy=753 cx=119 cy=695 lx=95.2000 ly=556.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+295099	reference	x=95.2000 y=556.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+295283	coordinate	phase=pointer sx=847 sy=751 cx=118 cy=693 lx=94.4000 ly=554.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+295283	reference	x=94.4000 y=554.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+295379	coordinate	phase=pointer sx=846 sy=749 cx=117 cy=691 lx=93.6000 ly=552.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+295379	reference	x=93.6000 y=552.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+295687	heartbeat	11640
+296703	heartbeat	11680
+297203	coordinate	phase=pointer sx=845 sy=748 cx=116 cy=690 lx=92.8000 ly=552.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297203	reference	x=92.8000 y=552.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297427	coordinate	phase=pointer sx=844 sy=747 cx=115 cy=689 lx=92.0000 ly=551.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297427	reference	x=92.0000 y=551.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297435	coordinate	phase=pointer sx=843 sy=746 cx=114 cy=688 lx=91.2000 ly=550.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297435	reference	x=91.2000 y=550.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297443	coordinate	phase=pointer sx=842 sy=745 cx=113 cy=687 lx=90.4000 ly=549.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297443	reference	x=90.4000 y=549.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297451	coordinate	phase=pointer sx=841 sy=744 cx=112 cy=686 lx=89.6000 ly=548.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297451	reference	x=89.6000 y=548.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297459	coordinate	phase=pointer sx=838 sy=743 cx=109 cy=685 lx=87.2000 ly=548.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297459	reference	x=87.2000 y=548.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297467	coordinate	phase=pointer sx=835 sy=741 cx=106 cy=683 lx=84.8000 ly=546.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297467	reference	x=84.8000 y=546.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297475	coordinate	phase=pointer sx=830 sy=739 cx=101 cy=681 lx=80.8000 ly=544.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297475	reference	x=80.8000 y=544.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297483	coordinate	phase=pointer sx=826 sy=736 cx=97 cy=678 lx=77.6000 ly=542.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297483	reference	x=77.6000 y=542.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297492	coordinate	phase=pointer sx=823 sy=735 cx=94 cy=677 lx=75.2000 ly=541.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297492	reference	x=75.2000 y=541.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297499	coordinate	phase=pointer sx=819 sy=734 cx=90 cy=676 lx=72.0000 ly=540.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297499	reference	x=72.0000 y=540.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297508	coordinate	phase=pointer sx=816 sy=731 cx=87 cy=673 lx=69.6000 ly=538.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297508	reference	x=69.6000 y=538.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297515	coordinate	phase=pointer sx=814 sy=730 cx=85 cy=672 lx=68.0000 ly=537.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297515	reference	x=68.0000 y=537.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297523	coordinate	phase=pointer sx=813 sy=729 cx=84 cy=671 lx=67.2000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297523	reference	x=67.2000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297555	coordinate	phase=pointer sx=811 sy=729 cx=82 cy=671 lx=65.6000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297555	reference	x=65.6000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297713	heartbeat	11720
+297739	coordinate	phase=pointer sx=810 sy=729 cx=81 cy=671 lx=64.8000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297739	reference	x=64.8000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297747	coordinate	phase=pointer sx=809 sy=728 cx=80 cy=670 lx=64.0000 ly=536.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297747	reference	x=64.0000 y=536.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297755	coordinate	phase=pointer sx=808 sy=727 cx=79 cy=669 lx=63.2000 ly=535.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297755	reference	x=63.2000 y=535.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297763	coordinate	phase=pointer sx=806 sy=726 cx=77 cy=668 lx=61.6000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297763	reference	x=61.6000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297771	coordinate	phase=pointer sx=804 sy=726 cx=75 cy=668 lx=60.0000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297771	reference	x=60.0000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297779	coordinate	phase=pointer sx=803 sy=725 cx=74 cy=667 lx=59.2000 ly=533.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297779	reference	x=59.2000 y=533.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+297859	coordinate	phase=pointer sx=801 sy=725 cx=72 cy=667 lx=57.6000 ly=533.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+297859	reference	x=57.6000 y=533.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298075	coordinate	phase=pointer sx=801 sy=726 cx=72 cy=668 lx=57.6000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298075	reference	x=57.6000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298083	coordinate	phase=pointer sx=801 sy=728 cx=72 cy=670 lx=57.6000 ly=536.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298084	reference	x=57.6000 y=536.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298099	coordinate	phase=pointer sx=801 sy=730 cx=72 cy=672 lx=57.6000 ly=537.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298099	reference	x=57.6000 y=537.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298107	coordinate	phase=pointer sx=801 sy=731 cx=72 cy=673 lx=57.6000 ly=538.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298108	reference	x=57.6000 y=538.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298115	coordinate	phase=pointer sx=801 sy=732 cx=72 cy=674 lx=57.6000 ly=539.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298115	reference	x=57.6000 y=539.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298124	coordinate	phase=pointer sx=801 sy=734 cx=72 cy=676 lx=57.6000 ly=540.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298124	reference	x=57.6000 y=540.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298139	coordinate	phase=pointer sx=801 sy=735 cx=72 cy=677 lx=57.6000 ly=541.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298139	reference	x=57.6000 y=541.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298515	coordinate	phase=pointer sx=801 sy=736 cx=72 cy=678 lx=57.6000 ly=542.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298515	reference	x=57.6000 y=542.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298726	heartbeat	11760
+298795	coordinate	phase=pointer sx=801 sy=738 cx=72 cy=680 lx=57.6000 ly=544.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298795	reference	x=57.6000 y=544.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298819	coordinate	phase=pointer sx=801 sy=740 cx=72 cy=682 lx=57.6000 ly=545.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298819	reference	x=57.6000 y=545.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298835	coordinate	phase=pointer sx=802 sy=740 cx=73 cy=682 lx=58.4000 ly=545.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298835	reference	x=58.4000 y=545.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298843	coordinate	phase=pointer sx=803 sy=741 cx=74 cy=683 lx=59.2000 ly=546.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298843	reference	x=59.2000 y=546.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+298859	coordinate	phase=pointer sx=803 sy=743 cx=74 cy=685 lx=59.2000 ly=548.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+298859	reference	x=59.2000 y=548.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299115	coordinate	phase=pointer sx=804 sy=742 cx=75 cy=684 lx=60.0000 ly=547.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299115	reference	x=60.0000 y=547.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299132	coordinate	phase=pointer sx=805 sy=742 cx=76 cy=684 lx=60.8000 ly=547.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299132	reference	x=60.8000 y=547.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299227	coordinate	phase=pointer sx=806 sy=740 cx=77 cy=682 lx=61.6000 ly=545.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299227	reference	x=61.6000 y=545.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299251	coordinate	phase=pointer sx=807 sy=739 cx=78 cy=681 lx=62.4000 ly=544.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299251	reference	x=62.4000 y=544.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299291	coordinate	phase=pointer sx=807 sy=737 cx=78 cy=679 lx=62.4000 ly=543.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299291	reference	x=62.4000 y=543.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299315	coordinate	phase=pointer sx=807 sy=736 cx=78 cy=678 lx=62.4000 ly=542.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299315	reference	x=62.4000 y=542.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299340	coordinate	phase=pointer sx=807 sy=735 cx=78 cy=677 lx=62.4000 ly=541.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299340	reference	x=62.4000 y=541.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299355	coordinate	phase=pointer sx=807 sy=734 cx=78 cy=676 lx=62.4000 ly=540.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299355	reference	x=62.4000 y=540.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299388	coordinate	phase=pointer sx=807 sy=733 cx=78 cy=675 lx=62.4000 ly=540.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299388	reference	x=62.4000 y=540.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299411	coordinate	phase=pointer sx=807 sy=731 cx=78 cy=673 lx=62.4000 ly=538.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299411	reference	x=62.4000 y=538.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299691	coordinate	phase=pointer sx=807 sy=729 cx=78 cy=671 lx=62.4000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299691	reference	x=62.4000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299699	coordinate	phase=pointer sx=807 sy=728 cx=78 cy=670 lx=62.4000 ly=536.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299699	reference	x=62.4000 y=536.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299707	coordinate	phase=pointer sx=805 sy=728 cx=76 cy=670 lx=60.8000 ly=536.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299707	reference	x=60.8000 y=536.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299715	coordinate	phase=pointer sx=805 sy=726 cx=76 cy=668 lx=60.8000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299715	reference	x=60.8000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299723	coordinate	phase=pointer sx=804 sy=725 cx=75 cy=667 lx=60.0000 ly=533.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299723	reference	x=60.0000 y=533.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299731	coordinate	phase=pointer sx=803 sy=724 cx=74 cy=666 lx=59.2000 ly=532.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299731	reference	x=59.2000 y=532.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299737	heartbeat	11800
+299747	coordinate	phase=pointer sx=803 sy=722 cx=74 cy=664 lx=59.2000 ly=531.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299747	reference	x=59.2000 y=531.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299755	coordinate	phase=pointer sx=802 sy=721 cx=73 cy=663 lx=58.4000 ly=530.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299755	reference	x=58.4000 y=530.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299916	coordinate	phase=pointer sx=801 sy=721 cx=72 cy=663 lx=57.6000 ly=530.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299916	reference	x=57.6000 y=530.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299923	coordinate	phase=pointer sx=801 sy=722 cx=72 cy=664 lx=57.6000 ly=531.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299923	reference	x=57.6000 y=531.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299931	coordinate	phase=pointer sx=801 sy=723 cx=72 cy=665 lx=57.6000 ly=532.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299931	reference	x=57.6000 y=532.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299939	coordinate	phase=pointer sx=801 sy=724 cx=72 cy=666 lx=57.6000 ly=532.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299939	reference	x=57.6000 y=532.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299947	coordinate	phase=pointer sx=801 sy=726 cx=72 cy=668 lx=57.6000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299947	reference	x=57.6000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299955	coordinate	phase=pointer sx=801 sy=728 cx=72 cy=670 lx=57.6000 ly=536.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299955	reference	x=57.6000 y=536.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299963	coordinate	phase=pointer sx=801 sy=729 cx=72 cy=671 lx=57.6000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299963	reference	x=57.6000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299971	coordinate	phase=pointer sx=801 sy=731 cx=72 cy=673 lx=57.6000 ly=538.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299971	reference	x=57.6000 y=538.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299979	coordinate	phase=pointer sx=801 sy=733 cx=72 cy=675 lx=57.6000 ly=540.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299979	reference	x=57.6000 y=540.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+299995	coordinate	phase=pointer sx=801 sy=735 cx=72 cy=677 lx=57.6000 ly=541.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+299995	reference	x=57.6000 y=541.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300083	coordinate	phase=pointer sx=801 sy=733 cx=72 cy=675 lx=57.6000 ly=540.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300083	reference	x=57.6000 y=540.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300091	coordinate	phase=pointer sx=801 sy=731 cx=72 cy=673 lx=57.6000 ly=538.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300091	reference	x=57.6000 y=538.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300099	coordinate	phase=pointer sx=801 sy=730 cx=72 cy=672 lx=57.6000 ly=537.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300099	reference	x=57.6000 y=537.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300107	coordinate	phase=pointer sx=800 sy=727 cx=71 cy=669 lx=56.8000 ly=535.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300107	reference	x=56.8000 y=535.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300115	coordinate	phase=pointer sx=799 sy=723 cx=70 cy=665 lx=56.0000 ly=532.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300115	reference	x=56.0000 y=532.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300123	coordinate	phase=pointer sx=798 sy=721 cx=69 cy=663 lx=55.2000 ly=530.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300123	reference	x=55.2000 y=530.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300131	coordinate	phase=pointer sx=798 sy=720 cx=69 cy=662 lx=55.2000 ly=529.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300131	reference	x=55.2000 y=529.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300139	coordinate	phase=pointer sx=797 sy=719 cx=68 cy=661 lx=54.4000 ly=528.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300139	reference	x=54.4000 y=528.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300147	coordinate	phase=pointer sx=796 sy=718 cx=67 cy=660 lx=53.6000 ly=528.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300147	reference	x=53.6000 y=528.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300315	coordinate	phase=pointer sx=796 sy=720 cx=67 cy=662 lx=53.6000 ly=529.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300315	reference	x=53.6000 y=529.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300323	coordinate	phase=pointer sx=796 sy=721 cx=67 cy=663 lx=53.6000 ly=530.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300323	reference	x=53.6000 y=530.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300331	coordinate	phase=pointer sx=796 sy=723 cx=67 cy=665 lx=53.6000 ly=532.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300331	reference	x=53.6000 y=532.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300339	coordinate	phase=pointer sx=796 sy=724 cx=67 cy=666 lx=53.6000 ly=532.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300339	reference	x=53.6000 y=532.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300347	coordinate	phase=pointer sx=796 sy=726 cx=67 cy=668 lx=53.6000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300347	reference	x=53.6000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300355	coordinate	phase=pointer sx=796 sy=729 cx=67 cy=671 lx=53.6000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300355	reference	x=53.6000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300363	coordinate	phase=pointer sx=796 sy=730 cx=67 cy=672 lx=53.6000 ly=537.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300363	reference	x=53.6000 y=537.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300371	coordinate	phase=pointer sx=796 sy=733 cx=67 cy=675 lx=53.6000 ly=540.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300371	reference	x=53.6000 y=540.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300379	coordinate	phase=pointer sx=796 sy=734 cx=67 cy=676 lx=53.6000 ly=540.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300379	reference	x=53.6000 y=540.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300483	coordinate	phase=pointer sx=796 sy=733 cx=67 cy=675 lx=53.6000 ly=540.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300483	reference	x=53.6000 y=540.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300491	coordinate	phase=pointer sx=795 sy=732 cx=66 cy=674 lx=52.8000 ly=539.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300491	reference	x=52.8000 y=539.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300500	coordinate	phase=pointer sx=793 sy=729 cx=64 cy=671 lx=51.2000 ly=536.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300500	reference	x=51.2000 y=536.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300508	coordinate	phase=pointer sx=793 sy=726 cx=64 cy=668 lx=51.2000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300508	reference	x=51.2000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300515	coordinate	phase=pointer sx=792 sy=724 cx=63 cy=666 lx=50.4000 ly=532.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300515	reference	x=50.4000 y=532.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300523	coordinate	phase=pointer sx=791 sy=721 cx=62 cy=663 lx=49.6000 ly=530.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300523	reference	x=49.6000 y=530.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300531	coordinate	phase=pointer sx=790 sy=718 cx=61 cy=660 lx=48.8000 ly=528.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300531	reference	x=48.8000 y=528.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300539	coordinate	phase=pointer sx=790 sy=716 cx=61 cy=658 lx=48.8000 ly=526.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300540	reference	x=48.8000 y=526.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300547	coordinate	phase=pointer sx=790 sy=715 cx=61 cy=657 lx=48.8000 ly=525.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300547	reference	x=48.8000 y=525.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300555	coordinate	phase=pointer sx=789 sy=713 cx=60 cy=655 lx=48.0000 ly=524.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300555	reference	x=48.0000 y=524.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300579	coordinate	phase=pointer sx=789 sy=711 cx=60 cy=653 lx=48.0000 ly=522.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300579	reference	x=48.0000 y=522.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300748	heartbeat	11840
+300764	coordinate	phase=pointer sx=789 sy=712 cx=60 cy=654 lx=48.0000 ly=523.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300764	reference	x=48.0000 y=523.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300771	coordinate	phase=pointer sx=789 sy=713 cx=60 cy=655 lx=48.0000 ly=524.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300771	reference	x=48.0000 y=524.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300788	coordinate	phase=pointer sx=789 sy=714 cx=60 cy=656 lx=48.0000 ly=524.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300788	reference	x=48.0000 y=524.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300795	coordinate	phase=pointer sx=789 sy=716 cx=60 cy=658 lx=48.0000 ly=526.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300795	reference	x=48.0000 y=526.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300811	coordinate	phase=pointer sx=789 sy=718 cx=60 cy=660 lx=48.0000 ly=528.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300811	reference	x=48.0000 y=528.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+300827	coordinate	phase=pointer sx=789 sy=719 cx=60 cy=661 lx=48.0000 ly=528.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+300827	reference	x=48.0000 y=528.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301179	coordinate	phase=pointer sx=789 sy=720 cx=60 cy=662 lx=48.0000 ly=529.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301179	reference	x=48.0000 y=529.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301187	coordinate	phase=pointer sx=789 sy=721 cx=60 cy=663 lx=48.0000 ly=530.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301187	reference	x=48.0000 y=530.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301195	coordinate	phase=pointer sx=789 sy=722 cx=60 cy=664 lx=48.0000 ly=531.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301195	reference	x=48.0000 y=531.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301203	coordinate	phase=pointer sx=789 sy=723 cx=60 cy=665 lx=48.0000 ly=532.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301203	reference	x=48.0000 y=532.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301211	coordinate	phase=pointer sx=790 sy=724 cx=61 cy=666 lx=48.8000 ly=532.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301211	reference	x=48.8000 y=532.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301219	coordinate	phase=pointer sx=790 sy=726 cx=61 cy=668 lx=48.8000 ly=534.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301219	reference	x=48.8000 y=534.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301227	coordinate	phase=pointer sx=790 sy=728 cx=61 cy=670 lx=48.8000 ly=536.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301227	reference	x=48.8000 y=536.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301243	coordinate	phase=pointer sx=790 sy=730 cx=61 cy=672 lx=48.8000 ly=537.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301244	reference	x=48.8000 y=537.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301292	coordinate	phase=pointer sx=790 sy=732 cx=61 cy=674 lx=48.8000 ly=539.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+301292	reference	x=48.8000 y=539.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+301762	heartbeat	11880
+302776	heartbeat	11920
+303789	heartbeat	11960
+304802	heartbeat	12000
+305814	heartbeat	12040
+306829	heartbeat	12080
+307843	heartbeat	12120
+308856	heartbeat	12160
+308925	coordinate	phase=pointer sx=914 sy=75 cx=185 cy=17 lx=148.0000 ly=13.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+308925	reference	x=148.0000 y=13.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=top_left
+309873	heartbeat	12200
+310885	heartbeat	12240
+311898	heartbeat	12280
+312911	heartbeat	12320
+313925	heartbeat	12360
+314938	heartbeat	12400
+315950	heartbeat	12440
+316964	heartbeat	12480
+317977	heartbeat	12520
+318990	heartbeat	12560
+320004	heartbeat	12600
+321016	heartbeat	12640
+321468	coordinate	phase=pointer sx=736 sy=907 cx=7 cy=849 lx=5.6000 ly=679.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321468	reference	x=5.6000 y=679.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321476	coordinate	phase=pointer sx=732 sy=902 cx=3 cy=844 lx=2.4000 ly=675.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321476	reference	x=2.4000 y=675.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321483	coordinate	phase=pointer sx=730 sy=896 cx=1 cy=838 lx=0.8000 ly=670.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321483	reference	x=0.8000 y=670.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321491	coordinate	phase=pointer sx=729 sy=890 cx=0 cy=832 lx=0.0000 ly=665.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321491	reference	x=0.0000 y=665.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321796	coordinate	phase=pointer sx=729 sy=883 cx=0 cy=825 lx=0.0000 ly=660.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321796	reference	x=0.0000 y=660.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321803	coordinate	phase=pointer sx=730 sy=884 cx=1 cy=826 lx=0.8000 ly=660.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321803	reference	x=0.8000 y=660.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321811	coordinate	phase=pointer sx=731 sy=884 cx=2 cy=826 lx=1.6000 ly=660.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321811	reference	x=1.6000 y=660.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321819	coordinate	phase=pointer sx=731 sy=887 cx=2 cy=829 lx=1.6000 ly=663.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321819	reference	x=1.6000 y=663.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321827	coordinate	phase=pointer sx=733 sy=888 cx=4 cy=830 lx=3.2000 ly=664.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321827	reference	x=3.2000 y=664.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321835	coordinate	phase=pointer sx=734 sy=889 cx=5 cy=831 lx=4.0000 ly=664.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321835	reference	x=4.0000 y=664.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321843	coordinate	phase=pointer sx=736 sy=892 cx=7 cy=834 lx=5.6000 ly=667.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321843	reference	x=5.6000 y=667.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321851	coordinate	phase=pointer sx=736 sy=893 cx=7 cy=835 lx=5.6000 ly=668.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321851	reference	x=5.6000 y=668.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321859	coordinate	phase=pointer sx=736 sy=894 cx=7 cy=836 lx=5.6000 ly=668.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321859	reference	x=5.6000 y=668.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321867	coordinate	phase=pointer sx=737 sy=896 cx=8 cy=838 lx=6.4000 ly=670.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321867	reference	x=6.4000 y=670.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321875	coordinate	phase=pointer sx=738 sy=897 cx=9 cy=839 lx=7.2000 ly=671.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321875	reference	x=7.2000 y=671.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321883	coordinate	phase=pointer sx=739 sy=898 cx=10 cy=840 lx=8.0000 ly=672.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321883	reference	x=8.0000 y=672.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321891	coordinate	phase=pointer sx=739 sy=899 cx=10 cy=841 lx=8.0000 ly=672.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321891	reference	x=8.0000 y=672.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+321987	coordinate	phase=pointer sx=740 sy=899 cx=11 cy=841 lx=8.8000 ly=672.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+321987	reference	x=8.8000 y=672.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322003	coordinate	phase=pointer sx=741 sy=898 cx=12 cy=840 lx=9.6000 ly=672.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322003	reference	x=9.6000 y=672.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322011	coordinate	phase=pointer sx=741 sy=897 cx=12 cy=839 lx=9.6000 ly=671.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322011	reference	x=9.6000 y=671.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322019	coordinate	phase=pointer sx=742 sy=895 cx=13 cy=837 lx=10.4000 ly=669.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322019	reference	x=10.4000 y=669.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322026	heartbeat	12680
+322027	coordinate	phase=pointer sx=742 sy=890 cx=13 cy=832 lx=10.4000 ly=665.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322027	reference	x=10.4000 y=665.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322036	coordinate	phase=pointer sx=743 sy=886 cx=14 cy=828 lx=11.2000 ly=662.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322036	reference	x=11.2000 y=662.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322043	coordinate	phase=pointer sx=745 sy=880 cx=16 cy=822 lx=12.8000 ly=657.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322044	reference	x=12.8000 y=657.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322061	coordinate	phase=pointer sx=746 sy=876 cx=17 cy=818 lx=13.6000 ly=654.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322061	reference	x=13.6000 y=654.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322064	coordinate	phase=pointer sx=748 sy=871 cx=19 cy=813 lx=15.2000 ly=650.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322064	reference	x=15.2000 y=650.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322067	coordinate	phase=pointer sx=748 sy=867 cx=19 cy=809 lx=15.2000 ly=647.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322067	reference	x=15.2000 y=647.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322075	coordinate	phase=pointer sx=749 sy=862 cx=20 cy=804 lx=16.0000 ly=643.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322075	reference	x=16.0000 y=643.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322083	coordinate	phase=pointer sx=749 sy=859 cx=20 cy=801 lx=16.0000 ly=640.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322083	reference	x=16.0000 y=640.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322091	coordinate	phase=pointer sx=749 sy=857 cx=20 cy=799 lx=16.0000 ly=639.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322091	reference	x=16.0000 y=639.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322099	coordinate	phase=pointer sx=749 sy=854 cx=20 cy=796 lx=16.0000 ly=636.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322099	reference	x=16.0000 y=636.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322107	coordinate	phase=pointer sx=749 sy=850 cx=20 cy=792 lx=16.0000 ly=633.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322107	reference	x=16.0000 y=633.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322115	coordinate	phase=pointer sx=749 sy=848 cx=20 cy=790 lx=16.0000 ly=632.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322115	reference	x=16.0000 y=632.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322123	coordinate	phase=pointer sx=749 sy=846 cx=20 cy=788 lx=16.0000 ly=630.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322123	reference	x=16.0000 y=630.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322131	coordinate	phase=pointer sx=749 sy=844 cx=20 cy=786 lx=16.0000 ly=628.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322131	reference	x=16.0000 y=628.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322139	coordinate	phase=pointer sx=749 sy=843 cx=20 cy=785 lx=16.0000 ly=628.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322139	reference	x=16.0000 y=628.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322155	coordinate	phase=pointer sx=749 sy=841 cx=20 cy=783 lx=16.0000 ly=626.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322155	reference	x=16.0000 y=626.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322251	coordinate	phase=pointer sx=749 sy=842 cx=20 cy=784 lx=16.0000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322251	reference	x=16.0000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322276	coordinate	phase=pointer sx=749 sy=844 cx=20 cy=786 lx=16.0000 ly=628.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322276	reference	x=16.0000 y=628.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322283	coordinate	phase=pointer sx=749 sy=845 cx=20 cy=787 lx=16.0000 ly=629.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322283	reference	x=16.0000 y=629.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322291	coordinate	phase=pointer sx=749 sy=846 cx=20 cy=788 lx=16.0000 ly=630.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322291	reference	x=16.0000 y=630.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322315	coordinate	phase=pointer sx=749 sy=847 cx=20 cy=789 lx=16.0000 ly=631.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322315	reference	x=16.0000 y=631.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322324	coordinate	phase=pointer sx=749 sy=848 cx=20 cy=790 lx=16.0000 ly=632.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322324	reference	x=16.0000 y=632.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322331	coordinate	phase=pointer sx=749 sy=849 cx=20 cy=791 lx=16.0000 ly=632.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322331	reference	x=16.0000 y=632.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322339	coordinate	phase=pointer sx=750 sy=850 cx=21 cy=792 lx=16.8000 ly=633.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322340	reference	x=16.8000 y=633.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322547	coordinate	phase=pointer sx=750 sy=849 cx=21 cy=791 lx=16.8000 ly=632.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322547	reference	x=16.8000 y=632.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322563	coordinate	phase=pointer sx=750 sy=848 cx=21 cy=790 lx=16.8000 ly=632.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322563	reference	x=16.8000 y=632.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322571	coordinate	phase=pointer sx=751 sy=847 cx=22 cy=789 lx=17.6000 ly=631.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322572	reference	x=17.6000 y=631.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322604	coordinate	phase=pointer sx=751 sy=845 cx=22 cy=787 lx=17.6000 ly=629.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322604	reference	x=17.6000 y=629.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322764	coordinate	phase=pointer sx=752 sy=845 cx=23 cy=787 lx=18.4000 ly=629.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322764	reference	x=18.4000 y=629.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322820	coordinate	phase=pointer sx=753 sy=847 cx=24 cy=789 lx=19.2000 ly=631.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322820	reference	x=19.2000 y=631.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+322851	coordinate	phase=pointer sx=753 sy=849 cx=24 cy=791 lx=19.2000 ly=632.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+322851	reference	x=19.2000 y=632.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323041	heartbeat	12720
+323315	coordinate	phase=pointer sx=753 sy=848 cx=24 cy=790 lx=19.2000 ly=632.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323315	reference	x=19.2000 y=632.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323323	coordinate	phase=pointer sx=753 sy=847 cx=24 cy=789 lx=19.2000 ly=631.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323323	reference	x=19.2000 y=631.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323331	coordinate	phase=pointer sx=752 sy=846 cx=23 cy=788 lx=18.4000 ly=630.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323331	reference	x=18.4000 y=630.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323339	coordinate	phase=pointer sx=752 sy=845 cx=23 cy=787 lx=18.4000 ly=629.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323339	reference	x=18.4000 y=629.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323348	coordinate	phase=pointer sx=752 sy=843 cx=23 cy=785 lx=18.4000 ly=628.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323348	reference	x=18.4000 y=628.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323355	coordinate	phase=pointer sx=752 sy=842 cx=23 cy=784 lx=18.4000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323355	reference	x=18.4000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323363	coordinate	phase=pointer sx=751 sy=839 cx=22 cy=781 lx=17.6000 ly=624.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323363	reference	x=17.6000 y=624.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323371	coordinate	phase=pointer sx=751 sy=837 cx=22 cy=779 lx=17.6000 ly=623.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323371	reference	x=17.6000 y=623.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323403	coordinate	phase=pointer sx=750 sy=837 cx=21 cy=779 lx=16.8000 ly=623.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323403	reference	x=16.8000 y=623.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323659	coordinate	phase=pointer sx=750 sy=835 cx=21 cy=777 lx=16.8000 ly=621.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323659	reference	x=16.8000 y=621.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323667	coordinate	phase=pointer sx=750 sy=833 cx=21 cy=775 lx=16.8000 ly=620.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323667	reference	x=16.8000 y=620.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323675	coordinate	phase=pointer sx=749 sy=833 cx=20 cy=775 lx=16.0000 ly=620.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323675	reference	x=16.0000 y=620.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323683	coordinate	phase=pointer sx=749 sy=832 cx=20 cy=774 lx=16.0000 ly=619.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323683	reference	x=16.0000 y=619.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323691	coordinate	phase=pointer sx=749 sy=831 cx=20 cy=773 lx=16.0000 ly=618.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323691	reference	x=16.0000 y=618.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323843	coordinate	phase=pointer sx=748 sy=831 cx=19 cy=773 lx=15.2000 ly=618.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323843	reference	x=15.2000 y=618.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323859	coordinate	phase=pointer sx=748 sy=832 cx=19 cy=774 lx=15.2000 ly=619.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323859	reference	x=15.2000 y=619.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323867	coordinate	phase=pointer sx=748 sy=833 cx=19 cy=775 lx=15.2000 ly=620.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323867	reference	x=15.2000 y=620.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323875	coordinate	phase=pointer sx=748 sy=835 cx=19 cy=777 lx=15.2000 ly=621.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323875	reference	x=15.2000 y=621.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323891	coordinate	phase=pointer sx=748 sy=837 cx=19 cy=779 lx=15.2000 ly=623.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323891	reference	x=15.2000 y=623.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323900	coordinate	phase=pointer sx=747 sy=839 cx=18 cy=781 lx=14.4000 ly=624.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323900	reference	x=14.4000 y=624.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323907	coordinate	phase=pointer sx=746 sy=840 cx=17 cy=782 lx=13.6000 ly=625.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323907	reference	x=13.6000 y=625.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+323923	coordinate	phase=pointer sx=746 sy=842 cx=17 cy=784 lx=13.6000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+323923	reference	x=13.6000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+324011	coordinate	phase=pointer sx=745 sy=843 cx=16 cy=785 lx=12.8000 ly=628.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+324012	reference	x=12.8000 y=628.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+324035	coordinate	phase=pointer sx=745 sy=842 cx=16 cy=784 lx=12.8000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+324036	reference	x=12.8000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+324053	heartbeat	12760
+324053	coordinate	phase=pointer sx=745 sy=841 cx=16 cy=783 lx=12.8000 ly=626.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+324054	reference	x=12.8000 y=626.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+324067	coordinate	phase=pointer sx=745 sy=840 cx=16 cy=782 lx=12.8000 ly=625.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+324067	reference	x=12.8000 y=625.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+324292	coordinate	phase=pointer sx=744 sy=840 cx=15 cy=782 lx=12.0000 ly=625.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+324292	reference	x=12.0000 y=625.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+325069	heartbeat	12800
+326081	heartbeat	12840
+327095	heartbeat	12880
+328109	heartbeat	12920
+329123	heartbeat	12960
+330138	heartbeat	13000
+331147	heartbeat	13040
+332075	coordinate	phase=pointer sx=744 sy=842 cx=15 cy=784 lx=12.0000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332075	reference	x=12.0000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332091	coordinate	phase=pointer sx=744 sy=843 cx=15 cy=785 lx=12.0000 ly=628.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332091	reference	x=12.0000 y=628.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332160	heartbeat	13080
+332195	coordinate	phase=pointer sx=744 sy=844 cx=15 cy=786 lx=12.0000 ly=628.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332195	reference	x=12.0000 y=628.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332403	coordinate	phase=pointer sx=743 sy=845 cx=14 cy=787 lx=11.2000 ly=629.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332403	reference	x=11.2000 y=629.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332452	coordinate	phase=pointer sx=743 sy=844 cx=14 cy=786 lx=11.2000 ly=628.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332452	reference	x=11.2000 y=628.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332467	coordinate	phase=pointer sx=743 sy=843 cx=14 cy=785 lx=11.2000 ly=628.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332467	reference	x=11.2000 y=628.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332492	coordinate	phase=pointer sx=743 sy=842 cx=14 cy=784 lx=11.2000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332492	reference	x=11.2000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332523	coordinate	phase=pointer sx=742 sy=842 cx=13 cy=784 lx=10.4000 ly=627.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332523	reference	x=10.4000 y=627.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332547	coordinate	phase=pointer sx=741 sy=841 cx=12 cy=783 lx=9.6000 ly=626.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332547	reference	x=9.6000 y=626.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332587	coordinate	phase=pointer sx=741 sy=840 cx=12 cy=782 lx=9.6000 ly=625.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332587	reference	x=9.6000 y=625.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332619	coordinate	phase=pointer sx=741 sy=839 cx=12 cy=781 lx=9.6000 ly=624.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332619	reference	x=9.6000 y=624.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332683	coordinate	phase=pointer sx=741 sy=838 cx=12 cy=780 lx=9.6000 ly=624.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332683	reference	x=9.6000 y=624.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332739	coordinate	phase=pointer sx=740 sy=836 cx=11 cy=778 lx=8.8000 ly=622.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332739	reference	x=8.8000 y=622.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332900	coordinate	phase=pointer sx=739 sy=837 cx=10 cy=779 lx=8.0000 ly=623.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332900	reference	x=8.0000 y=623.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332923	coordinate	phase=pointer sx=738 sy=838 cx=9 cy=780 lx=7.2000 ly=624.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332923	reference	x=7.2000 y=624.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332939	coordinate	phase=pointer sx=737 sy=839 cx=8 cy=781 lx=6.4000 ly=624.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332939	reference	x=6.4000 y=624.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+332947	coordinate	phase=pointer sx=737 sy=840 cx=8 cy=782 lx=6.4000 ly=625.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+332947	reference	x=6.4000 y=625.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+333174	heartbeat	13120
+334187	heartbeat	13160
+335198	heartbeat	13200
+336212	heartbeat	13240
+337224	heartbeat	13280
+338235	heartbeat	13320
+339246	heartbeat	13360
+340260	heartbeat	13400
+341270	heartbeat	13440
+342283	heartbeat	13480
+343297	heartbeat	13520
+344310	heartbeat	13560
+345324	heartbeat	13600
+346337	heartbeat	13640
+347348	heartbeat	13680
+348363	heartbeat	13720
+349375	heartbeat	13760
+350389	heartbeat	13800
+351402	heartbeat	13840
+352414	heartbeat	13880
+353426	heartbeat	13920
+354058	coordinate	phase=enter sx=735 sy=338 cx=6 cy=280 lx=4.8000 ly=224.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354058	enter	supported=true x=735 y=338
+354059	coordinate	phase=over sx=735 sy=338 cx=6 cy=280 lx=4.8000 ly=224.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354059	over	x=735 y=338
+354084	coordinate	phase=over sx=759 sy=345 cx=30 cy=287 lx=24.0000 ly=229.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354084	over	x=759 y=345
+354134	coordinate	phase=over sx=783 sy=352 cx=54 cy=294 lx=43.2000 ly=235.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354134	over	x=783 y=352
+354160	coordinate	phase=over sx=807 sy=359 cx=78 cy=301 lx=62.4000 ly=240.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354161	over	x=807 y=359
+354185	coordinate	phase=over sx=831 sy=366 cx=102 cy=308 lx=81.6000 ly=246.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354185	over	x=831 y=366
+354211	coordinate	phase=over sx=854 sy=373 cx=125 cy=315 lx=100.0000 ly=252.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354211	over	x=854 y=373
+354236	coordinate	phase=over sx=878 sy=380 cx=149 cy=322 lx=119.2000 ly=257.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354236	over	x=878 y=380
+354286	coordinate	phase=over sx=902 sy=387 cx=173 cy=329 lx=138.4000 ly=263.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354286	over	x=902 y=387
+354311	coordinate	phase=over sx=926 sy=394 cx=197 cy=336 lx=157.6000 ly=268.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354311	over	x=926 y=394
+354336	coordinate	phase=over sx=950 sy=401 cx=221 cy=343 lx=176.8000 ly=274.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354336	over	x=950 y=401
+354361	coordinate	phase=over sx=973 sy=408 cx=244 cy=350 lx=195.2000 ly=280.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354361	over	x=973 y=408
+354410	coordinate	phase=over sx=997 sy=415 cx=268 cy=357 lx=214.4000 ly=285.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354410	over	x=997 y=415
+354410	coordinate	phase=over sx=1021 sy=422 cx=292 cy=364 lx=233.6000 ly=291.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354410	over	x=1021 y=422
+354435	heartbeat	13960
+354461	coordinate	phase=over sx=1045 sy=429 cx=316 cy=371 lx=252.8000 ly=296.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354461	over	x=1045 y=429
+354486	coordinate	phase=over sx=1069 sy=436 cx=340 cy=378 lx=272.0000 ly=302.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354486	over	x=1069 y=436
+354512	coordinate	phase=over sx=1092 sy=443 cx=363 cy=385 lx=290.4000 ly=308.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354513	over	x=1092 y=443
+354564	coordinate	phase=over sx=1116 sy=450 cx=387 cy=392 lx=309.6000 ly=313.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354564	over	x=1116 y=450
+354588	coordinate	phase=over sx=1140 sy=457 cx=411 cy=399 lx=328.8000 ly=319.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354588	over	x=1140 y=457
+354613	coordinate	phase=over sx=1164 sy=464 cx=435 cy=406 lx=348.0000 ly=324.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354613	over	x=1164 y=464
+354638	coordinate	phase=over sx=1188 sy=471 cx=459 cy=413 lx=367.2000 ly=330.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354639	over	x=1188 y=471
+354663	coordinate	phase=over sx=1211 sy=478 cx=482 cy=420 lx=385.6000 ly=336.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=top_left
+354663	over	x=1211 y=478
+354714	coordinate	phase=over sx=1235 sy=485 cx=506 cy=427 lx=404.8000 ly=341.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+354714	over	x=1235 y=485
+354740	coordinate	phase=over sx=1259 sy=492 cx=530 cy=434 lx=424.0000 ly=347.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_left
+354740	over	x=1259 y=492
+354765	coordinate	phase=over sx=1283 sy=499 cx=554 cy=441 lx=443.2000 ly=352.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+354765	over	x=1283 y=499
+354816	coordinate	phase=over sx=1307 sy=506 cx=578 cy=448 lx=462.4000 ly=358.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+354816	over	x=1307 y=506
+354842	coordinate	phase=over sx=1330 sy=513 cx=601 cy=455 lx=480.8000 ly=364.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+354842	over	x=1330 y=513
+354867	coordinate	phase=over sx=1354 sy=520 cx=625 cy=462 lx=500.0000 ly=369.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+354867	over	x=1354 y=520
+354892	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+354892	over	x=1378 y=527
+354941	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+354941	over	x=1378 y=527
+355017	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355018	over	x=1378 y=527
+355067	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355068	over	x=1378 y=527
+355117	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355117	over	x=1378 y=527
+355169	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355169	over	x=1378 y=527
+355220	coordinate	phase=over sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355220	over	x=1378 y=527
+355278	coordinate	phase=pointer sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355278	reference	x=519.2000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+355297	coordinate	phase=drop sx=1378 sy=527 cx=649 cy=469 lx=519.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355297	drop	count=1 total=1 x=1378 y=527
+355297	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-06\physical-recheck\interactive-fff6ee10\fixtures\sample application.exe
+355448	heartbeat	14000
+355595	coordinate	phase=pointer sx=1377 sy=525 cx=648 cy=467 lx=518.4000 ly=373.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+355595	reference	x=518.4000 y=373.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+356459	heartbeat	14040
+357471	heartbeat	14080
+357755	coordinate	phase=pointer sx=1376 sy=525 cx=647 cy=467 lx=517.6000 ly=373.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+357755	reference	x=517.6000 y=373.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+357883	coordinate	phase=pointer sx=1376 sy=526 cx=647 cy=468 lx=517.6000 ly=374.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+357884	reference	x=517.6000 y=374.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+357907	coordinate	phase=pointer sx=1375 sy=527 cx=646 cy=469 lx=516.8000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+357907	reference	x=516.8000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+357915	coordinate	phase=pointer sx=1373 sy=527 cx=644 cy=469 lx=515.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+357915	reference	x=515.2000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358067	coordinate	phase=pointer sx=1372 sy=527 cx=643 cy=469 lx=514.4000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358067	reference	x=514.4000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358091	coordinate	phase=pointer sx=1371 sy=527 cx=642 cy=469 lx=513.6000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358091	reference	x=513.6000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358211	coordinate	phase=pointer sx=1369 sy=527 cx=640 cy=469 lx=512.0000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358212	reference	x=512.0000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358227	coordinate	phase=pointer sx=1367 sy=527 cx=638 cy=469 lx=510.4000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358227	reference	x=510.4000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358267	coordinate	phase=pointer sx=1366 sy=526 cx=637 cy=468 lx=509.6000 ly=374.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358267	reference	x=509.6000 y=374.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358411	coordinate	phase=pointer sx=1366 sy=525 cx=637 cy=467 lx=509.6000 ly=373.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358412	reference	x=509.6000 y=373.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358482	heartbeat	14120
+358523	coordinate	phase=pointer sx=1365 sy=525 cx=636 cy=467 lx=508.8000 ly=373.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358524	reference	x=508.8000 y=373.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358531	coordinate	phase=pointer sx=1364 sy=525 cx=635 cy=467 lx=508.0000 ly=373.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358531	reference	x=508.0000 y=373.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358547	coordinate	phase=pointer sx=1363 sy=527 cx=634 cy=469 lx=507.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358547	reference	x=507.2000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358851	coordinate	phase=pointer sx=1362 sy=527 cx=633 cy=469 lx=506.4000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358851	reference	x=506.4000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358867	coordinate	phase=pointer sx=1360 sy=527 cx=631 cy=469 lx=504.8000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358867	reference	x=504.8000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+358875	coordinate	phase=pointer sx=1359 sy=525 cx=630 cy=467 lx=504.0000 ly=373.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+358876	reference	x=504.0000 y=373.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359131	coordinate	phase=pointer sx=1358 sy=526 cx=629 cy=468 lx=503.2000 ly=374.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359131	reference	x=503.2000 y=374.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359147	coordinate	phase=pointer sx=1358 sy=527 cx=629 cy=469 lx=503.2000 ly=375.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359147	reference	x=503.2000 y=375.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359171	coordinate	phase=pointer sx=1357 sy=530 cx=628 cy=472 lx=502.4000 ly=377.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359171	reference	x=502.4000 y=377.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359243	coordinate	phase=pointer sx=1357 sy=531 cx=628 cy=473 lx=502.4000 ly=378.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359243	reference	x=502.4000 y=378.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359251	coordinate	phase=pointer sx=1357 sy=532 cx=628 cy=474 lx=502.4000 ly=379.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359251	reference	x=502.4000 y=379.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359260	coordinate	phase=pointer sx=1357 sy=534 cx=628 cy=476 lx=502.4000 ly=380.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359260	reference	x=502.4000 y=380.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359268	coordinate	phase=pointer sx=1357 sy=535 cx=628 cy=477 lx=502.4000 ly=381.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359268	reference	x=502.4000 y=381.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359275	coordinate	phase=pointer sx=1357 sy=539 cx=628 cy=481 lx=502.4000 ly=384.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359275	reference	x=502.4000 y=384.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359283	coordinate	phase=pointer sx=1357 sy=544 cx=628 cy=486 lx=502.4000 ly=388.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359283	reference	x=502.4000 y=388.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359291	coordinate	phase=pointer sx=1357 sy=548 cx=628 cy=490 lx=502.4000 ly=392.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359291	reference	x=502.4000 y=392.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359299	coordinate	phase=pointer sx=1357 sy=553 cx=628 cy=495 lx=502.4000 ly=396.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359299	reference	x=502.4000 y=396.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359307	coordinate	phase=pointer sx=1357 sy=555 cx=628 cy=497 lx=502.4000 ly=397.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359307	reference	x=502.4000 y=397.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359315	coordinate	phase=pointer sx=1357 sy=559 cx=628 cy=501 lx=502.4000 ly=400.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359315	reference	x=502.4000 y=400.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359323	coordinate	phase=pointer sx=1357 sy=563 cx=628 cy=505 lx=502.4000 ly=404.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359323	reference	x=502.4000 y=404.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359331	coordinate	phase=pointer sx=1357 sy=566 cx=628 cy=508 lx=502.4000 ly=406.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359331	reference	x=502.4000 y=406.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359339	coordinate	phase=pointer sx=1357 sy=568 cx=628 cy=510 lx=502.4000 ly=408.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359339	reference	x=502.4000 y=408.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359347	coordinate	phase=pointer sx=1357 sy=571 cx=628 cy=513 lx=502.4000 ly=410.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359347	reference	x=502.4000 y=410.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359355	coordinate	phase=pointer sx=1357 sy=574 cx=628 cy=516 lx=502.4000 ly=412.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359355	reference	x=502.4000 y=412.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359363	coordinate	phase=pointer sx=1357 sy=577 cx=628 cy=519 lx=502.4000 ly=415.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359363	reference	x=502.4000 y=415.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359371	coordinate	phase=pointer sx=1357 sy=581 cx=628 cy=523 lx=502.4000 ly=418.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359371	reference	x=502.4000 y=418.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359379	coordinate	phase=pointer sx=1357 sy=585 cx=628 cy=527 lx=502.4000 ly=421.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359379	reference	x=502.4000 y=421.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359387	coordinate	phase=pointer sx=1358 sy=589 cx=629 cy=531 lx=503.2000 ly=424.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359387	reference	x=503.2000 y=424.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359395	coordinate	phase=pointer sx=1358 sy=590 cx=629 cy=532 lx=503.2000 ly=425.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359395	reference	x=503.2000 y=425.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359403	coordinate	phase=pointer sx=1359 sy=591 cx=630 cy=533 lx=504.0000 ly=426.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359403	reference	x=504.0000 y=426.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359411	coordinate	phase=pointer sx=1360 sy=593 cx=631 cy=535 lx=504.8000 ly=428.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359411	reference	x=504.8000 y=428.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359419	coordinate	phase=pointer sx=1360 sy=595 cx=631 cy=537 lx=504.8000 ly=429.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359419	reference	x=504.8000 y=429.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359427	coordinate	phase=pointer sx=1360 sy=596 cx=631 cy=538 lx=504.8000 ly=430.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359427	reference	x=504.8000 y=430.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359435	coordinate	phase=pointer sx=1360 sy=597 cx=631 cy=539 lx=504.8000 ly=431.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359435	reference	x=504.8000 y=431.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359459	coordinate	phase=pointer sx=1361 sy=599 cx=632 cy=541 lx=505.6000 ly=432.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359459	reference	x=505.6000 y=432.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359467	coordinate	phase=pointer sx=1362 sy=600 cx=633 cy=542 lx=506.4000 ly=433.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359467	reference	x=506.4000 y=433.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359493	heartbeat	14160
+359499	coordinate	phase=pointer sx=1362 sy=601 cx=633 cy=543 lx=506.4000 ly=434.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359499	reference	x=506.4000 y=434.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359515	coordinate	phase=pointer sx=1362 sy=602 cx=633 cy=544 lx=506.4000 ly=435.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359515	reference	x=506.4000 y=435.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359523	coordinate	phase=pointer sx=1362 sy=603 cx=633 cy=545 lx=506.4000 ly=436.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359523	reference	x=506.4000 y=436.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359531	coordinate	phase=pointer sx=1362 sy=605 cx=633 cy=547 lx=506.4000 ly=437.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359531	reference	x=506.4000 y=437.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359539	coordinate	phase=pointer sx=1361 sy=608 cx=632 cy=550 lx=505.6000 ly=440.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359539	reference	x=505.6000 y=440.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359547	coordinate	phase=pointer sx=1359 sy=612 cx=630 cy=554 lx=504.0000 ly=443.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359547	reference	x=504.0000 y=443.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359555	coordinate	phase=pointer sx=1358 sy=614 cx=629 cy=556 lx=503.2000 ly=444.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359555	reference	x=503.2000 y=444.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359563	coordinate	phase=pointer sx=1356 sy=616 cx=627 cy=558 lx=501.6000 ly=446.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359563	reference	x=501.6000 y=446.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359571	coordinate	phase=pointer sx=1356 sy=619 cx=627 cy=561 lx=501.6000 ly=448.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359571	reference	x=501.6000 y=448.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359579	coordinate	phase=pointer sx=1355 sy=621 cx=626 cy=563 lx=500.8000 ly=450.4000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359579	reference	x=500.8000 y=450.4000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359675	coordinate	phase=pointer sx=1355 sy=620 cx=626 cy=562 lx=500.8000 ly=449.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359675	reference	x=500.8000 y=449.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359707	coordinate	phase=pointer sx=1355 sy=618 cx=626 cy=560 lx=500.8000 ly=448.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359707	reference	x=500.8000 y=448.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359715	coordinate	phase=pointer sx=1357 sy=617 cx=628 cy=559 lx=502.4000 ly=447.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359715	reference	x=502.4000 y=447.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359723	coordinate	phase=pointer sx=1358 sy=615 cx=629 cy=557 lx=503.2000 ly=445.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359723	reference	x=503.2000 y=445.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359731	coordinate	phase=pointer sx=1360 sy=614 cx=631 cy=556 lx=504.8000 ly=444.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359731	reference	x=504.8000 y=444.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359739	coordinate	phase=pointer sx=1361 sy=612 cx=632 cy=554 lx=505.6000 ly=443.2000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359739	reference	x=505.6000 y=443.2000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359803	coordinate	phase=pointer sx=1362 sy=613 cx=633 cy=555 lx=506.4000 ly=444.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359803	reference	x=506.4000 y=444.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359811	coordinate	phase=pointer sx=1362 sy=615 cx=633 cy=557 lx=506.4000 ly=445.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359811	reference	x=506.4000 y=445.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359819	coordinate	phase=pointer sx=1363 sy=619 cx=634 cy=561 lx=507.2000 ly=448.8000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359819	reference	x=507.2000 y=448.8000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359827	coordinate	phase=pointer sx=1364 sy=623 cx=635 cy=565 lx=508.0000 ly=452.0000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359827	reference	x=508.0000 y=452.0000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+359835	coordinate	phase=pointer sx=1365 sy=625 cx=636 cy=567 lx=508.8000 ly=453.6000 dpi=120 scale=1.2500 pmv2=true inside=true sizes_match=true scale_match=true cw=1082 ch=853 sw=1082 sh=853 ox=729 oy=58 lw=865.6000 lh=682.4000 region=bottom_right
+359835	reference	x=508.8000 y=453.6000 width=865.6000 height=682.4000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+360505	heartbeat	14200
+361519	heartbeat	14240
+362530	heartbeat	14280
+363542	heartbeat	14320
+364556	heartbeat	14360
+365569	heartbeat	14400
+366582	heartbeat	14440
+367592	heartbeat	14480
+368607	heartbeat	14520
+369624	heartbeat	14560
+370637	heartbeat	14600
+371650	heartbeat	14640
+372663	heartbeat	14680
+373678	heartbeat	14720
+374691	heartbeat	14760
+375703	heartbeat	14800
+376717	heartbeat	14840
+377731	heartbeat	14880
+378745	heartbeat	14920
+379758	heartbeat	14960
+380771	heartbeat	15000
+381786	heartbeat	15040
+382799	heartbeat	15080
+383813	heartbeat	15120
+384825	heartbeat	15160
+385838	heartbeat	15200
+386850	heartbeat	15240
+387864	heartbeat	15280
+388876	heartbeat	15320
+389891	heartbeat	15360
+390906	heartbeat	15400
+391921	heartbeat	15440
+392935	heartbeat	15480
+393948	heartbeat	15520
+394959	heartbeat	15560
+395972	heartbeat	15600
+396985	heartbeat	15640
+397997	heartbeat	15680
+399009	heartbeat	15720
+400020	heartbeat	15760
+400880	coordinate	phase=pointer sx=960 sy=540 cx=232 cy=489 lx=232.0000 ly=489.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=866 ch=682 sw=866 sh=682 ox=728 oy=51 lw=866.0000 lh=682.0000 region=bottom_left
+400880	reference	x=232.0000 y=489.0000 width=866.0000 height=682.0000 dx=0.0000 dy=0.0000 expected_region=bottom_left
+401496	heartbeat	15800
+402514	heartbeat	15840
+403528	heartbeat	15880
+404542	heartbeat	15920
+404670	coordinate	phase=enter sx=743 sy=322 cx=15 cy=271 lx=15.0000 ly=271.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404670	enter	supported=true x=743 y=322
+404670	coordinate	phase=over sx=743 sy=322 cx=15 cy=271 lx=15.0000 ly=271.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404670	over	x=743 y=322
+404695	coordinate	phase=over sx=769 sy=330 cx=41 cy=279 lx=41.0000 ly=279.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404695	over	x=769 y=330
+404745	coordinate	phase=over sx=796 sy=339 cx=68 cy=288 lx=68.0000 ly=288.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404746	over	x=796 y=339
+404771	coordinate	phase=over sx=822 sy=347 cx=94 cy=296 lx=94.0000 ly=296.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404771	over	x=822 y=347
+404797	coordinate	phase=over sx=849 sy=356 cx=121 cy=305 lx=121.0000 ly=305.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404797	over	x=849 y=356
+404822	coordinate	phase=over sx=875 sy=364 cx=147 cy=313 lx=147.0000 ly=313.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404822	over	x=875 y=364
+404847	coordinate	phase=over sx=902 sy=373 cx=174 cy=322 lx=174.0000 ly=322.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404847	over	x=902 y=373
+404898	coordinate	phase=over sx=928 sy=381 cx=200 cy=330 lx=200.0000 ly=330.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404898	over	x=928 y=381
+404924	coordinate	phase=over sx=955 sy=390 cx=227 cy=339 lx=227.0000 ly=339.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404924	over	x=955 y=390
+404949	coordinate	phase=over sx=981 sy=398 cx=253 cy=347 lx=253.0000 ly=347.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+404949	over	x=981 y=398
+405000	coordinate	phase=over sx=1008 sy=407 cx=280 cy=356 lx=280.0000 ly=356.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405000	over	x=1008 y=407
+405025	coordinate	phase=over sx=1034 sy=415 cx=306 cy=364 lx=306.0000 ly=364.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405025	over	x=1034 y=415
+405051	coordinate	phase=over sx=1061 sy=424 cx=333 cy=373 lx=333.0000 ly=373.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405051	over	x=1061 y=424
+405076	coordinate	phase=over sx=1087 sy=432 cx=359 cy=381 lx=359.0000 ly=381.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405076	over	x=1087 y=432
+405127	coordinate	phase=over sx=1113 sy=440 cx=385 cy=389 lx=385.0000 ly=389.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405127	over	x=1113 y=440
+405153	coordinate	phase=over sx=1140 sy=449 cx=412 cy=398 lx=412.0000 ly=398.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405153	over	x=1140 y=449
+405203	coordinate	phase=over sx=1166 sy=457 cx=438 cy=406 lx=438.0000 ly=406.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405203	over	x=1166 y=457
+405252	coordinate	phase=over sx=1193 sy=466 cx=465 cy=415 lx=465.0000 ly=415.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405252	over	x=1193 y=466
+405252	coordinate	phase=over sx=1219 sy=474 cx=491 cy=423 lx=491.0000 ly=423.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=top_left
+405252	over	x=1219 y=474
+405303	coordinate	phase=over sx=1246 sy=483 cx=518 cy=432 lx=518.0000 ly=432.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_left
+405303	over	x=1246 y=483
+405329	coordinate	phase=over sx=1272 sy=491 cx=544 cy=440 lx=544.0000 ly=440.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405329	over	x=1272 y=491
+405354	coordinate	phase=over sx=1299 sy=500 cx=571 cy=449 lx=571.0000 ly=449.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405354	over	x=1299 y=500
+405378	coordinate	phase=over sx=1325 sy=508 cx=597 cy=457 lx=597.0000 ly=457.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405378	over	x=1325 y=508
+405428	coordinate	phase=over sx=1352 sy=517 cx=624 cy=466 lx=624.0000 ly=466.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405428	over	x=1352 y=517
+405428	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405429	over	x=1378 y=525
+405505	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405505	over	x=1378 y=525
+405556	heartbeat	15960
+405556	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405556	over	x=1378 y=525
+405607	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405607	over	x=1378 y=525
+405681	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405682	over	x=1378 y=525
+405732	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405733	over	x=1378 y=525
+405809	coordinate	phase=over sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405809	over	x=1378 y=525
+405827	coordinate	phase=pointer sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405827	reference	x=650.0000 y=474.0000 width=1084.0000 height=861.0000 dx=0.0000 dy=0.0000 expected_region=bottom_right
+405835	coordinate	phase=drop sx=1378 sy=525 cx=650 cy=474 lx=650.0000 ly=474.0000 dpi=96 scale=1.0000 pmv2=true inside=true sizes_match=true scale_match=true cw=1084 ch=861 sw=1084 sh=861 ox=728 oy=51 lw=1084.0000 lh=861.0000 region=bottom_right
+405835	drop	count=1 total=2 x=1378 y=525
+405835	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-06\physical-recheck\interactive-fff6ee10\fixtures\sample application.exe
+406567	heartbeat	16000
+407581	heartbeat	16040
+408593	heartbeat	16080
+409606	heartbeat	16120
+410618	heartbeat	16160
+411631	heartbeat	16200
+412645	heartbeat	16240
+413659	heartbeat	16280
+414673	heartbeat	16320
+415685	heartbeat	16360
+416698	heartbeat	16400
+417711	heartbeat	16440
+418724	heartbeat	16480
+419739	heartbeat	16520
+420751	heartbeat	16560
+421765	heartbeat	16600
+422778	heartbeat	16640
+423793	heartbeat	16680
+424807	heartbeat	16720
+425820	heartbeat	16760
+426832	heartbeat	16800
+427127	cleanup	acquired=2 released=2 destroyed=1 enters=2 overs=65 leaves=0 drops=2 errors=0 received=2 heartbeat=16811

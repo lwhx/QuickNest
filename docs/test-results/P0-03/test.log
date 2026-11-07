@@ -1,0 +1,31 @@
+   Compiling windows-sys v0.61.2
+   Compiling muda v0.19.3
+   Compiling arboard v3.7.0
+   Compiling softbuffer v0.4.8
+   Compiling i-slint-backend-winit v1.18.1
+   Compiling i-slint-backend-selector v1.18.1
+   Compiling slint v1.18.1
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.19s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-4dc2bdd3b77eaffb.exe)
+
+running 10 tests
+test tests::hwnd_test_requires_one_nonempty_report_path ... ok
+test tests::help_does_not_open_a_window ... ok
+test tests::ole_test_requires_one_nonempty_report_path ... ok
+test tests::demo_grid_has_six_distinct_non_launching_items ... ok
+test tests::no_arguments_selects_interactive_mode ... ok
+test tests::smoke_test_requires_explicit_argument ... ok
+test tests::unexpected_arguments_are_rejected ... ok
+test infrastructure::windows::window_handle::tests::null_handle_is_rejected_as_an_observation ... ok
+test infrastructure::windows::ole::tests::mta_conflict_does_not_uninitialize_the_existing_apartment ... ok
+test infrastructure::windows::ole::tests::nested_ole_successes_release_exactly_their_own_thread_references ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\quicknest-4b488e4a7f9bb14e.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,11 @@
+    Checking windows-sys v0.61.2
+    Checking i-slint-core v1.18.1
+   Compiling i-slint-backend-winit v1.18.1
+   Compiling i-slint-backend-selector v1.18.1
+    Checking muda v0.19.3
+    Checking softbuffer v0.4.8
+    Checking arboard v3.7.0
+    Checking i-slint-renderer-software v1.18.1
+    Checking slint v1.18.1
+    Checking quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.98s

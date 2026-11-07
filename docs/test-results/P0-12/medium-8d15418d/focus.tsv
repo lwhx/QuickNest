@@ -1,0 +1,3 @@
+84	state_show	Hidden->Showing->Visible
+84	state_hide	Visible->Hiding->Hidden
+98	scenario_error	SendInput click failed: 183

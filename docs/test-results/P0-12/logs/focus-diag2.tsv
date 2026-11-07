@@ -1,0 +1,10 @@
+97	state_show	Hidden->Showing->Visible
+97	state_hide	Visible->Hiding->Hidden
+268	esc_hides	SendInput ESC -> escape-pressed -> Hidden
+273	hotkey_toggle_show	Ctrl+Alt+Space -> Showing->Visible
+290	hotkey_toggle_hide	Ctrl+Alt+Space -> Hiding->Hidden
+432	tray_toggle_show	LeftClick -> toggle -> Visible
+452	tray_toggle_hide	LeftClick -> toggle -> Hidden
+924	tray_menu_show	menu item 1 -> MenuSelected(Show) -> Visible
+1416	tray_menu_hide	menu item 2 -> MenuSelected(Hide) -> Hidden
+13831	scenario_error	state stayed Visible, expected Hidden within 12s

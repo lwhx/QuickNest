@@ -1,0 +1,4 @@
+0	keeper	opened	Local\QuickNest-7523641ad8f38453-1
+10	keeper	wait	WAIT_ABANDONED
+10	keeper	abandoned_takeover	owner died without release
+10	keeper	completed	object released for destruction

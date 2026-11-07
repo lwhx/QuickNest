@@ -1,0 +1,8 @@
+﻿config was not written after category creation
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-03-categories.ps1:125 字符: 41
++ ... nfigPath)) { throw 'config was not written after category creation' }
++                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (config was not ...tegory creation:String) [], RuntimeException
+    + FullyQualifiedErrorId : config was not written after category creation
+ 
+

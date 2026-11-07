@@ -1,0 +1,10 @@
+﻿All P2-07 UWP phases passed.
+100603.152	fixture	lnk=C:\Users\Administrator\AppData\Local\Temp\QuickNestP207-5ce61b3c\uwp-calc.lnk bytes=1407 aumid=Microsoft.WindowsCalculator_8wekyb3d8bbwe!App
+100603.474	window_ready	pid=46028 rect=26,26
+100608.841	import_debug	item0=uwpcalc|lnk|aumid=[Microsoft.WindowsCalculator_8wekyb3d8bbwe!App]
+100608.846	import_aumid	aumid=Microsoft.WindowsCalculator_8wekyb3d8bbwe!App path kept=original lnk
+100609.796	menu_rect	234,176,428,358
+100610.669	launch_original_lnk	calculator window=52892242 title=计算器
+100611.514	app_exit	exit=0
+100611.515	completed	all P2-07 UWP phases passed
+

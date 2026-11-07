@@ -1,0 +1,8 @@
+﻿menu hide did not hide the window
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-15-tray.ps1:133 字符: 32
++ ... f ($hidden.Count -ne 0) { throw 'menu hide did not hide the window' }
++                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (menu hide did not hide the window:String) [], RuntimeException
+    + FullyQualifiedErrorId : menu hide did not hide the window
+ 
+

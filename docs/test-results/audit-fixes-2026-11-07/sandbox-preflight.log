@@ -1,0 +1,2 @@
+preflight: 51 scripts parsed and safety-checked; no desktop script executed
+preflight fixtures: root preservation, uniqueness, traversal/junction refusal, owned cleanup and runner preparation failure passed

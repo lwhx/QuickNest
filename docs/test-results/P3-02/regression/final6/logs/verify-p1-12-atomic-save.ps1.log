@@ -1,0 +1,7 @@
+﻿All P1-12 atomic-save phases passed.
+154956.007	backup_seeded	2 backup(s), first=config.backup.20261105-154954-268.json
+154957.438	recovered	config valid; corrupted=config.corrupted.20261105-154956-097.json
+154958.931	safe_mode	corrupt config untouched after a mutating action
+155000.190	newer_schema	v3 config rejected without modification
+155000.263	completed	all P1-12 atomic-save phases passed
+

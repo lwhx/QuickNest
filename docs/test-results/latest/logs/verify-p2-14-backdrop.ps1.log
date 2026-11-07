@@ -1,0 +1,10 @@
+﻿All P2-14 backdrop phases passed.
+193459.298	start_none	dwm_readback=1
+193501.317	mica_selected	config=mica dwm=2
+193503.159	acrylic_selected	config=acrylic dwm=3
+193504.929	none_selected	config=none dwm=1
+193504.997	app_exit	exit=0
+193505.288	restart_mica	dwm=2 config=mica
+193505.352	app_exit_restart	exit=0
+193505.358	completed	all P2-14 backdrop phases passed
+

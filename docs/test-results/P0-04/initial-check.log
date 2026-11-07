@@ -1,0 +1,11 @@
+    Checking windows v0.62.2
+   Compiling i-slint-backend-selector v1.18.1
+    Checking fontique v0.11.1
+    Checking i-slint-common v1.18.1
+    Checking parley v0.11.1
+    Checking i-slint-core v1.18.1
+    Checking i-slint-renderer-software v1.18.1
+    Checking i-slint-backend-winit v1.18.1
+    Checking slint v1.18.1
+    Checking quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 17.60s

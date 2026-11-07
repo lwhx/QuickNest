@@ -1,0 +1,2 @@
+0	client	mutex	ALREADY_RUNNING
+0	client	sent	command=show_and_focus accepted=false elapsed_ms=0 budget_ms=1500

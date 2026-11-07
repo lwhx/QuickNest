@@ -1,0 +1,6 @@
+elapsed_ms	phase	detail
+0	ui_apartment_before	hresult=0x00000000 kind=3 initialized=true
+0	service_started	tid=8700
+0	service_thread_probe	probe_elapsed_ms=0 logical_cpus=12
+1	fixture	dir="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-30352" target="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-30352\\sample target.txt"
+10010	create_link	timed-out

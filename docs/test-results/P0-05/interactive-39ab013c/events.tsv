@@ -1,0 +1,363 @@
+elapsed_ms	phase	data
+56	registered	pid=29184 tid=19488 hwnd=6624734
+1038	heartbeat	40
+2051	heartbeat	80
+3065	heartbeat	120
+4075	heartbeat	160
+5086	heartbeat	200
+6101	heartbeat	240
+7113	heartbeat	280
+8126	heartbeat	320
+9141	heartbeat	360
+10154	heartbeat	400
+11168	heartbeat	440
+12180	heartbeat	480
+13191	heartbeat	520
+14203	heartbeat	560
+15217	heartbeat	600
+16226	heartbeat	640
+17241	heartbeat	680
+18255	heartbeat	720
+19268	heartbeat	760
+20281	heartbeat	800
+21293	heartbeat	840
+22308	heartbeat	880
+23320	heartbeat	920
+24333	heartbeat	960
+25347	heartbeat	1000
+26361	heartbeat	1040
+27376	heartbeat	1080
+28388	heartbeat	1120
+29404	heartbeat	1160
+30419	heartbeat	1200
+31431	heartbeat	1240
+32443	heartbeat	1280
+33456	heartbeat	1320
+34467	heartbeat	1360
+35481	heartbeat	1400
+36495	heartbeat	1440
+37508	heartbeat	1480
+38520	heartbeat	1520
+39534	heartbeat	1560
+40548	heartbeat	1600
+41560	heartbeat	1640
+42576	heartbeat	1680
+43590	heartbeat	1720
+44603	heartbeat	1760
+45617	heartbeat	1800
+46633	heartbeat	1840
+47647	heartbeat	1880
+48659	heartbeat	1920
+49673	heartbeat	1960
+50684	heartbeat	2000
+51699	heartbeat	2040
+52713	heartbeat	2080
+53727	heartbeat	2120
+54740	heartbeat	2160
+55754	heartbeat	2200
+56765	heartbeat	2240
+57778	heartbeat	2280
+58793	heartbeat	2320
+59807	heartbeat	2360
+60819	heartbeat	2400
+61831	heartbeat	2440
+62844	heartbeat	2480
+63856	heartbeat	2520
+64869	heartbeat	2560
+65883	heartbeat	2600
+66896	heartbeat	2640
+67908	heartbeat	2680
+68923	heartbeat	2720
+69936	heartbeat	2760
+70948	heartbeat	2800
+71960	heartbeat	2840
+72972	heartbeat	2880
+73985	heartbeat	2920
+74997	heartbeat	2960
+76010	heartbeat	3000
+77025	heartbeat	3040
+78038	heartbeat	3080
+79051	heartbeat	3120
+80063	heartbeat	3160
+81075	heartbeat	3200
+82087	heartbeat	3240
+83103	heartbeat	3280
+83255	enter	supported=true x=949 y=323
+83255	over	x=949 y=323
+83306	over	x=981 y=326
+83332	over	x=1012 y=330
+83383	over	x=1043 y=333
+83409	over	x=1075 y=336
+83435	over	x=1106 y=340
+83459	over	x=1137 y=343
+83485	over	x=1169 y=347
+83535	over	x=1200 y=350
+83611	over	x=1200 y=350
+83662	over	x=1200 y=350
+83712	over	x=1200 y=350
+83788	over	x=1200 y=350
+83839	drop	count=1 total=1 x=1200 y=350
+83839	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-39ab013c\fixtures\sample application.exe
+84118	heartbeat	3320
+85129	heartbeat	3360
+85738	enter	supported=true x=949 y=315
+85738	over	x=949 y=315
+85762	over	x=981 y=320
+85787	over	x=981 y=320
+85813	over	x=1012 y=324
+85837	over	x=1043 y=328
+85862	over	x=1075 y=333
+85913	over	x=1106 y=337
+85938	over	x=1137 y=341
+85962	over	x=1169 y=346
+85987	over	x=1200 y=350
+86037	over	x=1200 y=350
+86113	over	x=1200 y=350
+86138	heartbeat	3400
+86163	over	x=1200 y=350
+86240	over	x=1200 y=350
+86290	drop	count=1 total=2 x=1200 y=350
+86290	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-39ab013c\fixtures\中文 folder
+87154	heartbeat	3440
+88168	heartbeat	3480
+88168	enter	supported=true x=949 y=338
+88168	over	x=949 y=338
+88193	over	x=981 y=339
+88193	over	x=1012 y=341
+88245	over	x=1043 y=342
+88270	over	x=1075 y=344
+88295	over	x=1106 y=345
+88347	over	x=1137 y=347
+88371	over	x=1137 y=347
+88396	over	x=1169 y=348
+88421	over	x=1200 y=350
+88446	over	x=1200 y=350
+88522	over	x=1200 y=350
+88522	over	x=1200 y=350
+88573	over	x=1200 y=350
+88650	over	x=1200 y=350
+88701	over	x=1200 y=350
+88726	drop	count=1 total=3 x=1200 y=350
+88726	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-39ab013c\fixtures\中文 link.lnk
+89180	heartbeat	3520
+90191	heartbeat	3560
+90621	enter	supported=true x=949 y=345
+90621	over	x=949 y=345
+90647	over	x=981 y=346
+90697	over	x=1012 y=346
+90722	over	x=1043 y=347
+90748	over	x=1075 y=348
+90772	over	x=1106 y=348
+90797	over	x=1137 y=349
+90848	over	x=1169 y=349
+90873	over	x=1200 y=350
+90948	over	x=1200 y=350
+90948	over	x=1200 y=350
+90999	over	x=1200 y=350
+91075	over	x=1200 y=350
+91126	over	x=1200 y=350
+91152	drop	count=1 total=4 x=1200 y=350
+91152	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-39ab013c\fixtures\中文 sample.txt
+91202	heartbeat	3600
+92217	heartbeat	3640
+93103	enter	supported=true x=949 y=331
+93103	over	x=949 y=331
+93103	over	x=981 y=333
+93129	over	x=1012 y=335
+93179	over	x=1043 y=338
+93203	over	x=1075 y=340
+93229	heartbeat	3680
+93229	over	x=1106 y=343
+93279	over	x=1137 y=345
+93305	over	x=1169 y=348
+93330	over	x=1200 y=350
+93381	over	x=1200 y=350
+93432	over	x=1200 y=350
+93507	over	x=1200 y=350
+93558	over	x=1200 y=350
+93608	drop	count=2 total=6 x=1200 y=350
+93608	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-39ab013c\fixtures\second file.txt
+93608	path	1	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-39ab013c\fixtures\中文 sample.txt
+94242	heartbeat	3720
+95253	heartbeat	3760
+95305	enter	supported=true x=949 y=345
+95305	over	x=949 y=345
+95330	over	x=981 y=346
+95380	over	x=1012 y=346
+95404	over	x=1043 y=347
+95430	over	x=1075 y=348
+95481	over	x=1106 y=348
+95481	over	x=1137 y=349
+95531	over	x=1169 y=349
+95557	over	x=1200 y=350
+95608	over	x=1200 y=350
+95684	over	x=1200 y=350
+95735	over	x=1200 y=350
+95811	over	x=1200 y=350
+95836	over	x=1176 y=375
+95885	over	x=1152 y=400
+95910	over	x=1128 y=425
+95936	over	x=1104 y=450
+95961	over	x=1080 y=475
+95987	over	x=1056 y=500
+96012	over	x=1032 y=525
+96062	over	x=1008 y=550
+96087	over	x=984 y=575
+96112	over	x=960 y=600
+96163	leave	count=6
+96264	heartbeat	3800
+97276	heartbeat	3840
+98289	heartbeat	3880
+98922	enter	supported=true x=949 y=345
+98922	over	x=949 y=345
+98948	over	x=981 y=346
+98998	over	x=1012 y=346
+99048	over	x=1043 y=347
+99074	over	x=1075 y=348
+99099	over	x=1106 y=348
+99124	over	x=1137 y=349
+99150	over	x=1169 y=349
+99201	over	x=1200 y=350
+99252	over	x=1200 y=350
+99302	heartbeat	3920
+99328	over	x=1200 y=350
+99379	over	x=1200 y=350
+99430	over	x=1200 y=350
+99456	leave	count=6
+100315	heartbeat	3960
+101330	heartbeat	4000
+102343	heartbeat	4040
+103357	heartbeat	4080
+104370	heartbeat	4120
+105383	heartbeat	4160
+106397	heartbeat	4200
+107408	heartbeat	4240
+108422	heartbeat	4280
+109436	heartbeat	4320
+110448	heartbeat	4360
+111460	heartbeat	4400
+112475	heartbeat	4440
+113489	heartbeat	4480
+114501	heartbeat	4520
+115512	heartbeat	4560
+116528	heartbeat	4600
+117544	heartbeat	4640
+118555	heartbeat	4680
+119566	heartbeat	4720
+120581	heartbeat	4760
+121595	heartbeat	4800
+122609	heartbeat	4840
+123623	heartbeat	4880
+124637	heartbeat	4920
+125651	heartbeat	4960
+126664	heartbeat	5000
+127680	heartbeat	5040
+128693	heartbeat	5080
+129707	heartbeat	5120
+130719	heartbeat	5160
+131730	heartbeat	5200
+132743	heartbeat	5240
+133755	heartbeat	5280
+134772	heartbeat	5320
+135784	heartbeat	5360
+136798	heartbeat	5400
+137814	heartbeat	5440
+138828	heartbeat	5480
+139842	heartbeat	5520
+140855	heartbeat	5560
+141867	heartbeat	5600
+142882	heartbeat	5640
+143896	heartbeat	5680
+144909	heartbeat	5720
+145922	heartbeat	5760
+146934	heartbeat	5800
+147950	heartbeat	5840
+148962	heartbeat	5880
+149976	heartbeat	5920
+150988	heartbeat	5960
+152003	heartbeat	6000
+153017	heartbeat	6040
+154031	heartbeat	6080
+155046	heartbeat	6120
+156060	heartbeat	6160
+157071	heartbeat	6200
+158084	heartbeat	6240
+159098	heartbeat	6280
+160110	heartbeat	6320
+161121	heartbeat	6360
+162136	heartbeat	6400
+163147	heartbeat	6440
+164160	heartbeat	6480
+165172	heartbeat	6520
+166186	heartbeat	6560
+167200	heartbeat	6600
+168212	heartbeat	6640
+169226	heartbeat	6680
+170238	heartbeat	6720
+171250	heartbeat	6760
+172265	heartbeat	6800
+173278	heartbeat	6840
+174289	heartbeat	6880
+175301	heartbeat	6920
+176312	heartbeat	6960
+177325	heartbeat	7000
+178341	heartbeat	7040
+179354	heartbeat	7080
+180367	heartbeat	7120
+181379	heartbeat	7160
+182391	heartbeat	7200
+183406	heartbeat	7240
+184418	heartbeat	7280
+185432	heartbeat	7320
+186444	heartbeat	7360
+187457	heartbeat	7400
+188468	heartbeat	7440
+189481	heartbeat	7480
+190494	heartbeat	7520
+191507	heartbeat	7560
+192522	heartbeat	7600
+193537	heartbeat	7640
+194550	heartbeat	7680
+195564	heartbeat	7720
+196578	heartbeat	7760
+197592	heartbeat	7800
+198604	heartbeat	7840
+199617	heartbeat	7880
+200630	heartbeat	7920
+201644	heartbeat	7960
+202658	heartbeat	8000
+203669	heartbeat	8040
+204681	heartbeat	8080
+205695	heartbeat	8120
+206706	heartbeat	8160
+207721	heartbeat	8200
+208733	heartbeat	8240
+209746	heartbeat	8280
+210758	heartbeat	8320
+211772	heartbeat	8360
+212786	heartbeat	8400
+213799	heartbeat	8440
+214814	heartbeat	8480
+215827	heartbeat	8520
+216839	heartbeat	8560
+217850	heartbeat	8600
+218864	heartbeat	8640
+219879	heartbeat	8680
+220891	heartbeat	8720
+221903	heartbeat	8760
+222919	heartbeat	8800
+223932	heartbeat	8840
+224947	heartbeat	8880
+225961	heartbeat	8920
+226973	heartbeat	8960
+227988	heartbeat	9000
+229003	heartbeat	9040
+230016	heartbeat	9080
+231029	heartbeat	9120
+232043	heartbeat	9160
+233055	heartbeat	9200
+234068	heartbeat	9240
+235083	heartbeat	9280
+236094	heartbeat	9320
+237107	heartbeat	9360
+237417	cleanup	acquired=5 released=5 destroyed=1 enters=7 overs=106 leaves=2 drops=5 errors=0 received=6 heartbeat=9372

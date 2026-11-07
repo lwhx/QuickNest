@@ -1,0 +1,32 @@
+﻿[
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-12ded51f\\fixtures\\中文 folder",
+        "exists":  true,
+        "directory":  true,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-12ded51f\\fixtures\\sample application.exe",
+        "exists":  true,
+        "directory":  false,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-12ded51f\\fixtures\\second file.txt",
+        "exists":  true,
+        "directory":  false,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-12ded51f\\fixtures\\中文 link.lnk",
+        "exists":  true,
+        "directory":  false,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-12ded51f\\fixtures\\中文 sample.txt",
+        "exists":  true,
+        "directory":  false,
+        "unchanged":  true
+    }
+]

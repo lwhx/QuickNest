@@ -1,0 +1,64 @@
+﻿{
+    "task":  "P0-03",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "7C835AD326C604E1AD4E35E9E8EA8182D28213601FE3AFCCD242B434165AD5BD",
+    "exeBytes":  12222464,
+    "checks":  {
+                   "check":  "Passed",
+                   "clippy":  "Passed",
+                   "threadAffinityCompileFailTests":  "2 passed, 0 failed",
+                   "release":  "Passed",
+                   "unitTests":  "10 passed, 0 failed",
+                   "fmt":  "Passed"
+               },
+    "mediumRuns":  [
+                       {
+                           "directory":  "run-20261103T073003400Z-d96b79e737264dcd9731c3818a8d951c",
+                           "pid":  29644,
+                           "integrity":  "Medium",
+                           "exitCode":  0,
+                           "oleRows":  29,
+                           "uiAfterRelease":  {
+                                                  "apartment_hr":  "0x00000000",
+                                                  "apartment":  "3"
+                                              },
+                           "hwndGenerations":  3
+                       },
+                       {
+                           "directory":  "run-20261103T073204515Z-8552654b74044c869acf23d7f19e629e",
+                           "pid":  28528,
+                           "integrity":  "Medium",
+                           "exitCode":  0,
+                           "oleRows":  29,
+                           "uiAfterRelease":  {
+                                                  "apartment_hr":  "0x00000000",
+                                                  "apartment":  "3"
+                                              },
+                           "hwndGenerations":  3
+                       },
+                       {
+                           "directory":  "run-20261103T073205072Z-f185e2ab75dc4aaba6c8fcf87fba035d",
+                           "pid":  11472,
+                           "integrity":  "Medium",
+                           "exitCode":  0,
+                           "oleRows":  29,
+                           "uiAfterRelease":  {
+                                                  "apartment_hr":  "0x00000000",
+                                                  "apartment":  "3"
+                                              },
+                           "hwndGenerations":  3
+                       }
+                   ],
+    "errors":  "errors/095ab8170e584e06a6e8b4a301534099/results.json",
+    "p0_01Regression":  "p0-01-regression/run-20261103T073205891Z-6f92fa7e",
+    "p0_02Regression":  "p0-02-regression/run-20261103T073206366Z-f0a0e3b734af4bbaaa0c1b0065db7598",
+    "buttons":  "button-regression/button-results.json",
+    "initialFailure":  "initial-5f56463f: test expectation for COM-only STA was corrected; final runs passed",
+    "limits":  [
+                   "Only QuickNest-owned OLE references paired; winit references remain",
+                   "No custom IDropTarget or OLE drag callbacks validated",
+                   "Windows 11 x64 100% only",
+                   "P0 overall not accepted"
+               ]
+}

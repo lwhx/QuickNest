@@ -1,0 +1,8 @@
+﻿Down+Enter did not launch AlphaB
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-03-keyboard.ps1:95 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Down+Enter did not launch AlphaB:String) [], RuntimeException
+    + FullyQualifiedErrorId : Down+Enter did not launch AlphaB
+ 
+

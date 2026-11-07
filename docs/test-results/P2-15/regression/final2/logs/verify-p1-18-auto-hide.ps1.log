@@ -1,0 +1,8 @@
+﻿title-bar pin did not become True
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-18-auto-hide.ps1:219 字符: 9
++         throw "title-bar pin did not become $Wanted"
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (title-bar pin did not become True:String) [], RuntimeException
+    + FullyQualifiedErrorId : title-bar pin did not become True
+ 
+

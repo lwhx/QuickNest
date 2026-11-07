@@ -1,0 +1,8 @@
+﻿QuickNest did not take the foreground
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-04-sorting.ps1:39 字符: 5
++     throw 'QuickNest did not take the foreground'
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (QuickNest did not take the foreground:String) [], RuntimeException
+    + FullyQualifiedErrorId : QuickNest did not take the foreground
+ 
+

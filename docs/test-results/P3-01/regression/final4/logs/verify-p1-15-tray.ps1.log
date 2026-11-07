@@ -1,0 +1,12 @@
+﻿All P1-15 tray phases passed.
+134518.862	window_found	pid=5628 rect=104,104
+134518.878	tray_registered	tray_hwnd=0xE113EE
+134520.128	toggle_hide	left click hid the panel
+134521.242	toggle_show	left click restored the panel
+134522.753	menu_rect	500,162,686,300
+134524.158	menu_hide	menu entry hid the panel
+134525.494	restored_before_exit	left click restored the panel
+134526.958	menu_exit	exit=0
+134526.962	config_saved	config.json exists after the tray exit
+134527.003	completed	all P1-15 tray phases passed
+

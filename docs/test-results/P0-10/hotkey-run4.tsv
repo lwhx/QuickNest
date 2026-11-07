@@ -1,0 +1,7 @@
+0	parent	registered	Ctrl+Alt+Space MOD_NOREPEAT
+46	parent	conflict_detected	pid=40876 1	conflict-child	rejected	0x00000006
+103	parent	hotkey_event	sequence=1 forwarded_to_ui=1
+148	parent	unregistered_cleanup	pid=9244 0	conflict-child	registered	success
+148	parent	re_registered	Ctrl+Alt+Space MOD_NOREPEAT
+173	parent	second_event	sequence=1
+174	parent	completed	all hotkey phases passed

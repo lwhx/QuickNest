@@ -1,0 +1,8 @@
+﻿All P2-06 cross-group phases passed.
+150811.542	window_ready	pid=27848 rect=40,120
+150814.036	spring_load	CatA=FastItem,KeepItem CatB=CrossItem current=g2
+150816.164	fast_drop	CatA=KeepItem CatB=CrossItem,FastItem
+150819.522	esc_cancel	CatA=KeepItem CatB=CrossItem,FastItem current=g2
+150819.595	app_exit	exit=0
+150819.597	completed	all P2-06 cross-group phases passed
+

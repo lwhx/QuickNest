@@ -1,0 +1,14 @@
+info: syncing channel updates for 1.96.0-x86_64-pc-windows-msvc
+info: latest update on 2026-05-28 for version 1.96.0 (ac68faa20 2026-05-25)
+info: recovering from a partially installed toolchain
+info: removing previous version of component rustc
+info: removing previous version of component cargo
+info: removing previous version of component rust-std
+info: removing previous version of component rust-docs
+info: removing previous version of component rustfmt
+info: removing previous version of component clippy
+info: downloading 6 components
+
+  1.96.0-x86_64-pc-windows-msvc installed - rustc 1.96.0 (ac68faa20 2026-05-25)
+
+info: checking for self-update (current version: 1.29.2)

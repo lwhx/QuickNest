@@ -1,0 +1,3 @@
+91	state_show	Hidden->Showing->Visible
+92	state_hide	Visible->Hiding->Hidden
+237	scenario_error	panel did not take the foreground after activation and click

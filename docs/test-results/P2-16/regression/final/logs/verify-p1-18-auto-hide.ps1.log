@@ -1,0 +1,17 @@
+﻿All P1-18 auto-hide phases passed.
+091442.306	window_ready	pid=40760 rect=156,156,760x520
+091442.636	external_focus_source	hwnd=138421060
+091443.048	blur_hide	focus outside -> panel hidden
+091443.678	hotkey_restore	Ctrl+Alt+Space restored the panel
+091445.067	pinned	pinned=true via title-bar at 828,178
+091446.696	pinned_blur_keeps	external focus with pinned=true stayed visible
+091448.729	pinned_launch_keeps	pinned launch stayed visible
+091450.069	unpinned	pinned=false
+091450.502	unpinned_blur_hide	panel hidden after unpin + blur
+091454.134	dialog_suppression	visible modal held the panel
+091455.545	dialog_closed_hide	dialog closed -> blur hide resumed
+091457.307	failed_launch_keeps	missing target kept the panel
+091458.223	launch_auto_hide	successful launch hid the unpinned panel
+091458.273	app_exit	exit=0
+091458.274	completed	all P1-18 auto-hide phases passed
+

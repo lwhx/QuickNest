@@ -1,0 +1,8 @@
+﻿All P2-04 internal-sort phases passed.
+193226.273	window_ready	pid=43904 rect=234,234
+193228.478	drag_reorder	order=SortB,SortC,SortA
+193230.716	esc_cancel	order unchanged after ESC during drag
+193231.517	click_launch	SortB launched after the sorting changes
+193231.646	app_exit	exit=0
+193231.658	completed	all P2-04 internal-sort phases passed
+

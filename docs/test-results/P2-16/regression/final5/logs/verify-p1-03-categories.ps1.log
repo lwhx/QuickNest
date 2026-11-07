@@ -1,0 +1,8 @@
+﻿move down did not restore RenamedCat after AI
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-03-categories.ps1:172 字符: 9
++         throw 'move down did not restore RenamedCat after AI'
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (move down did n...medCat after AI:String) [], RuntimeException
+    + FullyQualifiedErrorId : move down did not restore RenamedCat after AI
+ 
+

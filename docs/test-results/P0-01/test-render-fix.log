@@ -1,0 +1,19 @@
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.29s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-474a926c21fe5565.exe)
+
+running 5 tests
+test tests::demo_grid_has_six_distinct_non_launching_items ... ok
+test tests::help_does_not_open_a_window ... ok
+test tests::no_arguments_selects_interactive_mode ... ok
+test tests::smoke_test_requires_explicit_argument ... ok
+test tests::unexpected_arguments_are_rejected ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\quicknest-eb5491a620e9ec27.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

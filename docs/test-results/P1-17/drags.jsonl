@@ -1,0 +1,6 @@
+﻿{"action":"Drop","sourceHwnd":10356690,"sourceY":248,"targetHwnd":6623488,"targetX":1300,"targetY":350,"visibleDuringHover":null,"timeUtc":"2026-11-06T19:31:00.3987518Z"}
+{"action":"Drop","sourceHwnd":10356690,"sourceY":277,"targetHwnd":6623488,"targetX":790,"targetY":176,"visibleDuringHover":null,"timeUtc":"2026-11-06T19:31:03.9151935Z"}
+{"action":"Drop","sourceHwnd":10356690,"sourceY":277,"targetHwnd":6623488,"targetX":1300,"targetY":400,"visibleDuringHover":null,"timeUtc":"2026-11-06T19:31:07.3010524Z"}
+{"action":"Spring","sourceHwnd":10356690,"sourceY":220,"targetHwnd":6623488,"targetX":857,"targetY":104,"visibleDuringHover":true,"timeUtc":"2026-11-06T19:31:11.4097528Z"}
+{"action":"Cancel","sourceHwnd":10356690,"sourceY":304,"targetHwnd":6623488,"targetX":1300,"targetY":350,"visibleDuringHover":null,"timeUtc":"2026-11-06T19:31:15.3034170Z"}
+{"action":"Leave","sourceHwnd":10356690,"sourceY":332,"targetHwnd":6623488,"targetX":1300,"targetY":350,"visibleDuringHover":null,"timeUtc":"2026-11-06T19:31:19.6907826Z"}

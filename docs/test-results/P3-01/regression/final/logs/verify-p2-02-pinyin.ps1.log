@@ -1,0 +1,9 @@
+﻿All P2-02 pinyin phases passed.
+122839.987	window_ready	pid=46712 rect=26,26,760x520
+122842.860	query_launch	query=weixin launched weixin
+122845.648	query_launch	query=wx launched weixin
+122848.416	query_launch	query=wyy launched netease
+122851.126	query_launch	query=yinyue launched music
+122851.197	app_exit	exit=0
+122851.198	completed	all P2-02 pinyin phases passed
+

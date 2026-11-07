@@ -1,0 +1,18 @@
+﻿All P2-13 opacity/corner phases passed.
+113347.683	window_ready	pid=32168 rect=78,78 size=760
+113348.859	reference_probe	window=78,78 form=18,18,880x640 probe=48,378 rgb=251,0,0
+113348.880	reference_form	red form bounds=18,18,880x640
+113349.659	opacity_95	rgb=245,233,237
+113352.875	opacity_100	rgb=244,246,250 corner=202,34,34
+113355.330	corners_off	corner=255,255,255
+113357.811	corners_on	corner=202,34,34
+113400.278	opacity_70	rgb=247,173,175
+113402.790	opacity_50	rgb=249,123,125
+113402.813	persisted	opacity=0.5 rounded=True
+113402.872	app_exit	exit=0
+113404.487	restart_70_square	rgb=247,173,175 corner=255,179,179
+113404.535	app_exit_restart	exit=0
+113405.416	clamp_high	rgb=244,246,250
+113406.364	clamp_low	rgb=249,123,125
+113406.410	completed	all P2-13 opacity/corner phases passed
+

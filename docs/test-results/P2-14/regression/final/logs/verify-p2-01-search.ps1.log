@@ -1,0 +1,8 @@
+﻿all-groups scope did not launch the beta result (files=)
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-01-search.ps1:87 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (all-groups scop...result (files=):String) [], RuntimeException
+    + FullyQualifiedErrorId : all-groups scope did not launch the beta result (files=)
+ 
+

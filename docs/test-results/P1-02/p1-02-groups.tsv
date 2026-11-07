@@ -1,0 +1,8 @@
+﻿192759.584	window_found	pid=7820 rect=40,200
+192759.683	initial_screenshot	p1-02-initial.png
+192800.373	apps_screenshot	p1-02-apps-active.png
+192801.031	automation_screenshot	p1-02-automation-active.png
+192801.698	tools_back_screenshot	p1-02-tools-back.png
+192802.114	persistence	group switch writes go through config_save
+192802.198	wm_close_exit	exit=0
+192802.202	completed	P1-02 interaction phases captured (screenshots pending review)

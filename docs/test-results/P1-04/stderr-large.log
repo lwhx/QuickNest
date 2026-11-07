@@ -1,0 +1,3 @@
+﻿Slint winit backend: a window was hidden but references to it still exist, so it stays on screen. Drop the winit window if the application obtained one with WinitWindowAccessor::winit_window()
+IPC frame rejected: TimedOut
+

@@ -1,0 +1,9 @@
+﻿193902.604	seeded_v1_1	legacy config without P3/P4 fields (usage/sort/hot-zone/everything/delay/execution-mode)
+193904.692	loaded	legacy config loaded; user data intact (group/category/2 items/theme)
+193909.354	save_triggered	group renamed (a write happened through the save chain)
+193909.375	migrated	schema_version=2; user data intact; new fields defaulted (delay/execution/usage/sort)
+193909.382	click_rect	left=60 top=60
+193912.884	launch_retry	attempt 1 did not start notepad
+193916.429	migrated_item_launches	the migrated item starts normally
+193916.785	app_exit	exit=0
+193916.787	completed	all P4-10 migration phases passed

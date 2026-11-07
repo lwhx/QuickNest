@@ -1,0 +1,9 @@
+﻿All P1-11 icon-cache phases passed.
+155854.558	cache_written	a2962fab64f8e5d0c5dc8d92150ab49e7397725f86e0945076f57b14f49f5166.qni bytes=16396
+155854.764	wm_close_exit	exit=0
+155857.606	cache_reused	mtime=2026-11-05T15:58:51.7711410Z
+155857.672	wm_close_exit	exit=0
+155859.523	cache_pruned	no unreferenced snapshots remain
+155859.577	wm_close_exit	exit=0
+155859.579	completed	all P1-11 icon-cache phases passed
+

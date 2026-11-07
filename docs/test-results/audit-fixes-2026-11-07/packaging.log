@@ -1,0 +1,101 @@
+Inno Setup 7 Command-Line Compiler
+Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+https://www.innosetup.com
+
+Compiler engine version: Inno Setup 7.1.1
+Non-commercial use only
+
+Preprocessing
+   Reading file: E:\Programs\ZCODE\01\QuickNest\tools\innosetup\ISPPBuiltins.iss
+Parsing [Setup] section, line 16
+Parsing [Setup] section, line 17
+Parsing [Setup] section, line 18
+Parsing [Setup] section, line 19
+Parsing [Setup] section, line 20
+Parsing [Setup] section, line 21
+Parsing [Setup] section, line 22
+Parsing [Setup] section, line 23
+Parsing [Setup] section, line 24
+Parsing [Setup] section, line 25
+Parsing [Setup] section, line 26
+Parsing [Setup] section, line 27
+Parsing [Setup] section, line 28
+Parsing [Setup] section, line 29
+Parsing [Setup] section, line 30
+Parsing [Setup] section, line 31
+Parsing [Setup] section, line 32
+Parsing [Setup] section, line 33
+Reading file (WizardImageFile)
+Reading file (WizardSmallImageFile)
+Preparing Setup program executable
+   Verification successful
+   Updating icons (Setup.e32)
+   Updating version info (Setup.e32)
+Determining language code pages
+Parsing [Languages] section, line 36
+   Reading file: E:\Programs\ZCODE\01\QuickNest\tools\innosetup\Languages\ChineseSimplified.isl
+   Messages in script file
+Reading default messages from Default.isl
+Parsing [Languages] section, line 36
+   Reading file: E:\Programs\ZCODE\01\QuickNest\tools\innosetup\Languages\ChineseSimplified.isl
+Parsing [LangOptions], [Messages], and [CustomMessages] sections
+   Messages in script file
+Reading [Code] section
+Parsing [Tasks] section, line 40
+Parsing [Tasks] section, line 43
+Parsing [Icons] section, line 52
+Parsing [Icons] section, line 54
+Parsing [Icons] section, line 55
+Parsing [Registry] section, line 60
+Parsing [UninstallDelete] section, line 73
+Parsing [Run] section, line 68
+Parsing [Files] section, line 47
+Parsing [Files] section, line 48
+Parsing [Files] section, line 49
+Deleting QuickNest-1.2.0-setup.exe from output directory
+Creating setup files
+   Verification successful
+   Updating icons (Setup.exe)
+   Compressing: \\?\E:\Programs\ZCODE\01\QuickNest\target\release\quicknest.exe
+   Compressing: \\?\E:\Programs\ZCODE\01\QuickNest\assets\QuickNest.ico
+   Compressing: \\?\E:\Programs\ZCODE\01\QuickNest\README.md
+   Compressing Setup program executable
+   Updating version info (Setup.exe)
+
+
+Successful compile (6.203 sec). Resulting Setup program filename is:
+E:\Programs\ZCODE\01\QuickNest\installer\output\QuickNest-1.2.0-setup.exe
+portable package: E:\Programs\ZCODE\01\QuickNest\installer\output\QuickNest-1.2.0-portable.zip (7933645 bytes)
+sha256: C72061CF719B438290E675BC625B27CAD1D3F2537F6C9A59E96D6AA752DEC41C
+{
+    "version":  "1.2.0",
+    "portableContents":  [
+                             "quicknest.exe",
+                             "QuickNest.ico",
+                             "QuickNest.portable",
+                             "README.md"
+                         ],
+    "portableExeMatchesRelease":  true,
+    "earlyHealthProbePassed":  true,
+    "artifacts":  [
+                      {
+                          "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\target\\release\\quicknest.exe",
+                          "bytes":  18881536,
+                          "sha256":  "c38a699dc1b6a2abbc602fd9b1cd92419ee64e6ee67231af4db167755eceb624"
+                      },
+                      {
+                          "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\installer\\output\\QuickNest-1.2.0-setup.exe",
+                          "bytes":  7530655,
+                          "sha256":  "aef57ca3168ac2d20a4f7035e41e7a5ffc4bc9b581ea5ad2f09de06b166c082e"
+                      },
+                      {
+                          "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\installer\\output\\QuickNest-1.2.0-portable.zip",
+                          "bytes":  7933645,
+                          "sha256":  "c72061cf719b438290e675bc625b27cad1d3f2537f6c9a59e96d6aa752dec41c"
+                      }
+                  ],
+    "installationExecuted":  false,
+    "desktopValidationExecuted":  false
+}

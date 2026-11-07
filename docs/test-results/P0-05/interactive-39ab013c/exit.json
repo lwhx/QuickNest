@@ -1,0 +1,17 @@
+﻿{
+    "targetPid":  29184,
+    "sourcePid":  9172,
+    "exitCode":  0,
+    "forcedTermination":  false,
+    "responsiveBeforeExit":  [
+                                 {
+                                     "Id":  9172,
+                                     "Responding":  true
+                                 },
+                                 {
+                                     "Id":  29184,
+                                     "Responding":  true
+                                 }
+                             ],
+    "sha256":  "8BE01530722210A5661919592E4528E888B63BA6D2F8409DB40479BEC678A5E4"
+}

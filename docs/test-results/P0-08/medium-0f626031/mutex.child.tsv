@@ -1,0 +1,3 @@
+0	child	acquired	ALREADY_RUNNING
+0	child	probe	WAIT_TIMEOUT
+0	child	released	guard dropped

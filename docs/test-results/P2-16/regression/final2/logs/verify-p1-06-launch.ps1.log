@@ -1,0 +1,11 @@
+﻿All P1-06 launch phases passed.
+092605.408	window_found	pid=42400 rect=40,120,800,640
+092607.230	click_launch	CmdProbe args+workdir honoured
+092607.998	menu_rect	344,270,538,452
+092608.905	menu_open	charmap pid=46828
+092610.972	menu_admin	charmap pid=38612
+092614.290	maximized_state	flags=1;show=3
+092615.688	missing_target	no process; status bar shows the error
+092615.786	wm_close_exit	exit=0
+092615.789	completed	all P1-06 launch phases passed
+

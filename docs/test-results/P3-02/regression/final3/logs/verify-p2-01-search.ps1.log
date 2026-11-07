@@ -1,0 +1,11 @@
+﻿All P2-01 search phases passed.
+152206.023	window_ready	pid=20452 rect=208,208,760x520
+152206.479	ctrl_f_open	Ctrl+F opened the search center
+152208.417	filter_and_launch	alpha.txt created; query=alpha
+152210.403	scope_current_group	beta had no result in the active group
+152212.267	scope_all_groups	all-groups scope launched BetaTwo
+152214.184	esc_clears	first Esc cleared the query
+152214.631	esc_closes	second Esc closed the search center
+152214.707	app_exit	exit=0
+152214.709	completed	all P2-01 search phases passed
+

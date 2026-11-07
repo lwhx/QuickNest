@@ -1,0 +1,26 @@
+﻿2026-11-03T06:33:14.6468849Z P0-01 external Release validation started. This script does not build anything.
+2026-11-03T06:33:15.4122441Z [Passed] interactive-host-and-dpi-context: 64-bit interactive session; per-monitor-aware physical-pixel capture enabled. Desktop capture still must succeed independently.
+2026-11-03T06:33:15.5166909Z [Passed] pe-amd64-gui-and-import-table: AMD64 PE32+ GUI executable; read 25 unique static/delay-import DLLs. Resolution hints are not a transitive dependency audit.
+2026-11-03T06:33:15.7925438Z [Passed] dumpbin-cross-check: Absolute-path dumpbin completed; see dumpbin.log (C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\dumpbin.exe).
+2026-11-03T06:33:15.9915470Z [Passed] embedded-manifest: mt.exe extracted and validated RT_MANIFEST #1; verified amd64, asInvoker/uiAccess=false and PerMonitorV2/true-pm.
+2026-11-03T06:33:16.0533328Z Started smoke: PID=2240; integrity=High (RID=0x3000)
+2026-11-03T06:33:16.1326419Z Smoke initial window: HWND=0x7B0EA2; title=QuickNest · P0-01 技术验证
+2026-11-03T06:33:16.3355823Z [Passed] screenshot-smoke-initial: E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-01\run-20261103T063314626Z-4012105d\smoke-initial.png (762x552)
+2026-11-03T06:33:18.0975624Z Smoke step 1: hidden at 1.9619926s; same PID/HWND.
+2026-11-03T06:33:20.0998995Z Smoke step 2: visible at 3.9672431s; same PID/HWND.
+2026-11-03T06:33:20.2339907Z [Passed] screenshot-smoke-restored-1: E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-01\run-20261103T063314626Z-4012105d\smoke-restored-1.png (762x552)
+2026-11-03T06:33:22.0785605Z Smoke step 3: hidden at 5.9452198s; same PID/HWND.
+2026-11-03T06:33:24.0733547Z Smoke step 4: visible at 7.939299s; same PID/HWND.
+2026-11-03T06:33:24.2197982Z [Passed] screenshot-smoke-restored-2: E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-01\run-20261103T063314626Z-4012105d\smoke-restored-2.png (762x552)
+2026-11-03T06:33:26.1150047Z Smoke step 5: hidden at 9.9820171s; same PID/HWND.
+2026-11-03T06:33:28.1233360Z Smoke step 6: visible at 11.9905115s; same PID/HWND.
+2026-11-03T06:33:28.2876672Z [Passed] screenshot-smoke-restored-3: E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-01\run-20261103T063314626Z-4012105d\smoke-restored-3.png (762x552)
+2026-11-03T06:33:30.1199263Z Exited smoke: PID=2240; exitCode=0
+2026-11-03T06:33:30.1228750Z [Passed] smoke-same-pid-hwnd-three-rounds-and-exit: Six timed transitions, same PID/HWND, no observed hung state, exit 0 at 13.9897692s; maximum sampling gap 0.2320776s. IsHungAppWindow is a sampled heuristic, not a proof of perpetual responsiveness.
+2026-11-03T06:33:30.1859935Z Started normal-close: PID=39972; integrity=High (RID=0x3000)
+2026-11-03T06:33:30.4152932Z [Passed] screenshot-normal-before-wm-close: E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-01\run-20261103T063314626Z-4012105d\normal-before-wm-close.png (762x552)
+2026-11-03T06:33:30.4244229Z Posted WM_CLOSE to normal PID=39972, HWND=0x7D0D80.
+2026-11-03T06:33:30.4404350Z Exited normal-close: PID=39972; exitCode=0
+2026-11-03T06:33:30.4424301Z [Passed] normal-mode-native-wm-close-exit0: WM_CLOSE sent to the exact PID/HWND; process terminated with exit code 0, without forced termination.
+2026-11-03T06:33:30.4745252Z [Passed] executable-unchanged: SHA256 unchanged: 99C19FC2BDAC98C6AD957E6B39DD7B84498BD278754BE5F533FA132EC4C81D95
+2026-11-03T06:33:30.5106025Z Overall=AutomatedPassedManualPending; exitCode=0; manual items remain pending. Results: E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-01\run-20261103T063314626Z-4012105d

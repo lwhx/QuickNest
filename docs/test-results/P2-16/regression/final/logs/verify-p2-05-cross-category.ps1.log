@@ -1,0 +1,7 @@
+﻿All P2-05 cross-category phases passed.
+091546.097	window_ready	pid=18688 rect=104,104
+091548.619	cross_category_move	CatA=StayHere CatB=MoveMe
+091551.094	esc_cancel	categories unchanged after ESC during drag
+091551.202	app_exit	exit=0
+091551.203	completed	all P2-05 cross-category phases passed
+

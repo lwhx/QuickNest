@@ -1,0 +1,703 @@
+﻿{
+    "status":  "pass",
+    "started_utc":  "2026-11-03T08:10:18.5158941Z",
+    "run_dir":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-04\\p0-02-regression\\run-20261103T081018464Z-f69fa6a054d64f04bef6593577b12e2d",
+    "exe":  "E:\\Programs\\ZCODE\\01\\QuickNest\\target\\release\\quicknest.exe",
+    "sha256":  "A70908402952196B06A8B0718A0DB641777F4F8E954F17462A098DED1C301528",
+    "child_sha256":  "A70908402952196B06A8B0718A0DB641777F4F8E954F17462A098DED1C301528",
+    "final_sha256":  "A70908402952196B06A8B0718A0DB641777F4F8E954F17462A098DED1C301528",
+    "child_exe":  "E:\\Programs\\ZCODE\\01\\QuickNest\\target\\release\\quicknest.exe",
+    "pid":  20848,
+    "integrity":  {
+                      "level":  "Medium",
+                      "rid":  8192
+                  },
+    "os":  "Microsoft Windows NT 10.0.26200.0",
+    "os_64bit":  true,
+    "powershell":  "5.1.26100.6899",
+    "exit_code":  0,
+    "forced_termination":  false,
+    "error":  null,
+    "checks":  [
+                   {
+                       "passed":  true,
+                       "detail":  "Executable is an existing EXE"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Child started"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Child token is Medium or High; no self-elevation or demotion"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Running image path and SHA256 match requested EXE"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Exact TSV header"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "TSV time, generation, PID and TID valid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Child exited normally with code 0"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Exactly three six-phase generations and one final completed row, all newline-flushed"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 exact phase order and one destroyed_confirmed"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 retains its decimal HWND and UI thread"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 created internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 hidden internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 restored internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 component_released weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 destroyed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 destroyed_confirmed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 destroyed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 destroyed_confirmed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 created residence approximately 500ms (519 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 hidden residence approximately 500ms (536 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 restored residence approximately 500ms (523 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 invalid for at least 500ms before confirmation"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 external created evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 external hidden evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 external restored evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 previously enumerated HWND independently invalid while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 no HWND revival during invalidation confirmation"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 1 invalidated before next creation, including handle reuse"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 exact phase order and one destroyed_confirmed"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 retains its decimal HWND and UI thread"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 created internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 hidden internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 restored internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 component_released weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 destroyed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 destroyed_confirmed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 destroyed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 destroyed_confirmed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 created residence approximately 500ms (519 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 hidden residence approximately 500ms (538 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 restored residence approximately 500ms (525 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 invalid for at least 500ms before confirmation"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 external created evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 external hidden evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 external restored evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 previously enumerated HWND independently invalid while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 no HWND revival during invalidation confirmation"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 2 invalidated before next creation, including handle reuse"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 exact phase order and one destroyed_confirmed"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 retains its decimal HWND and UI thread"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 created internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 hidden internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 restored internal state"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 component_released weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 destroyed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 destroyed_confirmed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 completed weak component reference is dead"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 destroyed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 destroyed_confirmed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 completed internal HWND invalid"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 created residence approximately 500ms (518 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 hidden residence approximately 500ms (534 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 restored residence approximately 500ms (529 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 invalid for at least 500ms before confirmation"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 external created evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 external hidden evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 external restored evidence while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 previously enumerated HWND independently invalid while child alive"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Generation 3 no HWND revival during invalidation confirmation"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Global generation order is 1, 2, 3 with final generation-3 completion"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Child stayed alive 500ms after completed (20ms observation tolerance; observed 530.6735 ms)"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "Redirected stdout and stderr drained"
+                   },
+                   {
+                       "passed":  true,
+                       "detail":  "EXE SHA256 unchanged throughout run"
+                   }
+               ],
+    "generations":  [
+                        {
+                            "generation":  1,
+                            "hwnd":  2362786,
+                            "tid":  37112,
+                            "first_external_false_ms":  1679.7125,
+                            "destroyed_confirmed_ms":  2131
+                        },
+                        {
+                            "generation":  2,
+                            "hwnd":  37883344,
+                            "tid":  37112,
+                            "first_external_false_ms":  3826.7311,
+                            "destroyed_confirmed_ms":  4262
+                        },
+                        {
+                            "generation":  3,
+                            "hwnd":  11731374,
+                            "tid":  37112,
+                            "first_external_false_ms":  5937.2257,
+                            "destroyed_confirmed_ms":  6388
+                        }
+                    ],
+    "poll_ms":  20,
+    "timeout_ms":  30000,
+    "phase_tolerance_ms":  50,
+    "exit_observation_tolerance_ms":  20,
+    "exit_observed_ms":  6994.6052,
+    "lifecycle":  [
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "29",
+                                      "generation":  "1",
+                                      "phase":  "created",
+                                      "hwnd":  "2362786",
+                                      "is_window":  "true",
+                                      "visible":  "true",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  133.89360000000002,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "548",
+                                      "generation":  "1",
+                                      "phase":  "hidden",
+                                      "hwnd":  "2362786",
+                                      "is_window":  "true",
+                                      "visible":  "false",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  655.19900000000007,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "1084",
+                                      "generation":  "1",
+                                      "phase":  "restored",
+                                      "hwnd":  "2362786",
+                                      "is_window":  "true",
+                                      "visible":  "true",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  1153.9893,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "1607",
+                                      "generation":  "1",
+                                      "phase":  "component_released",
+                                      "hwnd":  "2362786",
+                                      "is_window":  "true",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  1679.5247000000002,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "1623",
+                                      "generation":  "1",
+                                      "phase":  "destroyed",
+                                      "hwnd":  "2362786",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  1711.3614,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "2131",
+                                      "generation":  "1",
+                                      "phase":  "destroyed_confirmed",
+                                      "hwnd":  "2362786",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  2256.5403,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "2156",
+                                      "generation":  "2",
+                                      "phase":  "created",
+                                      "hwnd":  "37883344",
+                                      "is_window":  "true",
+                                      "visible":  "true",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  2257.1179,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "2675",
+                                      "generation":  "2",
+                                      "phase":  "hidden",
+                                      "hwnd":  "37883344",
+                                      "is_window":  "true",
+                                      "visible":  "false",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  2763.5898,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "3213",
+                                      "generation":  "2",
+                                      "phase":  "restored",
+                                      "hwnd":  "37883344",
+                                      "is_window":  "true",
+                                      "visible":  "true",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  3305.424,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "3738",
+                                      "generation":  "2",
+                                      "phase":  "component_released",
+                                      "hwnd":  "37883344",
+                                      "is_window":  "true",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  3826.3959,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "3755",
+                                      "generation":  "2",
+                                      "phase":  "destroyed",
+                                      "hwnd":  "37883344",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  3826.6988,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "4262",
+                                      "generation":  "2",
+                                      "phase":  "destroyed_confirmed",
+                                      "hwnd":  "37883344",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  4363.0031,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "4287",
+                                      "generation":  "3",
+                                      "phase":  "created",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "true",
+                                      "visible":  "true",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  4365.3575,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "4805",
+                                      "generation":  "3",
+                                      "phase":  "hidden",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "true",
+                                      "visible":  "false",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  4878.6087000000007,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "5339",
+                                      "generation":  "3",
+                                      "phase":  "restored",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "true",
+                                      "visible":  "true",
+                                      "component_alive":  "true",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  5409.7864,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "5868",
+                                      "generation":  "3",
+                                      "phase":  "component_released",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "true",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  5936.4354,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "5882",
+                                      "generation":  "3",
+                                      "phase":  "destroyed",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  5965.8426,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "6388",
+                                      "generation":  "3",
+                                      "phase":  "destroyed_confirmed",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  6463.6443,
+                          "process_alive":  true
+                      },
+                      {
+                          "row":  {
+                                      "elapsed_ms":  "6389",
+                                      "generation":  "3",
+                                      "phase":  "completed",
+                                      "hwnd":  "11731374",
+                                      "is_window":  "false",
+                                      "visible":  "false",
+                                      "component_alive":  "false",
+                                      "pid":  "20848",
+                                      "tid":  "37112"
+                                  },
+                          "observed_ms":  6463.9317,
+                          "process_alive":  true
+                      }
+                  ],
+    "finished_utc":  "2026-11-03T08:10:25.8392728Z"
+}

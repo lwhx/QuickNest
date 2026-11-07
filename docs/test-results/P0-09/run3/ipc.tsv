@@ -1,0 +1,9 @@
+0	parent	mutex	acquired before pipe
+401	parent	server_started	\\.\pipe\QuickNest-7523641ad8f38453-1
+475	parent	race_probe	pid=14652
+548	parent	command_sent	show pid=38392
+623	parent	command_sent	hide pid=32208
+695	parent	command_sent	toggle pid=10800
+770	parent	command_sent	show_and_focus pid=10136
+846	parent	command_sent	open_search pid=2860
+867	parent	dispatched	expected=["show_and_focus", "show", "hide", "toggle", "show_and_focus", "open_search"] received=["show_and_focus", "show", "hide", "toggle", "show_and_focus", "open_search"]

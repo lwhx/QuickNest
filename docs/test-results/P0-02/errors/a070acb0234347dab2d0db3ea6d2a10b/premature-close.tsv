@@ -1,0 +1,3 @@
+elapsed_ms	generation	phase	hwnd	is_window	visible	component_alive	pid	tid
+40	1	created	5377628	true	true	true	5600	28996
+166	1	failed	5377628	true	false	true	5600	28996

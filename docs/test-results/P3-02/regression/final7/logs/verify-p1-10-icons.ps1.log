@@ -1,0 +1,7 @@
+﻿All P1-10 icon phases passed.
+160932.049	window_found	pid=10756 rect=40,120,800,640
+160934.138	icons_captured	p1-10-icons.png
+160934.909	pixels	cmd_blue_ratio=0 uri_blue_ratio=0.346938775510204
+160935.044	wm_close_exit	exit=0
+160935.047	completed	all P1-10 icon phases passed
+

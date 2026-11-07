@@ -1,0 +1,6 @@
+﻿193840.693	prepared	payload signed; package sha256=f592197769f0bb3b...
+193842.812	server_ready	https://localhost:19443 cert trusted into Root for the run
+193852.956	app_chain	all 12 update phases passed (fetch/sign/reject/version/download/corrupt/apply/backup/rollback/restore/data/completed)
+193852.958	https_server	manifest+package served over TLS (server log verified)
+193857.096	server_stopped	server process + cert + binding cleaned up
+193857.098	completed	all P4-04/05/06 update phases passed

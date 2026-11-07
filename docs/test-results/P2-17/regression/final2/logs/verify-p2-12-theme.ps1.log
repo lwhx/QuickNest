@@ -1,0 +1,11 @@
+﻿All P2-12 theme phases passed.
+112218.786	light_start	rgb=233,234,238
+112221.061	dark_switch	rgb=16,21,29 theme=dark
+112223.196	light_switch	rgb=233,234,238 theme=light
+112225.380	system_follow	AppsUseLightTheme=1 rgb=233,234,238 theme=system
+112227.180	accent_green	accent=#16a34a category_rgb=223,235,228
+112227.233	app_exit	exit=0
+112227.826	dark_restart	rgb=16,21,29
+112227.866	app_exit_after_restart	exit=0
+112227.870	completed	all P2-12 theme phases passed
+

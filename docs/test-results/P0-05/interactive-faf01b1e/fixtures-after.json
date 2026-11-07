@@ -1,0 +1,47 @@
+﻿[
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-faf01b1e\\fixtures\\中文 folder",
+        "sha256_before":  null,
+        "sha256_after":  null,
+        "length_before":  0,
+        "length_after":  0,
+        "is_directory":  true,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-faf01b1e\\fixtures\\sample application.exe",
+        "sha256_before":  "1552F6A579B77B61460DF56CB4B2CE0A34FE96B6176829D7916275B806EDC2BB",
+        "sha256_after":  "1552F6A579B77B61460DF56CB4B2CE0A34FE96B6176829D7916275B806EDC2BB",
+        "length_before":  360448,
+        "length_after":  360448,
+        "is_directory":  false,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-faf01b1e\\fixtures\\second file.txt",
+        "sha256_before":  "7B7CF914C7CB49D2259F58659C182E796D27950E47F02B72D1D755BDF556DEDE",
+        "sha256_after":  "7B7CF914C7CB49D2259F58659C182E796D27950E47F02B72D1D755BDF556DEDE",
+        "length_before":  29,
+        "length_after":  29,
+        "is_directory":  false,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-faf01b1e\\fixtures\\中文 link.lnk",
+        "sha256_before":  "D99491A1DD59B3000A514B74661D7B1EBD8C933A3DBCDCAD8D8A5FAD2544C419",
+        "sha256_after":  "D99491A1DD59B3000A514B74661D7B1EBD8C933A3DBCDCAD8D8A5FAD2544C419",
+        "length_before":  827,
+        "length_after":  827,
+        "is_directory":  false,
+        "unchanged":  true
+    },
+    {
+        "path":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-faf01b1e\\fixtures\\中文 sample.txt",
+        "sha256_before":  "12D1450DAD09C033F4FF03F24BC6C6F5EFA6E564628048CD8B23B26FDEEA76DC",
+        "sha256_after":  "12D1450DAD09C033F4FF03F24BC6C6F5EFA6E564628048CD8B23B26FDEEA76DC",
+        "length_before":  37,
+        "length_after":  37,
+        "is_directory":  false,
+        "unchanged":  true
+    }
+]

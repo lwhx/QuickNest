@@ -1,0 +1,19 @@
+﻿{
+    "hwnd":  2168044,
+    "dpi":  96,
+    "pid":  14092,
+    "pmv2":  true,
+    "iconic":  false,
+    "client":  {
+                   "left":  728,
+                   "top":  51,
+                   "right":  1594,
+                   "bottom":  733
+               },
+    "window":  {
+                   "left":  720,
+                   "top":  20,
+                   "right":  1602,
+                   "bottom":  741
+               }
+}

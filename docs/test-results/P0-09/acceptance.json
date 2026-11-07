@@ -1,0 +1,38 @@
+﻿{
+    "task":  "P0-09",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "C3657B7243B3C500F6C339E12D0BF2F4CE3B8A55899C493B0A947D1315237C53",
+    "exeBytes":  12736512,
+    "checks":  {
+                   "check":  "Passed",
+                   "docTests":  "3 passed, 0 failed",
+                   "clippy":  "Passed",
+                   "release":  "Passed",
+                   "unitTests":  "24 lib + 1 bin + 6 synthetic, 0 failed",
+                   "fmt":  "Passed"
+               },
+    "actualRuns":  {
+                       "devRun":  "run4: race probe, 5 commands in order, 4 rejection kinds, completed, exit 0",
+                       "mediumRuns":  "medium-860d6a40, medium-06049b69 and later: all IPC phases passed under Medium integrity"
+                   },
+    "protocol":  {
+                     "commands":  "show, hide, toggle, show_and_focus, open_search (whitelist only)",
+                     "framing":  "4-byte LE length prefix + UTF-8 JSON payload, 1..4096 bytes",
+                     "security":  "SDDL D:P(A;;GA;;;user)(A;;GA;;;SY), PIPE_REJECT_REMOTE_CLIENTS, impersonation + EqualSid verification",
+                     "ack":  "versioned accepted/rejected response"
+                 },
+    "race":  "Mutex held before pipe; 400ms delayed pipe start; secondary retried within 1500ms budget and connected",
+    "rejections":  [
+                       "unknown-command",
+                       "wrong-version",
+                       "bad-json",
+                       "unknown-field",
+                       "oversize length prefix",
+                       "short frame"
+                   ],
+    "regressions":  [
+                        "P0-07 Shell STA Medium run passed on current EXE",
+                        "P0-08 Mutex Medium run passed on current EXE"
+                    ]
+}

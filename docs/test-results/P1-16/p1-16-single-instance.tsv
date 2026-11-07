@@ -1,0 +1,6 @@
+﻿193039.501	first_instance	pid=27380 rect=40,120
+193039.554	second_exit	exit=0 windows=1
+193040.910	hidden	first instance hidden
+193041.852	wake_up	visible=1 second_exit=0
+193042.020	first_exit	exit=0
+193042.026	completed	all P1-16 single-instance phases passed

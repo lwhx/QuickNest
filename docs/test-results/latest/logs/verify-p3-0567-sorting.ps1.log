@@ -1,0 +1,9 @@
+﻿All P3-05/06/07 sorting phases passed.
+193712.301	seeded	usage: A(100,1) B(300,3) C(200,2,favorite); mode=recent
+193714.383	recent_mode	grid order B, C, A (by last_used desc)
+193717.417	frequent_mode	grid order B, C, A (by launch_count desc)
+193720.368	favorite_mode	grid order C first (favorite to the top)
+193723.713	favorite_toggled	C favorite=false via the card menu
+193723.791	persisted	sort_mode=favorite exit=0
+193723.792	completed	all P3-05/06/07 sorting phases passed
+

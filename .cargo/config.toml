@@ -1,0 +1,4 @@
+# P4-12 审核修复：静态链接 MSVC 运行库，消除干净机器上缺失
+# VCRUNTIME140.dll 的条件性无法启动（正式发布产物必须自包含）。
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

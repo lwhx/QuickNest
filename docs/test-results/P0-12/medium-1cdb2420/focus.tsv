@@ -1,0 +1,13 @@
+71	state_show	Hidden->Showing->Visible
+72	state_hide	Visible->Hiding->Hidden
+221	esc_hides	posted WM_KEYDOWN ESC -> escape-pressed -> Hidden
+221	hotkey_env_limited	foreground held by a higher-integrity window; UIPI drops synthetic input (P0-10 Medium pass injected with own window in front)
+235	tray_skipped	register failed: Shell_NotifyIconW NIM_ADD failed: 5
+405	blur_hide	outside window foreground -> 120ms recheck -> Hiding->Hidden
+1396	pinned_stays	Pinned suppression -> blur ignored
+1538	unpinned_hides	unpin -> recheck -> Hidden
+2742	suppression_raii	ContextMenuOpen held -> stays; token drop -> recheck -> Hidden
+3114	recheck_stays	refocus before 120ms -> Stay -> Visible
+3278	blur_after_recheck	outside again -> recheck -> Hidden
+3278	shutting_down	any state -> ShuttingDown; transitions refused
+3278	completed	all focus phases passed

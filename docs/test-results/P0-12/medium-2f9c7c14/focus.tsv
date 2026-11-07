@@ -1,0 +1,4 @@
+79	state_show	Hidden->Showing->Visible
+81	state_hide	Visible->Hiding->Hidden
+244	esc_hides	posted WM_KEYDOWN ESC -> escape-pressed -> Hidden
+10249	scenario_error	state stayed Hidden, expected Visible within 10s; forwarder consumed=0

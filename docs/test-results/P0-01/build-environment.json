@@ -1,0 +1,12 @@
+﻿{
+    "rustc":  "rustc 1.96.0 (ac68faa20 2026-05-25)\r\nbinary: rustc\r\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\r\ncommit-date: 2026-05-25\r\nhost: x86_64-pc-windows-msvc\r\nrelease: 1.96.0\r\nLLVM version: 22.1.2\r\n",
+    "cargo":  "cargo 1.96.0 (30a34c682 2026-05-25)\r\n",
+    "os":  {
+               "Caption":  "Microsoft Windows 11 专业版",
+               "Version":  "10.0.26200",
+               "BuildNumber":  "26200",
+               "OSArchitecture":  "64 位"
+           },
+    "interactive":  true,
+    "sessionId":  1
+}

@@ -1,0 +1,16 @@
+﻿All P2-10 special Shell phases passed.
+063453.083	fixture	panel_lnk=C:\Users\Administrator\AppData\Local\Temp\QuickNestP210-19fd8eb2\control-panel.lnk bytes=116
+063453.514	window_ready	pid=46448 rect=182,182
+063457.109	import_shell	name=此电脑 type=uri path=shell:MyComputerFolder
+063500.238	launch_shell	window=51974790 title=此电脑 - 文件资源管理器
+063500.829	app_exit_after_import	exit=0
+063500.844	extras_written	clsid/panel/settings/share appended
+063501.023	window_ready_2	pid=36348 rect=208,208
+063503.978	launch_clsid	window=40901062 title=此电脑 - 文件资源管理器
+063508.512	launch_control_panel	window=56103444 title=所有控制面板项
+063514.507	launch_settings	window=45617974 title=设置 pid=43700
+063518.304	launch_unc	window=82911584 title=C$ - 文件资源管理器
+063518.815	targets_kept	all five original targets and kinds unchanged
+063518.893	app_exit	exit=0
+063518.897	completed	all P2-10 special Shell phases passed
+

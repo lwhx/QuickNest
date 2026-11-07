@@ -1,0 +1,9 @@
+﻿211550.178	light_start	rgb=244,246,250
+211552.440	dark_switch	rgb=16,21,29 theme=dark
+211554.659	light_switch	rgb=244,246,250 theme=light
+211556.961	system_follow	AppsUseLightTheme=1 rgb=244,246,250 theme=system
+211559.497	accent_green	accent=#16a34a category=234,247,239
+211601.428	app_exit	exit=0
+211602.576	dark_restart	rgb=16,21,29
+211602.593	app_exit_restart	exit=0
+211602.596	completed	all P2-12 headless menu/palette phases passed

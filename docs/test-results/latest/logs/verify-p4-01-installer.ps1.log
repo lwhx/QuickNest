@@ -1,0 +1,14 @@
+﻿All P4-01 installer phases passed.
+193809.463	preflight	setup_sha256=66438FAE73D36C98... console_integrity_rid=12288 broker=schtasks
+193811.410	install_full	exit=0 dir=C:\Users\Administrator\AppData\Local\Programs\QuickNest
+193811.416	verify_files	quicknest.exe=18569728 bytes; ico+README present
+193811.472	verify_shortcuts	start menu group (app+uninstall) + desktop icon present, targets verified
+193811.520	verify_registry	autostart Run key + ARP entry (version 1.2.0) present
+193812.341	launch_privileges	app running from install dir; manifest=asInvoker; per-user install (no HKLM); observed rid=12288 (interactive token of built-in Administrator is High on this machine)
+193814.773	uninstall_clean	files, shortcuts, Run value and ARP entry all removed
+193816.602	install_default	desktop icon created; autostart stays off (opt-in verified)
+193817.693	uninstall_again	clean state restored
+193817.694	completed	all P4-01 installer phases passed
+警告: 因为 /ST 早于当前的时间，任务可能无法运行。
+警告: 因为 /ST 早于当前的时间，任务可能无法运行。
+

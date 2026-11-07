@@ -1,0 +1,23 @@
+﻿[
+    {
+        "case":  "existing-report",
+        "passed":  true,
+        "exit_code":  1,
+        "existing_report_preserved":  true,
+        "stderr":  "Error: Os { code: 80, kind: AlreadyExists, message: \"鏂囦欢瀛樺湪銆? }\n"
+    },
+    {
+        "case":  "destroy-on-hide-override",
+        "passed":  true,
+        "exit_code":  1,
+        "existing_report_preserved":  true,
+        "stderr":  "Error: \"Unset SLINT_DESTROY_WINDOW_ON_HIDE for the default Windows lifecycle test\"\n"
+    },
+    {
+        "case":  "premature-close",
+        "passed":  true,
+        "exit_code":  1,
+        "existing_report_preserved":  true,
+        "stderr":  "Error: \"Window identity or visibility changed unexpectedly\"\n"
+    }
+]

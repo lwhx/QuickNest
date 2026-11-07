@@ -1,0 +1,8 @@
+﻿theme menu did not open
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-12-theme.ps1:75 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (theme menu did not open:String) [], RuntimeException
+    + FullyQualifiedErrorId : theme menu did not open
+ 
+

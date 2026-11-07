@@ -1,0 +1,10 @@
+﻿All P1-14 hotkey phases passed.
+075719.816	after_close	window hidden
+075719.826	hidden	close button hid the window
+075722.560	hotkey_restore	visible=1 foreground=True
+075724.204	ctrl_f	search intent routed
+075725.053	custom_registered	screenshot after startup (status bar shows the hotkey result)
+075727.329	custom_hotkey	Ctrl+Alt+K restored the window
+075728.725	invalid_hotkey	status bar shows the parse failure
+075728.854	completed	all P1-14 hotkey phases passed
+

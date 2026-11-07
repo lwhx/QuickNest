@@ -1,0 +1,8 @@
+﻿panel did not auto-hide after losing focus
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-18-auto-hide.ps1:114 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (panel did not a...er losing focus:String) [], RuntimeException
+    + FullyQualifiedErrorId : panel did not auto-hide after losing focus
+ 
+

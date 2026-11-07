@@ -1,0 +1,17 @@
+93	state_show	Hidden->Showing->Visible
+94	state_hide	Visible->Hiding->Hidden
+264	esc_hides	SendInput ESC -> escape-pressed -> Hidden
+275	hotkey_toggle_show	Ctrl+Alt+Space -> Showing->Visible
+304	hotkey_toggle_hide	Ctrl+Alt+Space -> Hiding->Hidden
+460	tray_toggle_show	LeftClick -> toggle -> Visible
+481	tray_toggle_hide	LeftClick -> toggle -> Hidden
+929	tray_menu_show	menu item 1 -> MenuSelected(Show) -> Visible
+1421	tray_menu_hide	menu item 2 -> MenuSelected(Hide) -> Hidden
+1848	blur_hide	outside window foreground -> 120ms recheck -> Hiding->Hidden
+2865	pinned_stays	Pinned suppression -> blur ignored
+3067	unpinned_hides	unpin -> recheck -> Hidden
+4274	suppression_raii	ContextMenuOpen held -> stays; token drop -> recheck -> Hidden
+4692	recheck_stays	refocus before 120ms -> Stay -> Visible
+4877	blur_after_recheck	outside again -> recheck -> Hidden
+4877	shutting_down	any state -> ShuttingDown; transitions refused
+4877	completed	all focus phases passed

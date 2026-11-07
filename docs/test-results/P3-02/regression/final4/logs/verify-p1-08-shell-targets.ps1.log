@@ -1,0 +1,8 @@
+﻿Explorer window for the containing folder not found
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-08-shell-targets.ps1:207 字符: 36
++ ... ntWindow) { throw 'Explorer window for the containing folder not foun ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Explorer window...older not found:String) [], RuntimeException
+    + FullyQualifiedErrorId : Explorer window for the containing folder not found
+ 
+

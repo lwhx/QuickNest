@@ -1,0 +1,1658 @@
+﻿[
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.3531391,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.4306642,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.492726,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.5552292,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.6168969,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.6934167,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.7607217,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.83435039999999994,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.9118042,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  0.99032749999999992,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.0692888,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.1319563,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.2077035999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.2855359,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.3481082,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.4098948999999998,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.4707097,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.5344099999999998,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.595502,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.6568421999999998,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.7199114,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.7821590999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.8450574,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.9067789,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  1.9690741999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.0317011,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.094442,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.1603542,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.2222436,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.2845016,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.346932,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.4085132,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.4720589,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.5347169999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.5993588,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.675703,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.7383061,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.8006104,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.8633607999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.9256279999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  2.9860963,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.0469842,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.1093678,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.1709666999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.2318504,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.2929511,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.3552667,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.4171533,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.4778851,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.5395828,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.6020760999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.6646739,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.7274691,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.7901374999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.8510253999999997,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.9158266999999998,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  3.9763664,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.0387433,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.1020433999999995,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.3037371,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.3667768,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.4433133,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.5070605,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.5850199,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.6608309,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.7223498,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.7846839999999995,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.8459347,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.9082829,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  4.9712511,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.0342014,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.0969589,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.1586386,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.2207557,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.2827386,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.3441502,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.421472,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.4827362,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.5458224,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.607822,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.671538,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.7333649,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.7961564999999995,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.8589101,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.9220793999999994,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  5.9843418,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.0469697,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.1089398999999993,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.1711328,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.2328332,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.2938367999999993,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.3569746999999994,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.4191658,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.4814688,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.5430848,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.6046508,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.6662383,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.7278306999999993,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.7919478999999994,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.852503,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.9150506,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  6.9765209,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.0528040999999995,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.1306718,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.207707,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.2703618,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.3337201999999992,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.4127430999999993,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.4917453999999992,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.5686333999999995,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.632154,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.7083229,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.7871155,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.8660330999999992,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  7.929062,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.0056332,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.067301,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.2988918,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.3620207,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.4230855,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.4854209999999988,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.5467408,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.6095487999999989,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.6708638999999987,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.7318119,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.792478599999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.8551764999999989,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.9185883999999991,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  8.9803494999999991,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.0414294,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.1035275,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.166046,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.2282148,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.2915811,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.3530836,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.4169837,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.4783311,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.5407236,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.6030722,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.6654258999999989,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.7283586,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.7917378,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.8536377,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.9159335,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  9.9780164,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.041077999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.102986399999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.1659294,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.227934099999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.2895954,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.352902,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.4152559,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.476574,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.539831999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.6026356,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.6659422,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.7278623,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.7901556,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.852288999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.915721399999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  10.9774587,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.0393224,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.1016783,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.1635045,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.2397569,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.3012105,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.3638275,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.425526099999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.4890784,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.5504682,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.611915399999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.6745258,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.736433199999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.7984145,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.8600592,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.9228463,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  11.9846361,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.0473815,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  false,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.1102473,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.312160599999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.3749737,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.4380928,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.499993199999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.561696999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.6246998,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.6866611,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.7480669,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.809743899999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.8708073,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.9336577,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  12.996286099999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.0581245,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.1215254,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.182564999999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.2445615,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.307697099999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.3692909,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.4307842,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.4932666,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.5534542,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.630207599999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.6929764,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.770468099999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.832683399999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.895367799999999,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  13.9571066,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    },
+    {
+        "mode":  "smoke",
+        "elapsedSeconds":  14.019653,
+        "targetPid":  31300,
+        "hwnd":  6035738,
+        "visible":  true,
+        "hung":  false
+    }
+]

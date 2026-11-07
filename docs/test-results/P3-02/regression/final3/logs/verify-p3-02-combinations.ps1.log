@@ -1,0 +1,9 @@
+﻿All P3-02 combination phases passed.
+152627.489	selected	two cards picked
+152631.911	combination_saved	name=组合 2 items=2
+152632.707	panel_rect	left=60 top=60
+152635.583	combination_launched	notepad=0->2
+152639.353	combination_deleted	config no longer holds the combination
+152640.215	app_exit	exit=0
+152640.217	completed	all P3-02 combination phases passed
+

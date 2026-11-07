@@ -1,0 +1,8 @@
+﻿uri probe file was not created
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-09-uri.ps1:141 字符: 43
++ ... (Test-Path $uriProbeFile)) { throw 'uri probe file was not created' }
++                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (uri probe file was not created:String) [], RuntimeException
+    + FullyQualifiedErrorId : uri probe file was not created
+ 
+

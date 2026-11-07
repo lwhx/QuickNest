@@ -1,0 +1,5 @@
+0	parent	mutex_name	Local\QuickNest-7523641ad8f38453-1
+0	parent	acquired	FIRST_INSTANCE
+74	parent	child_probe	pid=40188
+151	parent	keeper_ready	pid=10224
+151	parent	simulated_crash	exit=70

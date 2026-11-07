@@ -1,0 +1,457 @@
+elapsed_ms	phase	data
+58	registered	pid=29448 tid=28444 hwnd=2954372
+1038	heartbeat	40
+2051	heartbeat	80
+3067	heartbeat	120
+4082	heartbeat	160
+5096	heartbeat	200
+6108	heartbeat	240
+8155	heartbeat	280
+9169	heartbeat	320
+10185	heartbeat	360
+11198	heartbeat	400
+12211	heartbeat	440
+13227	heartbeat	480
+14241	heartbeat	520
+15256	heartbeat	560
+16270	heartbeat	600
+17281	heartbeat	640
+18297	heartbeat	680
+19311	heartbeat	720
+20324	heartbeat	760
+21336	heartbeat	800
+22352	heartbeat	840
+23365	heartbeat	880
+24381	heartbeat	920
+25396	heartbeat	960
+26409	heartbeat	1000
+27423	heartbeat	1040
+28436	heartbeat	1080
+29449	heartbeat	1120
+30461	heartbeat	1160
+31475	heartbeat	1200
+32491	heartbeat	1240
+33505	heartbeat	1280
+34518	heartbeat	1320
+35532	heartbeat	1360
+36545	heartbeat	1400
+37559	heartbeat	1440
+38575	heartbeat	1480
+39589	heartbeat	1520
+40605	heartbeat	1560
+41619	heartbeat	1600
+42634	heartbeat	1640
+43652	heartbeat	1680
+44663	heartbeat	1720
+45678	heartbeat	1760
+46693	heartbeat	1800
+47707	heartbeat	1840
+48723	heartbeat	1880
+49735	heartbeat	1920
+50751	heartbeat	1960
+51764	heartbeat	2000
+52775	heartbeat	2040
+53787	heartbeat	2080
+54801	heartbeat	2120
+54852	enter	supported=true x=979 y=257
+54852	over	x=979 y=257
+54877	over	x=1023 y=259
+54878	over	x=1058 y=259
+54878	over	x=1088 y=259
+54903	over	x=1107 y=259
+54903	over	x=1119 y=259
+54903	over	x=1130 y=259
+54929	over	x=1138 y=259
+54929	over	x=1145 y=259
+54929	over	x=1150 y=258
+54929	over	x=1152 y=258
+54954	over	x=1153 y=257
+54955	over	x=1154 y=257
+54979	over	x=1155 y=257
+54979	over	x=1156 y=257
+54979	over	x=1157 y=257
+55005	over	x=1161 y=257
+55005	over	x=1169 y=257
+55005	over	x=1180 y=257
+55030	over	x=1193 y=257
+55030	over	x=1205 y=257
+55030	over	x=1217 y=257
+55054	over	x=1227 y=257
+55055	over	x=1234 y=257
+55055	over	x=1237 y=257
+55105	over	x=1237 y=257
+55182	over	x=1237 y=257
+55233	over	x=1237 y=257
+55309	over	x=1237 y=257
+55359	over	x=1237 y=257
+55436	drop	count=1 total=1 x=1237 y=257
+55436	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\sample application.exe
+55817	heartbeat	2160
+56829	heartbeat	2200
+57844	heartbeat	2240
+58858	heartbeat	2280
+59873	heartbeat	2320
+60887	heartbeat	2360
+61901	heartbeat	2400
+62533	enter	supported=true x=954 y=350
+62533	over	x=954 y=350
+62533	over	x=954 y=350
+62533	over	x=968 y=351
+62533	over	x=983 y=353
+62557	over	x=994 y=356
+62557	over	x=1004 y=359
+62557	over	x=1014 y=360
+62583	over	x=1021 y=362
+62583	over	x=1030 y=364
+62583	over	x=1039 y=366
+62607	over	x=1046 y=368
+62607	over	x=1052 y=370
+62607	over	x=1060 y=372
+62632	over	x=1069 y=374
+62632	over	x=1076 y=376
+62632	over	x=1083 y=378
+62632	over	x=1088 y=379
+62658	over	x=1094 y=382
+62658	over	x=1100 y=384
+62658	over	x=1106 y=385
+62682	over	x=1111 y=387
+62682	over	x=1116 y=388
+62682	over	x=1120 y=390
+62682	over	x=1120 y=390
+62708	over	x=1122 y=391
+62708	over	x=1125 y=392
+62708	over	x=1128 y=393
+62733	over	x=1131 y=395
+62733	over	x=1133 y=397
+62733	over	x=1136 y=400
+62757	over	x=1137 y=403
+62757	over	x=1139 y=405
+62757	over	x=1141 y=408
+62783	over	x=1145 y=412
+62783	over	x=1147 y=414
+62783	over	x=1149 y=415
+62807	over	x=1154 y=418
+62807	over	x=1157 y=420
+62807	over	x=1157 y=420
+62807	over	x=1162 y=424
+62833	over	x=1165 y=428
+62833	over	x=1167 y=430
+62833	over	x=1170 y=432
+62833	over	x=1174 y=435
+62858	over	x=1176 y=437
+62858	over	x=1178 y=438
+62858	over	x=1181 y=440
+62882	over	x=1184 y=442
+62883	over	x=1186 y=444
+62883	over	x=1190 y=446
+62908	heartbeat	2440
+62908	over	x=1192 y=447
+62908	over	x=1193 y=448
+62908	over	x=1194 y=448
+62934	over	x=1194 y=449
+62934	over	x=1195 y=450
+62958	over	x=1196 y=450
+62958	over	x=1197 y=451
+62983	over	x=1199 y=451
+62983	over	x=1199 y=452
+63008	over	x=1200 y=452
+63009	over	x=1202 y=453
+63009	over	x=1203 y=454
+63009	over	x=1204 y=454
+63033	over	x=1205 y=455
+63084	over	x=1205 y=455
+63135	over	x=1205 y=455
+63160	drop	count=1 total=2 x=1205 y=455
+63160	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\中文 link.lnk
+63919	heartbeat	2480
+64929	heartbeat	2520
+65937	heartbeat	2560
+66949	heartbeat	2600
+67965	heartbeat	2640
+68979	heartbeat	2680
+69991	heartbeat	2720
+71004	heartbeat	2760
+72015	heartbeat	2800
+73032	heartbeat	2840
+74049	heartbeat	2880
+75062	heartbeat	2920
+76074	heartbeat	2960
+77085	heartbeat	3000
+78100	heartbeat	3040
+79108	heartbeat	3080
+80124	heartbeat	3120
+81138	heartbeat	3160
+82152	heartbeat	3200
+83165	heartbeat	3240
+84177	heartbeat	3280
+85191	heartbeat	3320
+86204	heartbeat	3360
+87221	heartbeat	3400
+88236	heartbeat	3440
+89245	heartbeat	3480
+90385	heartbeat	3520
+91406	heartbeat	3560
+92420	heartbeat	3600
+93432	heartbeat	3640
+94443	heartbeat	3680
+95458	heartbeat	3720
+96474	heartbeat	3760
+97487	heartbeat	3800
+98499	heartbeat	3840
+99510	heartbeat	3880
+100524	heartbeat	3920
+101535	heartbeat	3960
+102550	heartbeat	4000
+103562	heartbeat	4040
+104576	heartbeat	4080
+105589	heartbeat	4120
+106603	heartbeat	4160
+107616	heartbeat	4200
+108630	heartbeat	4240
+109641	heartbeat	4280
+110659	heartbeat	4320
+111674	heartbeat	4360
+112686	heartbeat	4400
+113698	heartbeat	4440
+114714	heartbeat	4480
+115726	heartbeat	4520
+116740	heartbeat	4560
+117751	heartbeat	4600
+118437	enter	supported=true x=949 y=323
+118437	over	x=949 y=323
+118487	over	x=981 y=326
+118511	over	x=1012 y=330
+118536	over	x=1043 y=333
+118561	over	x=1075 y=336
+118587	over	x=1106 y=340
+118638	over	x=1137 y=343
+118664	over	x=1169 y=347
+118689	over	x=1200 y=350
+118765	heartbeat	4640
+118765	over	x=1200 y=350
+118815	over	x=1200 y=350
+118890	over	x=1200 y=350
+118941	over	x=1200 y=350
+118992	drop	count=1 total=3 x=1200 y=350
+118992	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\sample application.exe
+119776	heartbeat	4680
+120791	heartbeat	4720
+120917	enter	supported=true x=949 y=315
+120917	over	x=949 y=315
+120941	over	x=981 y=320
+120967	over	x=981 y=320
+120967	over	x=1012 y=324
+120993	over	x=1012 y=324
+121018	over	x=1043 y=328
+121043	over	x=1075 y=333
+121069	over	x=1106 y=337
+121095	over	x=1137 y=341
+121121	over	x=1169 y=346
+121172	over	x=1200 y=350
+121223	over	x=1200 y=350
+121298	over	x=1200 y=350
+121349	over	x=1200 y=350
+121426	over	x=1200 y=350
+121451	drop	count=1 total=4 x=1200 y=350
+121451	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\中文 folder
+121805	heartbeat	4760
+122818	heartbeat	4800
+123325	enter	supported=true x=949 y=338
+123325	over	x=949 y=338
+123349	over	x=981 y=339
+123375	over	x=1012 y=341
+123425	over	x=1043 y=342
+123450	over	x=1075 y=344
+123474	over	x=1106 y=345
+123525	over	x=1137 y=347
+123525	over	x=1169 y=348
+123575	over	x=1200 y=350
+123625	over	x=1200 y=350
+123676	over	x=1200 y=350
+123752	over	x=1200 y=350
+123801	over	x=1200 y=350
+123827	heartbeat	4840
+123851	drop	count=1 total=5 x=1200 y=350
+123851	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\中文 link.lnk
+124839	heartbeat	4880
+125751	enter	supported=true x=949 y=345
+125751	over	x=949 y=345
+125776	over	x=981 y=346
+125801	over	x=1012 y=346
+125850	heartbeat	4920
+125850	over	x=1043 y=347
+125875	over	x=1075 y=348
+125901	over	x=1106 y=348
+125952	over	x=1137 y=349
+125978	over	x=1169 y=349
+126004	over	x=1200 y=350
+126079	over	x=1200 y=350
+126130	over	x=1200 y=350
+126181	over	x=1200 y=350
+126256	over	x=1200 y=350
+126282	drop	count=1 total=6 x=1200 y=350
+126282	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\中文 sample.txt
+126865	heartbeat	4960
+127879	heartbeat	5000
+128158	enter	supported=true x=949 y=331
+128158	over	x=949 y=331
+128184	over	x=981 y=333
+128210	over	x=1012 y=335
+128235	over	x=1043 y=338
+128286	over	x=1075 y=340
+128311	over	x=1106 y=343
+128336	over	x=1137 y=345
+128386	over	x=1169 y=348
+128411	over	x=1200 y=350
+128487	over	x=1200 y=350
+128537	over	x=1200 y=350
+128588	over	x=1200 y=350
+128665	over	x=1200 y=350
+128691	drop	count=2 total=8 x=1200 y=350
+128691	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\second file.txt
+128691	path	1	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\中文 sample.txt
+128893	heartbeat	5040
+129907	heartbeat	5080
+130361	enter	supported=true x=949 y=345
+130361	over	x=949 y=345
+130387	over	x=981 y=346
+130437	over	x=1012 y=346
+130463	over	x=1043 y=347
+130488	over	x=1075 y=348
+130539	over	x=1106 y=348
+130539	over	x=1137 y=349
+130590	over	x=1169 y=349
+130615	over	x=1200 y=350
+130664	over	x=1200 y=350
+130741	over	x=1200 y=350
+130818	over	x=1200 y=350
+130869	over	x=1200 y=350
+130919	heartbeat	5120
+130919	over	x=1176 y=375
+130944	over	x=1152 y=400
+130969	over	x=1128 y=425
+130994	over	x=1104 y=450
+131019	over	x=1080 y=475
+131070	over	x=1056 y=500
+131095	over	x=1032 y=525
+131121	over	x=1008 y=550
+131172	over	x=984 y=575
+131197	over	x=960 y=600
+131221	leave	count=8
+131930	heartbeat	5160
+132941	heartbeat	5200
+133220	enter	supported=true x=949 y=345
+133220	over	x=949 y=345
+133245	over	x=981 y=346
+133271	over	x=1012 y=346
+133321	over	x=1043 y=347
+133321	over	x=1075 y=348
+133372	over	x=1106 y=348
+133397	over	x=1137 y=349
+133421	over	x=1169 y=349
+133472	over	x=1200 y=350
+133522	over	x=1200 y=350
+133598	over	x=1200 y=350
+133649	over	x=1200 y=350
+133700	over	x=1200 y=350
+133749	leave	count=8
+133952	heartbeat	5240
+134963	heartbeat	5280
+135970	heartbeat	5320
+136982	heartbeat	5360
+137945	enter	supported=true x=940 y=361
+137945	over	x=940 y=361
+137945	over	x=965 y=361
+137945	over	x=990 y=360
+137945	over	x=1004 y=360
+137945	over	x=1019 y=360
+137970	over	x=1035 y=360
+137970	over	x=1046 y=360
+137970	over	x=1056 y=359
+137996	heartbeat	5400
+137996	over	x=1068 y=358
+137996	over	x=1076 y=358
+137996	over	x=1084 y=358
+138020	over	x=1091 y=357
+138020	over	x=1101 y=357
+138020	over	x=1107 y=357
+138045	over	x=1114 y=357
+138046	over	x=1120 y=356
+138046	over	x=1125 y=355
+138071	over	x=1131 y=354
+138071	over	x=1138 y=353
+138071	over	x=1147 y=351
+138095	over	x=1155 y=351
+138095	over	x=1162 y=350
+138095	over	x=1169 y=348
+138120	over	x=1176 y=348
+138120	over	x=1181 y=348
+138120	over	x=1186 y=347
+138121	over	x=1189 y=346
+138145	over	x=1190 y=346
+138197	over	x=1190 y=346
+138247	over	x=1190 y=346
+138297	drop	count=1 total=9 x=1190 y=346
+138297	path	0	E:\Programs\ZCODE\01\QuickNest\docs\test-results\P0-05\interactive-faf01b1e\fixtures\中文 sample.txt
+139007	heartbeat	5440
+140021	heartbeat	5480
+141029	heartbeat	5520
+142040	heartbeat	5560
+143053	heartbeat	5600
+144065	heartbeat	5640
+145078	heartbeat	5680
+146093	heartbeat	5720
+147106	heartbeat	5760
+148115	heartbeat	5800
+149126	heartbeat	5840
+150142	heartbeat	5880
+151156	heartbeat	5920
+152171	heartbeat	5960
+153185	heartbeat	6000
+154198	heartbeat	6040
+155214	heartbeat	6080
+156226	heartbeat	6120
+157240	heartbeat	6160
+158254	heartbeat	6200
+159267	heartbeat	6240
+160281	heartbeat	6280
+161298	heartbeat	6320
+162312	heartbeat	6360
+163326	heartbeat	6400
+164337	heartbeat	6440
+165349	heartbeat	6480
+166364	heartbeat	6520
+167378	heartbeat	6560
+168391	heartbeat	6600
+169404	heartbeat	6640
+170421	heartbeat	6680
+171436	heartbeat	6720
+172449	heartbeat	6760
+173462	heartbeat	6800
+174476	heartbeat	6840
+175488	heartbeat	6880
+176503	heartbeat	6920
+177517	heartbeat	6960
+178532	heartbeat	7000
+179548	heartbeat	7040
+180561	heartbeat	7080
+181576	heartbeat	7120
+182587	heartbeat	7160
+183601	heartbeat	7200
+184614	heartbeat	7240
+185627	heartbeat	7280
+186642	heartbeat	7320
+187653	heartbeat	7360
+188667	heartbeat	7400
+189679	heartbeat	7440
+190692	heartbeat	7480
+191705	heartbeat	7520
+192719	heartbeat	7560
+193732	heartbeat	7600
+194744	heartbeat	7640
+195758	heartbeat	7680
+196771	heartbeat	7720
+197786	heartbeat	7760
+198799	heartbeat	7800
+199816	heartbeat	7840
+200045	cleanup	acquired=8 released=8 destroyed=1 enters=10 overs=229 leaves=2 drops=8 errors=0 received=9 heartbeat=7848

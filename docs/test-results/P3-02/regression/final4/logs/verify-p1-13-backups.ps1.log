@@ -1,0 +1,8 @@
+﻿retention failed: 5 backups kept
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-13-backups.ps1:104 字符: 34
++ ... t -ne 10) { throw "retention failed: $($backups.Count) backups kept"  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (retention failed: 5 backups kept:String) [], RuntimeException
+    + FullyQualifiedErrorId : retention failed: 5 backups kept
+ 
+

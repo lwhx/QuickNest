@@ -1,0 +1,6 @@
+﻿193859.736	preflight	release exe present; crash log cleared
+193900.075	crash_triggered	exit=101 (hook wrote the log, then the process aborted)
+193900.099	crash_log	log exists with message, location and timestamp
+193900.387	append_semantics	entries grew from 3 lines; two crash entries present
+193900.389	cleanup	crash log removed
+193900.389	completed	all P4-07 crash-log phases passed

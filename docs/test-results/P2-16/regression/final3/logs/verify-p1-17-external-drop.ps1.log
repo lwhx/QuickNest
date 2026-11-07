@@ -1,0 +1,17 @@
+﻿All P1-17 external-drop phases passed.
+093740.932	window_ready	pid=46088 hwnd=90313768 rect=720,40,860,620
+093742.036	pinned_for_drag_suite	title-bar pin clicked
+093743.794	library_persisted	sample library written by category selections
+093746.954	explorer_ready	hwnd=127670934 path=C:\Users\Administrator\AppData\Local\Temp\QuickNestP117-44c61261\fixtures
+093747.048	initial	total=6 active_category=必备软件 items=6
+093750.551	grid_drop_items	应用示例|C:\Windows\System32\notepad.exe;工具示例|C:\Windows\System32\calc.exe;文件示例|C:\QuickNest Demo\missing-file.txt;文件夹示例|C:\QuickNest Demo\missing-folder;链接示例|https://example.com;命令示例|;sample application|C:\Users\Administrator\AppData\Local\Temp\QuickNestP117-44c61261\fixtures\sample application.exe
+093750.558	grid_drop	name=sample application type=exe category=必备软件
+093753.902	category_drop	category=系统工具 items=1
+093757.230	multi_drop	order=second file,中文 sample
+093801.315	spring_load	group=应用 item=中文 folder
+093805.253	esc_cancel	total=11 unchanged
+093809.743	leave	total=11 unchanged
+093809.760	source_unchanged	files=5 hashes=4
+093809.812	app_exit	exit=0
+093809.814	completed	all P1-17 external-drop phases passed
+

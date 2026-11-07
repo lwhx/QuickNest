@@ -1,0 +1,51 @@
+    Checking quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+error: 9 positional arguments in format string, but there are 8 arguments
+  --> src\drop_target_validation.rs:43:14
+   |
+43 |               "{}\t{generation}\t{phase}\t{}\t{}\t{}\t{}\t0x{:08X}\t{}\t{}\t{}\t{destroyed}",
+   |                ^^                         ^^  ^^  ^^  ^^    ^^^^^^  ^^  ^^  ^^
+44 |               self.started.elapsed().as_millis(),
+   |               ----------------------------------
+45 |               observed.pid,
+   |               ------------
+46 |               observed.tid,
+   |               ------------
+47 |               observed.hwnd,
+   |               -------------
+48 |               hr.0 as u32,
+   |               -----------
+49 |               now.is_window,
+   |               -------------
+50 |               now.visible,
+   |               -----------
+51 | /             self.registration
+52 | |                 .as_ref()
+53 | |                 .is_some_and(|guard| guard.is_registered()),
+   | |___________________________________________________________-
+   |
+   = note: for information about formatting flags, visit https://doc.rust-lang.org/std/fmt/index.html
+
+error[E0277]: the trait bound `bool: UpperHex` is not satisfied
+  --> src\drop_target_validation.rs:49:13
+   |
+43 |             "{}\t{generation}\t{phase}\t{}\t{}\t{}\t{}\t0x{:08X}\t{}\t{}\t{}\t{destroyed}",
+   |                                                           ------ required by this formatting parameter
+...
+49 |             now.is_window,
+   |             ^^^^^^^^^^^^^ the trait `UpperHex` is not implemented for `bool`
+   |
+   = help: the following other types implement trait `UpperHex`:
+             &T
+             &mut T
+             ModifiersState
+             NonZero<T>
+             Saturating<T>
+             WindowButtons
+             Wrapping<T>
+             harfrust::BufferFlags
+           and 55 others
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `quicknest` (bin "quicknest") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quicknest` (bin "quicknest" test) due to 2 previous errors

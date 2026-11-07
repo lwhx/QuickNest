@@ -1,0 +1,8 @@
+﻿saved LNK item missing (count=0)
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-07-lnk.ps1:214 字符: 31
++ ... unt -ne 1) { throw "saved LNK item missing (count=$($saved.Count))" }
++                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (saved LNK item missing (count=0):String) [], RuntimeException
+    + FullyQualifiedErrorId : saved LNK item missing (count=0)
+ 
+

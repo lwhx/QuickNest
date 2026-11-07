@@ -1,0 +1,13 @@
+﻿{
+    "sha256":  "99C19FC2BDAC98C6AD957E6B39DD7B84498BD278754BE5F533FA132EC4C81D95",
+    "targetPid":  35852,
+    "hwnd":  7804924,
+    "dpi":  96,
+    "input":  "Window mouse messages at button centers observed in the accepted 762x552 screenshot",
+    "hiddenObserved":  true,
+    "restoredObserved":  true,
+    "exitCode":  0,
+    "status":  "Passed",
+    "error":  null,
+    "restoreSeconds":  2.0370643999999998
+}

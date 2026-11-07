@@ -1,0 +1,8 @@
+﻿red reference form is not visible behind the panel
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-13-opacity-corners.ps1:74 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (red reference f...ehind the panel:String) [], RuntimeException
+    + FullyQualifiedErrorId : red reference form is not visible behind the panel
+ 
+

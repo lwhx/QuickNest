@@ -1,0 +1,93 @@
+﻿[
+    {
+        "screenX":  731,
+        "screenY":  60,
+        "clientX":  2,
+        "clientY":  2,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    },
+    {
+        "screenX":  1808,
+        "screenY":  60,
+        "clientX":  1079,
+        "clientY":  2,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    },
+    {
+        "screenX":  731,
+        "screenY":  908,
+        "clientX":  2,
+        "clientY":  850,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    },
+    {
+        "screenX":  1808,
+        "screenY":  908,
+        "clientX":  1079,
+        "clientY":  850,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    },
+    {
+        "screenX":  1269,
+        "screenY":  483,
+        "clientX":  540,
+        "clientY":  425,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    },
+    {
+        "screenX":  1270,
+        "screenY":  485,
+        "clientX":  541,
+        "clientY":  427,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    },
+    {
+        "screenX":  830,
+        "screenY":  261,
+        "clientX":  101,
+        "clientY":  203,
+        "dpi":  120,
+        "physicalClient":  {
+                               "left":  729,
+                               "top":  58,
+                               "right":  1811,
+                               "bottom":  911
+                           }
+    }
+]

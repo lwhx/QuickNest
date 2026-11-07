@@ -1,0 +1,9 @@
+﻿All P4-03 de-elevation phases passed.
+193833.299	mechanism	runasoriginaluser flag present; setup built after the change; console rid=12288
+193835.464	elevated_install	exit=0 from rid=12288 context; per-user dir=C:\Users\Administrator\AppData\Local\Programs\QuickNest
+193835.529	per_user_install	HKCU ARP only; no HKLM writes
+193836.163	manifest_asInvoker	the app itself never requests elevation
+193836.972	launch_simulated	app launched and exited cleanly; observed rid=12288 (indistinguishable on built-in Administrator: original user token is also High; behavioral quantification deferred to P4-08/P4-09 standard-user test)
+193839.092	uninstall_clean	clean state restored
+193839.093	completed	all P4-03 de-elevation phases passed
+

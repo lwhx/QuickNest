@@ -1,0 +1,6 @@
+﻿193543.947	seeded	three probe items prepared (probes 1-3 absent)
+193554.530	selected	two cards picked through the context menu
+193557.717	batch_launch	probes 1+2 written by the picked items; probe 3 absent
+193602.463	selection_cleared	a second batch starts nothing
+193602.547	app_exit	exit=0
+193602.549	completed	all P3-01 batch phases passed

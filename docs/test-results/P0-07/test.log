@@ -1,0 +1,49 @@
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.39s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-c70daf8490787bdf.exe)
+
+running 22 tests
+test infrastructure::windows::coordinates::tests::client_bounds_are_half_open_and_never_clamp ... ok
+test infrastructure::windows::coordinates::tests::invalid_factors_are_not_used_for_conversion ... ok
+test infrastructure::windows::drop_target::tests::callbacks_reject_all_effects_and_null_output_without_data_access ... ok
+test infrastructure::windows::drop_target::tests::null_window_is_not_an_eligible_registration_observation ... ok
+test infrastructure::windows::drop_target::tests::query_interface_preserves_identity_and_rejects_unsupported_interface ... ok
+test infrastructure::windows::file_drop::tests::copy_requires_both_supported_format_and_source_permission ... ok
+test infrastructure::windows::file_drop::tests::missing_data_and_closed_queue_never_report_copy ... ok
+test infrastructure::windows::window_handle::tests::null_handle_is_rejected_as_an_observation ... ok
+test tests::demo_grid_has_six_distinct_non_launching_items ... ok
+test infrastructure::windows::coordinates::tests::required_scales_preserve_fractional_and_negative_coordinates ... ok
+test tests::file_drop_test_requires_one_nonempty_report_path ... ok
+test tests::dpi_test_requires_one_nonempty_report_path ... ok
+test tests::drop_target_test_requires_one_nonempty_report_path ... ok
+test tests::help_does_not_open_a_window ... ok
+test tests::hwnd_test_requires_one_nonempty_report_path ... ok
+test tests::ole_test_requires_one_nonempty_report_path ... ok
+test tests::no_arguments_selects_interactive_mode ... ok
+test tests::smoke_test_requires_explicit_argument ... ok
+test tests::shell_test_requires_one_nonempty_report_path ... ok
+test tests::unexpected_arguments_are_rejected ... ok
+test infrastructure::windows::ole::tests::mta_conflict_does_not_uninitialize_the_existing_apartment ... ok
+test infrastructure::windows::ole::tests::nested_ole_successes_release_exactly_their_own_thread_references ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\quicknest-f74b407dbb0350dd.exe)
+
+running 1 test
+test dpi_validation::tests::adjacent_regions_use_half_open_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\file_drop_data.rs (target\debug\deps\file_drop_data-4c11eefd9b10d21b.exe)
+
+running 6 tests
+test failed_get_data_does_not_acquire_a_medium ... ok
+test synthetic_query_get_data_requires_the_exact_format ... ok
+test unsupported_format_does_not_acquire_a_medium ... ok
+test invalid_successful_media_are_released_once ... ok
+test unicode_spaces_multiple_paths_link_and_folder_preserve_order_and_values ... ok
+test closed_ui_queue_rejects_copy_and_releases_the_successful_medium ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

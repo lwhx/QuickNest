@@ -1,0 +1,45 @@
+i-slint-renderer-software v1.18.1
+├── i-slint-backend-winit v1.18.1
+│   ├── i-slint-backend-winit feature "default"
+│   │   └── i-slint-backend-selector v1.18.1
+│   │       └── slint v1.18.1
+│   │           ├── slint feature "backend-winit"
+│   │           │   └── quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+│   │           │       └── quicknest feature "default" (command-line)
+│   │           ├── slint feature "compat-1-18"
+│   │           │   └── quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest) (*)
+│   │           ├── slint feature "renderer-software"
+│   │           │   └── quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest) (*)
+│   │           └── slint feature "std"
+│   │               └── quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest) (*)
+│   │               └── slint feature "backend-winit" (*)
+│   │       ├── i-slint-backend-selector feature "backend-winit"
+│   │       │   └── slint feature "backend-winit" (*)
+│   │       ├── i-slint-backend-selector feature "backend-winit-wayland"
+│   │       │   └── i-slint-backend-selector feature "backend-winit" (*)
+│   │       ├── i-slint-backend-selector feature "backend-winit-x11"
+│   │       │   └── i-slint-backend-selector feature "backend-winit" (*)
+│   │       ├── i-slint-backend-selector feature "i-slint-backend-winit"
+│   │       │   ├── i-slint-backend-selector feature "backend-winit-wayland" (*)
+│   │       │   └── i-slint-backend-selector feature "backend-winit-x11" (*)
+│   │       └── i-slint-backend-selector feature "renderer-software"
+│   │           └── slint feature "renderer-software" (*)
+│   ├── i-slint-backend-winit feature "i-slint-renderer-software"
+│   │   └── i-slint-backend-winit feature "renderer-software"
+│   │       └── i-slint-backend-selector feature "renderer-software" (*)
+│   ├── i-slint-backend-winit feature "muda"
+│   │   └── i-slint-backend-selector v1.18.1 (*)
+│   ├── i-slint-backend-winit feature "renderer-software" (*)
+│   ├── i-slint-backend-winit feature "wayland"
+│   │   └── i-slint-backend-selector feature "backend-winit-wayland" (*)
+│   └── i-slint-backend-winit feature "x11"
+│       └── i-slint-backend-selector feature "backend-winit-x11" (*)
+└── slint v1.18.1 (*)
+├── i-slint-renderer-software feature "path"
+│   └── i-slint-renderer-software feature "std"
+│       ├── slint feature "std" (*)
+│       ├── i-slint-backend-winit feature "renderer-software" (*)
+│       └── i-slint-renderer-software feature "systemfonts"
+│           └── i-slint-renderer-software feature "std" (*)
+├── i-slint-renderer-software feature "std" (*)
+└── i-slint-renderer-software feature "systemfonts" (*)

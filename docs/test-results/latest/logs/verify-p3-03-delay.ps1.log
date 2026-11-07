@@ -1,0 +1,12 @@
+﻿All P3-03 delay phases passed.
+193630.364	seeded	delays=0/3/6 probe files prepared
+193643.785	selected	three cards picked
+193645.324	menu_open	count=13 window=14685318
+193645.329	pre_launch	probes_before=False
+193647.588	post_launch	probe0_exists=True
+193648.100	sample_t05	probe0=True probe3_absent=True
+193651.608	sample_t4	probe3=True
+193655.135	sample_t75	probe6=True
+193655.139	probe_contents	delay values written correctly
+193655.139	completed	all P3-03 delay phases passed
+

@@ -1,0 +1,14 @@
+﻿All P2-09 MSI phases passed.
+204333.471	fixture_built	msi=C:\Users\Administrator\AppData\Local\Temp\QuickNestP209-ddc11f00\QuickNestMsiTest.msi payloadBytes=128512
+204334.586	fixture_installed	exit=0 shortcut=C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\QuickNest MSI Test.lnk advertised=true
+204334.904	window_ready	pid=39516 rect=130,130
+204339.964	import_debug	item0=msiitem|lnk|msi=True|path=C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\QuickNest MSI Test.lnk
+204339.978	import_advertised	flag=true path kept=original lnk aumid=[] args=[] workdir=[]
+204340.950	menu_rect	338,280,532,462
+204341.807	launch_advertised	payload marker=C:\Users\Administrator\AppData\Local\QuickNestMsiTest\payload-ran.txt
+204341.909	app_exit	exit=0
+204342.940	fixture_uninstalled	exit=0 shortcut_removed=true
+204345.228	launch_missing	alive=true marker=false path_kept=true screenshot=p2-09-msi-missing.png
+204345.304	app_exit_after_missing	exit=0
+204345.310	completed	all P2-09 MSI phases passed
+

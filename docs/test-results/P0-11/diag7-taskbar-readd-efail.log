@@ -1,0 +1,2 @@
+[tray-diag] taskbar msg arrived 0xC05F, readd=Err(2147500037)
+Error: "Tray event did not arrive within the timeout"

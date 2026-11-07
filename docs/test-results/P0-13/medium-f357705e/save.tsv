@@ -1,0 +1,7 @@
+8	first_create	MoveFileExW WRITE_THROUGH; no temp/backup
+15	atomic_replace	ReplaceFileW flags=0; backup=config.backup.20261104-012414-106.json
+17	failure_protection	win32_error=32; target intact; temp kept for diagnostics
+18	temp_lifecycle	success paths leave none; failure path keeps one until cleaned
+25	backup_recovery	restored=newest-valid; corrupted=config.corrupted.20261104-012414-119.json
+33	safe_mode	no valid backup -> original untouched
+33	completed	all save phases passed

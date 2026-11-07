@@ -1,0 +1,37 @@
+   Compiling windows v0.62.2
+   Compiling i-slint-backend-selector v1.18.1
+   Compiling fontique v0.11.1
+   Compiling parley v0.11.1
+   Compiling i-slint-common v1.18.1
+   Compiling i-slint-core v1.18.1
+   Compiling i-slint-renderer-software v1.18.1
+   Compiling i-slint-backend-winit v1.18.1
+   Compiling slint v1.18.1
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 24.83s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-64cc4c5f8e4b3304.exe)
+
+running 14 tests
+test infrastructure::windows::window_handle::tests::null_handle_is_rejected_as_an_observation ... ok
+test infrastructure::windows::drop_target::tests::null_window_is_not_an_eligible_registration_observation ... ok
+test infrastructure::windows::drop_target::tests::callbacks_reject_all_effects_and_null_output_without_data_access ... ok
+test infrastructure::windows::drop_target::tests::query_interface_preserves_identity_and_rejects_unsupported_interface ... ok
+test tests::demo_grid_has_six_distinct_non_launching_items ... ok
+test tests::drop_target_test_requires_one_nonempty_report_path ... ok
+test tests::help_does_not_open_a_window ... ok
+test tests::ole_test_requires_one_nonempty_report_path ... ok
+test tests::hwnd_test_requires_one_nonempty_report_path ... ok
+test tests::no_arguments_selects_interactive_mode ... ok
+test tests::smoke_test_requires_explicit_argument ... ok
+test tests::unexpected_arguments_are_rejected ... ok
+test infrastructure::windows::ole::tests::mta_conflict_does_not_uninitialize_the_existing_apartment ... ok
+test infrastructure::windows::ole::tests::nested_ole_successes_release_exactly_their_own_thread_references ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\quicknest-a5b62a554109445d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,15 @@
+﻿All P1-03 category phases passed.
+133452.282	window_found	pid=44720 rect=40,120,800,640
+133452.424	initial_screenshot	p1-03-initial.png
+133453.156	dialog_opened	p1-03-dialog.png
+133454.294	created	typed TestCat and confirmed
+133454.301	persisted	config.json contains TestCat
+133455.041	menu_opened	right-clicked TestCat (last row)
+133458.388	renamed	last category renamed; tool-category-1 untouched
+133500.380	moved_up	RenamedCat now before AI in the config order
+133502.367	moved_down	RenamedCat back after AI in the config order
+133502.434	pre_delete_probe	enumerated=1 hwnd=144646036
+133504.244	deleted	RenamedCat gone, tool-category-1 intact
+133504.336	wm_close_exit	exit=0
+133504.338	completed	all P1-03 category phases passed
+

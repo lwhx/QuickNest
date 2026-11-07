@@ -1,0 +1,10 @@
+﻿All P1-08 shell-target phases passed.
+204008.457	window_found	pid=45576 rect=40,120,800,640
+204010.013	folder_launch	window=FolderProbe - 文件资源管理器
+204012.381	file_launch	status bar confirms the file launch
+204013.131	menu_rect	344,270,538,452
+204014.748	open_location	window=quicknest-p108
+204016.416	missing_file	status bar error expected
+204016.555	wm_close_exit	exit=0
+204016.558	completed	all P1-08 shell-target phases passed
+

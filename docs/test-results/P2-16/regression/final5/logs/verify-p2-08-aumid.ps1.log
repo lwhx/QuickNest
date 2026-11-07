@@ -1,0 +1,7 @@
+﻿All P2-08 AUMID phases passed.
+095838.694	window_ready	pid=25844 rect=234,234
+095839.890	aumid_activation	calculator window=34546342
+095841.580	aumid_reactivate	calculator window=309204722
+095842.249	app_exit	exit=0
+095842.250	completed	all P2-08 AUMID phases passed
+

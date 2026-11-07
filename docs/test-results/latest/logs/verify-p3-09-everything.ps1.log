@@ -1,0 +1,8 @@
+﻿All P3-09 Everything phases passed.
+193751.385	seeded	everything_enabled=true path=probe.cmd realEverything=False
+193755.894	handoff_probe	Enter on the handoff row ran Everything.exe -search qnprobe
+193802.620	toggle_off	disabled: config flag false, no handoff row (probe lines: 1)
+193807.807	missing_path_reported	configured path missing and no fallback: status reports 未找到, app alive, probe untouched
+193807.861	persisted	exit=0; integration state survived the restart
+193807.864	completed	all P3-09 Everything phases passed
+

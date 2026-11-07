@@ -1,0 +1,38 @@
+﻿[
+    {
+        "hwnd":  18353416,
+        "pid":  21116,
+        "title":  "QuickNest · P0-01 技术验证",
+        "rect":  {
+                     "Left":  88,
+                     "Top":  193,
+                     "Right":  864,
+                     "Bottom":  752
+                 },
+        "integrity":  8192
+    },
+    {
+        "hwnd":  6035852,
+        "pid":  21020,
+        "title":  "fixtures - 文件资源管理器",
+        "rect":  {
+                     "Left":  -32000,
+                     "Top":  -32000,
+                     "Right":  -31840,
+                     "Bottom":  -31972
+                 },
+        "integrity":  8192
+    },
+    {
+        "hwnd":  66024,
+        "pid":  10732,
+        "title":  "Program Manager",
+        "rect":  {
+                     "Left":  0,
+                     "Top":  0,
+                     "Right":  1920,
+                     "Bottom":  1080
+                 },
+        "integrity":  12288
+    }
+]

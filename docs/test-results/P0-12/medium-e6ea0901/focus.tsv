@@ -1,0 +1,11 @@
+54	state_show	Hidden->Showing->Visible
+54	state_hide	Visible->Hiding->Hidden
+216	esc_hides	posted WM_KEYDOWN ESC -> escape-pressed -> Hidden
+216	hotkey_env_limited	foreground held by a higher-integrity window; UIPI drops synthetic input (P0-10 Medium pass injected with own window in front)
+225	tray_skipped	register failed: Shell_NotifyIconW NIM_ADD failed: 5
+12288	blur_env_limited	child never owned the foreground: focus child pid=26912 never owned the foreground
+12288	pinned_env_limited	skipped: no blur source in this environment
+12288	suppression_env_limited	skipped: no blur source in this environment
+12288	recheck_env_limited	skipped: no blur source in this environment
+12288	shutting_down	any state -> ShuttingDown; transitions refused
+12288	completed	all focus phases passed

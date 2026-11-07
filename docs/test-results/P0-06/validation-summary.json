@@ -1,0 +1,91 @@
+﻿{
+    "task":  "P0-06",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "73096799DB451B4520DB8C12312AC5A44ED2FC9577F84BF19CE4F897F906FD5B",
+    "exeBytes":  12380160,
+    "checks":  {
+                   "release":  "Passed",
+                   "fmt":  "Passed",
+                   "syntheticTests":  "6 passed",
+                   "binaryUnitTests":  "1 passed",
+                   "clippy":  "Passed",
+                   "check":  "Passed",
+                   "libraryUnitTests":  "21 passed",
+                   "docTests":  "3 passed"
+               },
+    "runs":  [
+                 "final-100\\interactive-4fd078cb",
+                 "physical-recheck\\interactive-fff6ee10"
+             ],
+    "scaleMatrix":  [
+                        {
+                            "percent":  100,
+                            "actualDpi":  96,
+                            "coordinateRecords":  46,
+                            "steadyDropRecords":  1,
+                            "systemTested":  true,
+                            "status":  "Passed"
+                        },
+                        {
+                            "percent":  125,
+                            "actualDpi":  120,
+                            "coordinateRecords":  421,
+                            "steadyDropRecords":  1,
+                            "systemTested":  true,
+                            "status":  "Passed"
+                        },
+                        {
+                            "percent":  150,
+                            "actualDpi":  144,
+                            "coordinateRecords":  44,
+                            "steadyDropRecords":  1,
+                            "systemTested":  true,
+                            "status":  "Passed"
+                        },
+                        {
+                            "percent":  175,
+                            "actualDpi":  168,
+                            "coordinateRecords":  373,
+                            "steadyDropRecords":  1,
+                            "systemTested":  true,
+                            "status":  "Passed"
+                        }
+                    ],
+    "regressions":  [
+                        {
+                            "task":  "p0-01",
+                            "run":  "run-20261103T114954817Z-e1bea1d8",
+                            "status":  "AutomatedPassedManualPending"
+                        },
+                        {
+                            "task":  "p0-02",
+                            "run":  "run-20261103T114955285Z-58a78b476587443ba5dd9eb1ab612bf1",
+                            "status":  "pass"
+                        },
+                        {
+                            "task":  "p0-03",
+                            "run":  "run-20261103T114954077Z-2619656cb8004360a286138e6d88f0be",
+                            "status":  "pass"
+                        },
+                        {
+                            "task":  "p0-04",
+                            "run":  "run-20261103T114953562Z-9f373a90235246bc9c1b8843e7bebe70",
+                            "status":  "pass"
+                        }
+                    ],
+    "systemScaleRestored":  "100% / DPI96 / PMv2",
+    "nativeExitCode":  0,
+    "openItems":  [
+                      "Transient size mismatch is diagnostic only, not accepted as a stable hit-test snapshot",
+                      "No real negative-origin screen or mixed-DPI multi-monitor coverage; defer to later multi-display validation"
+                  ],
+    "notes":  [
+                  "V1.2 required scale range is 100/125/150/175 by explicit user decision; 200% is out of scope",
+                  "Real Explorer Drop passed at all four required scales",
+                  "Independent references were read from Slint TouchArea, not from inverse coordinate math",
+                  "No SLINT_SCALE_FACTOR override or fabricated WM_DPICHANGED used",
+                  "System scale restored to 100% and verified with actual HWND DPI96/PMv2"
+              ],
+    "scopeDecision":  "200% removed from V1.2 required DPI coverage by explicit user confirmation"
+}

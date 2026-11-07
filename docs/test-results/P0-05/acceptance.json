@@ -1,0 +1,64 @@
+﻿{
+    "regressions":  [
+                        {
+                            "task":  "p0-01-regression",
+                            "run":  "run-20261103T085546498Z-bd0a0c07",
+                            "status":  "AutomatedPassedManualPending"
+                        },
+                        {
+                            "task":  "p0-02-regression",
+                            "run":  "run-20261103T085545908Z-95d1e9ad46f3432c9e7eb38c2bded907",
+                            "status":  "pass"
+                        },
+                        {
+                            "task":  "p0-03-regression",
+                            "run":  "run-20261103T085545220Z-1b93dd9780924c128b9924e6c4f12472",
+                            "status":  "pass"
+                        },
+                        {
+                            "task":  "p0-04-regression",
+                            "run":  "run-20261103T085544682Z-d5d7a1732ecb41c5b30dfd7d2d3075b9",
+                            "status":  "pass"
+                        }
+                    ],
+    "buttonEvidence":  "button-regression-final/button-results.json",
+    "errorEvidence":  "errors-final/82eb112e0dbf4de589008d7b5dea4abb/results.json",
+    "task":  "P0-05",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "8BE01530722210A5661919592E4528E888B63BA6D2F8409DB40479BEC678A5E4",
+    "exeBytes":  12314112,
+    "checks":  {
+                   "syntheticTests":  "6 passed, 0 failed",
+                   "check":  "Passed",
+                   "docTests":  "3 passed, 0 failed",
+                   "clippy":  "Passed",
+                   "release":  "Passed",
+                   "unitTests":  "17 passed, 0 failed",
+                   "fmt":  "Passed"
+               },
+    "actualExplorer":  {
+                           "errors":  0,
+                           "exitCode":  0,
+                           "actionEvidence":  "pointer-actions.jsonl",
+                           "pathEvidence":  "events.tsv",
+                           "run":  "interactive-39ab013c",
+                           "paths":  6,
+                           "dropCallbacks":  5,
+                           "fixturesUnchanged":  true,
+                           "targetPid":  29184,
+                           "acquired":  5,
+                           "sourceIntegrity":  8192,
+                           "leaveAndCancel":  2,
+                           "targetIntegrity":  8192,
+                           "released":  5,
+                           "sourcePid":  9172,
+                           "destroyed":  1
+                       },
+    "limits":  [
+                   "Windows 11 x64 100% only",
+                   "No DPI conversion or categorization",
+                   "No config persistence, icon extraction, target execution or source mutation",
+                   "P0 stage overall not accepted"
+               ]
+}

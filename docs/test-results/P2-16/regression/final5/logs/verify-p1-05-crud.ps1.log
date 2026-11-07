@@ -1,0 +1,18 @@
+﻿All P1-05 CRUD phases passed.
+095426.639	window_found	pid=47944 rect=40,120,800,640
+095428.672	dialog_opened	p1-05-dialog-add.png
+095431.858	added	TestItem persisted
+095433.266	edit_dialog	p1-05-dialog-edit.png
+095434.955	edited	EditedItem persisted
+095436.364	duplicated	duplicate suffix persisted
+095438.058	copied_path	C:\Windows\System32\notepad.exe
+095439.408	move_dialog	p1-05-move-dialog.png
+095441.422	moved	copy moved into the second category
+095442.895	category_switched	second category selected
+095443.686	delete_menu_rect	248,270,442,452
+095444.748	delete_confirm	p1-05-delete-confirm.png
+095445.359	deleted	copy deleted after confirmation
+095451.617	browsed	picker filled name/type/workdir
+095451.765	wm_close_exit	final exit=0
+095451.766	completed	all P1-05 CRUD phases passed
+

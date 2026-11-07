@@ -1,0 +1,8 @@
+﻿All P1-09 URI phases passed.
+204017.607	protocol_registered	"C:\Windows\System32\cmd.exe" /c echo uri-launched>"C:\Users\ADMINI~1\AppData\Local\Temp\quicknest-p109\uri-probe.txt"
+204018.397	window_found	pid=4056 rect=40,120,800,640
+204020.549	uri_launch	custom protocol handled by the Shell
+204021.607	invalid_uri	status bar error expected
+204021.777	wm_close_exit	exit=0
+204021.778	completed	all P1-09 URI phases passed
+

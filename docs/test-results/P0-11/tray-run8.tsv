@@ -1,0 +1,9 @@
+20	added	NIM_ADD success on tray thread
+38	tooltip_modified	NIM_MODIFY success
+38	menu_verified	count=6 first=显示 QuickNest last=退出程序
+59	callback_routed	WM_LBUTTONUP -> LeftClick, ui_dispatched=1
+501	menu_shown_dismissed	TrackPopupMenu opened, Escape dismissed
+1027	menu_selected	Down+Enter -> MenuSelected(Show)
+1052	taskbar_readded	icon removed, TaskbarCreated -> NIM_ADD success
+1076	deleted	NIM_DELETE on tray thread success=true
+1076	completed	all tray phases passed

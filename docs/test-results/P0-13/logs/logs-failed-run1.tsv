@@ -1,0 +1,5 @@
+15	first_create	MoveFileExW WRITE_THROUGH; no temp/backup
+24	atomic_replace	ReplaceFileW flags=0; backup=config.backup.20261104-004336-261.json
+45	failure_protection	win32_error=32; target intact; temp kept for diagnostics
+45	temp_lifecycle	success paths leave none; failure path keeps one until cleaned
+55	scenario_error	recovery did not pick the newest valid backup

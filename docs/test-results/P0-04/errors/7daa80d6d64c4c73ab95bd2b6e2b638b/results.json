@@ -1,0 +1,30 @@
+﻿[
+    {
+        "case":  "existing-report",
+        "passed":  true,
+        "exit_code":  1,
+        "protected_report_preserved":  true,
+        "stderr":  "Error: Os { code: 80, kind: AlreadyExists, message: \"鏂囦欢瀛樺湪銆? }\n"
+    },
+    {
+        "case":  "existing-hwnd-report",
+        "passed":  true,
+        "exit_code":  1,
+        "protected_report_preserved":  true,
+        "stderr":  "Error: Os { code: 80, kind: AlreadyExists, message: \"鏂囦欢瀛樺湪銆? }\n"
+    },
+    {
+        "case":  "missing-parent",
+        "passed":  true,
+        "exit_code":  1,
+        "protected_report_preserved":  true,
+        "stderr":  "Error: Os { code: 3, kind: NotFound, message: \"绯荤粺鎵句笉鍒版寚瀹氱殑璺緞銆? }\n"
+    },
+    {
+        "case":  "missing-argument",
+        "passed":  true,
+        "exit_code":  1,
+        "protected_report_preserved":  true,
+        "stderr":  "Error: \"Usage: quicknest [--smoke-test | --hwnd-test \u003creport.tsv\u003e | --ole-test \u003creport.tsv\u003e | --drop-target-test \u003creport.tsv\u003e | --help]\"\n"
+    }
+]

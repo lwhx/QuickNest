@@ -1,0 +1,10 @@
+﻿P1-02 interaction phases captured.
+044325.007	window_found	pid=34208 rect=40,200
+044325.129	initial_screenshot	p1-02-initial.png
+044325.806	apps_screenshot	p1-02-apps-active.png
+044326.487	automation_screenshot	p1-02-automation-active.png
+044327.142	tools_back_screenshot	p1-02-tools-back.png
+044327.546	persistence	group switch writes go through config_save
+044327.631	wm_close_exit	exit=0
+044327.634	completed	P1-02 interaction phases captured (screenshots pending review)
+

@@ -1,0 +1,11 @@
+   Compiling windows-sys v0.61.2
+   Compiling i-slint-core v1.18.1
+   Compiling i-slint-backend-winit v1.18.1
+   Compiling i-slint-backend-selector v1.18.1
+   Compiling arboard v3.7.0
+   Compiling muda v0.19.3
+   Compiling softbuffer v0.4.8
+   Compiling i-slint-renderer-software v1.18.1
+   Compiling slint v1.18.1
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `release` profile [optimized] target(s) in 24.74s

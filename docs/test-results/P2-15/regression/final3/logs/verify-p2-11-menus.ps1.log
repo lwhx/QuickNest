@@ -1,0 +1,14 @@
+﻿All P2-11 menu phases passed.
+081602.176	window_ready	pid=18768 rect=156,156
+081605.549	group_rename	name=AlphA
+081607.344	group_color	color=#2563eb
+081611.571	category_new_project	CatA1 items=1 CatA2 items=0
+081614.920	blank_menu_new_group	groups=4 last=Delta
+081618.014	group_migrate	groups=AlphA,Beta,Delta AlphA categories=CatA1,CatA2,CatG1
+081621.073	group_delete_all	groups=AlphA,Delta
+081622.804	group_move_right	order=Delta,AlphA
+081624.189	edge_window	rect=1692,862 work=0,0,1920,1032
+081625.300	edge_menu	rect=1726,830,1920,1012 work=0,0,1920,1032
+081625.695	app_exit	exit=0
+081625.695	completed	all P2-11 menu phases passed
+

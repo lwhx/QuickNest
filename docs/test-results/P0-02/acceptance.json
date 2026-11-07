@@ -1,0 +1,112 @@
+﻿{
+    "task":  "P0-02",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "4A0A835D284FA1C0A89F2A82D38E19B238AB651E3B1B6104A22EC8AC070BF208",
+    "exeBytes":  12151296,
+    "build":  {
+                  "test":  "7 passed, 0 failed",
+                  "clippy":  "Passed",
+                  "fmt":  "Passed",
+                  "release":  "Passed",
+                  "check":  "Passed"
+              },
+    "mediumRuns":  [
+                       {
+                           "path":  "run-20261103T070416229Z-0ce8d9e52b974944a93d302b26c0bb40",
+                           "pid":  38980,
+                           "integrity":  "Medium",
+                           "generations":  [
+                                               {
+                                                   "generation":  1,
+                                                   "hwnd":  5641876,
+                                                   "tid":  8464,
+                                                   "first_external_false_ms":  1724.0058000000001,
+                                                   "destroyed_confirmed_ms":  2145
+                                               },
+                                               {
+                                                   "generation":  2,
+                                                   "hwnd":  5707412,
+                                                   "tid":  8464,
+                                                   "first_external_false_ms":  3816.9700000000003,
+                                                   "destroyed_confirmed_ms":  4251
+                                               },
+                                               {
+                                                   "generation":  3,
+                                                   "hwnd":  5772948,
+                                                   "tid":  8464,
+                                                   "first_external_false_ms":  5943.732,
+                                                   "destroyed_confirmed_ms":  6382
+                                               }
+                                           ],
+                           "exitCode":  0
+                       },
+                       {
+                           "path":  "run-20261103T070500277Z-177c43b9a5fd43519943a111100e7dad",
+                           "pid":  33932,
+                           "integrity":  "Medium",
+                           "generations":  [
+                                               {
+                                                   "generation":  1,
+                                                   "hwnd":  7474582,
+                                                   "tid":  24256,
+                                                   "first_external_false_ms":  1684.9607,
+                                                   "destroyed_confirmed_ms":  2103
+                                               },
+                                               {
+                                                   "generation":  2,
+                                                   "hwnd":  26086864,
+                                                   "tid":  24256,
+                                                   "first_external_false_ms":  3761.6724000000004,
+                                                   "destroyed_confirmed_ms":  4186
+                                               },
+                                               {
+                                                   "generation":  3,
+                                                   "hwnd":  26152400,
+                                                   "tid":  24256,
+                                                   "first_external_false_ms":  5857.0327000000007,
+                                                   "destroyed_confirmed_ms":  6293
+                                               }
+                                           ],
+                           "exitCode":  0
+                       },
+                       {
+                           "path":  "run-20261103T070500787Z-dc975c05b7af443cb5bd8e0cc96c0365",
+                           "pid":  40700,
+                           "integrity":  "Medium",
+                           "generations":  [
+                                               {
+                                                   "generation":  1,
+                                                   "hwnd":  26021328,
+                                                   "tid":  14748,
+                                                   "first_external_false_ms":  1720.9593,
+                                                   "destroyed_confirmed_ms":  2156
+                                               },
+                                               {
+                                                   "generation":  2,
+                                                   "hwnd":  7540118,
+                                                   "tid":  14748,
+                                                   "first_external_false_ms":  3850.4669000000004,
+                                                   "destroyed_confirmed_ms":  4288
+                                               },
+                                               {
+                                                   "generation":  3,
+                                                   "hwnd":  7605654,
+                                                   "tid":  14748,
+                                                   "first_external_false_ms":  6000.5214000000005,
+                                                   "destroyed_confirmed_ms":  6416
+                                               }
+                                           ],
+                           "exitCode":  0
+                       }
+                   ],
+    "totalGenerations":  9,
+    "errors":  "errors/a070acb0234347dab2d0db3ea6d2a10b/results.json",
+    "p0_01Regression":  "p0-01-regression/run-20261103T070304547Z-8e59aa68",
+    "buttons":  "button-regression/button-results.json",
+    "limits":  [
+                   "Windows 11 x64, 100% scale",
+                   "Only P0-02; no OLE",
+                   "P0 overall not accepted"
+               ]
+}

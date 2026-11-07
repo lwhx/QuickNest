@@ -1,0 +1,3 @@
+1	parent	registered	Ctrl+Alt+Space MOD_NOREPEAT
+100	parent	conflict_detected	pid=34764 1	conflict-child	rejected	ERROR_HOTKEY_ALREADY_REGISTERED
+112	parent	hotkey_event	sequence=1 forwarded_to_ui=1

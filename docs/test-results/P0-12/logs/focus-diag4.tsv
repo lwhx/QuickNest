@@ -1,0 +1,14 @@
+152	state_show	Hidden->Showing->Visible
+153	state_hide	Visible->Hiding->Hidden
+319	esc_hides	SendInput ESC -> escape-pressed -> Hidden
+325	hotkey_toggle_show	Ctrl+Alt+Space -> Showing->Visible
+346	hotkey_toggle_hide	Ctrl+Alt+Space -> Hiding->Hidden
+488	tray_toggle_show	LeftClick -> toggle -> Visible
+508	tray_toggle_hide	LeftClick -> toggle -> Hidden
+961	tray_menu_show	menu item 1 -> MenuSelected(Show) -> Visible
+1455	tray_menu_hide	menu item 2 -> MenuSelected(Hide) -> Hidden
+1841	blur_hide	outside window foreground -> 120ms recheck -> Hiding->Hidden
+2955	pinned_stays	Pinned suppression -> blur ignored
+3097	unpinned_hides	unpin -> recheck -> Hidden
+4370	suppression_raii	ContextMenuOpen held -> stays; token drop -> recheck -> Hidden
+14683	scenario_error	the blur recheck was never scheduled

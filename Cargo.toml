@@ -1,0 +1,27 @@
+[package]
+name = "quicknest"
+version = "1.2.0"
+edition = "2024"
+rust-version = "1.96"
+publish = false
+build = "build.rs"
+
+[dependencies]
+slint = { version = "=1.18.1", default-features = false, features = ["std", "backend-winit", "renderer-software", "compat-1-18", "raw-window-handle-06", "unstable-winit-030"] }
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.154"
+blake3 = "=1.8.7"
+pinyin = "=0.11.0"
+
+[target.'cfg(windows)'.dependencies]
+raw-window-handle = { version = "=0.6.2", features = ["std"] }
+windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Ole", "Win32_System_SystemServices", "Win32_System_Registry", "Win32_System_Threading", "Win32_Graphics_Gdi", "Win32_Graphics_Dwm", "Win32_System_Com_StructuredStorage", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging", "Win32_Storage_FileSystem", "Win32_System_Memory", "Win32_System_DataExchange", "Win32_UI_Controls_Dialogs", "Win32_Security", "Win32_Security_Cryptography", "Win32_Networking_WinInet"] }
+windows-core = "=0.62.2"
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_Threading", "Win32_System_Com", "Win32_System_Ole", "Win32_Graphics_Gdi", "Win32_UI_HiDpi", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_System_Registry", "Win32_Storage_FileSystem", "Win32_Security", "Win32_Security_Authorization", "Win32_System_RemoteDesktop", "Win32_System_Pipes", "Win32_System_IO", "Win32_System_Rpc"] }
+
+[build-dependencies]
+slint-build = { version = "=1.18.1", default-features = false, features = ["compat-1-18", "renderer-software"] }
+
+[dev-dependencies]
+windows-sys = { version = "=0.61.2", features = ["Win32_System_Com"] }
+windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Ole", "Win32_UI_Shell", "Win32_UI_Shell_Common"] }

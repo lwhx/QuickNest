@@ -1,0 +1,9 @@
+﻿All P3-04 hot-zone phases passed.
+193659.873	startup_visible	panel visible with the hot zone enabled
+193701.299	edge_hide	left-edge hover hid the panel
+193703.600	edge_show	left-edge hover showed the panel
+193706.439	dwell_required	the toggle happens only after the dwell
+193710.033	disabled_noop	hover does nothing when disabled
+193710.081	app_exit	exit=0
+193710.083	completed	all P3-04 hot-zone phases passed
+

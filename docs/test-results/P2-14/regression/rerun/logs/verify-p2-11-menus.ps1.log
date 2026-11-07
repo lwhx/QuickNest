@@ -1,0 +1,8 @@
+﻿CatA1 item count: 0
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-11-menus.ps1:92 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (CatA1 item count: 0:String) [], RuntimeException
+    + FullyQualifiedErrorId : CatA1 item count: 0
+ 
+

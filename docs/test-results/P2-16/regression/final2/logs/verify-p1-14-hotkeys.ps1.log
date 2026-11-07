@@ -1,0 +1,8 @@
+﻿索引超出了数组界限。
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\p0-05-desktop.ps1:197 字符: 30
++ ... -ne 0){$w=@([P005Desktop]::Windows() | Where-Object {$_.hwnd -eq $Win ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (:) [], IndexOutOfRangeException
+    + FullyQualifiedErrorId : System.IndexOutOfRangeException
+ 
+

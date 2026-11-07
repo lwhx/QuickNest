@@ -1,0 +1,67 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.86s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-429f61dfb943d772.exe)
+
+running 41 tests
+test infrastructure::windows::coordinates::tests::client_bounds_are_half_open_and_never_clamp ... ok
+test infrastructure::windows::file_drop::tests::copy_requires_both_supported_format_and_source_permission ... ok
+test infrastructure::windows::coordinates::tests::invalid_factors_are_not_used_for_conversion ... ok
+test infrastructure::windows::drop_target::tests::callbacks_reject_all_effects_and_null_output_without_data_access ... ok
+test infrastructure::windows::window_handle::tests::null_handle_is_rejected_as_an_observation ... ok
+test infrastructure::windows::coordinates::tests::required_scales_preserve_fractional_and_negative_coordinates ... ok
+test infrastructure::windows::file_drop::tests::missing_data_and_closed_queue_never_report_copy ... ok
+test infrastructure::windows::drop_target::tests::null_window_is_not_an_eligible_registration_observation ... ok
+test infrastructure::windows::drop_target::tests::query_interface_preserves_identity_and_rejects_unsupported_interface ... ok
+test tests::demo_grid_has_six_distinct_non_launching_items ... ok
+test tests::drop_target_test_requires_one_nonempty_report_path ... ok
+test tests::dpi_test_requires_one_nonempty_report_path ... ok
+test tests::file_drop_test_requires_one_nonempty_report_path ... ok
+test tests::focus_test_requires_one_nonempty_report_path ... ok
+test tests::help_does_not_open_a_window ... ok
+test tests::no_arguments_selects_interactive_mode ... ok
+test tests::hwnd_test_requires_one_nonempty_report_path ... ok
+test tests::shell_test_requires_one_nonempty_report_path ... ok
+test tests::hotkey_modes_parse_strictly ... ok
+test tests::ipc_modes_parse_strictly ... ok
+test tests::ole_test_requires_one_nonempty_report_path ... ok
+test tests::mutex_modes_parse_strictly ... ok
+test tests::smoke_test_requires_explicit_argument ... ok
+test tests::tray_test_requires_one_nonempty_report_path ... ok
+test infrastructure::windows::hotkey::tests::drop_unregisters_and_allows_re_registration ... ok
+test tests::unexpected_arguments_are_rejected ... ok
+test window_state::tests::blur_observation_respects_state_and_suppression ... ok
+test window_state::tests::blur_recheck_hides_only_when_foreground_stays_outside ... ok
+test window_state::tests::multiple_tokens_count_and_release_independently ... ok
+test window_state::tests::pinned_registers_and_releases_one_pinned_hold ... ok
+test window_state::tests::release_beyond_acquired_saturates_at_zero ... ok
+test window_state::tests::show_walks_showing_visible_and_is_a_noop_when_visible ... ok
+test window_state::tests::pinned_flag_survives_visibility_changes ... ok
+test window_state::tests::hide_walks_hiding_hidden_and_is_a_noop_when_hidden ... ok
+test window_state::tests::shutting_down_refuses_transitions_from_any_state ... ok
+test window_state::tests::suppression_gained_before_recheck_blocks_the_hide ... ok
+test window_state::tests::toggle_follows_current_visibility ... ok
+test window_state::tests::token_drop_releases_its_hold_without_caller_help ... ok
+test window_state::tests::token_survives_machine_drop_and_still_releases ... ok
+test infrastructure::windows::ole::tests::mta_conflict_does_not_uninitialize_the_existing_apartment ... ok
+test infrastructure::windows::ole::tests::nested_ole_successes_release_exactly_their_own_thread_references ... ok
+
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\main.rs (target\debug\deps\quicknest-c133876965bbd577.exe)
+
+running 1 test
+test dpi_validation::tests::adjacent_regions_use_half_open_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\file_drop_data.rs (target\debug\deps\file_drop_data-ed7f33840037912d.exe)
+
+running 6 tests
+test failed_get_data_does_not_acquire_a_medium ... ok
+test synthetic_query_get_data_requires_the_exact_format ... ok
+test unsupported_format_does_not_acquire_a_medium ... ok
+test invalid_successful_media_are_released_once ... ok
+test closed_ui_queue_rejects_copy_and_releases_the_successful_medium ... ok
+test unicode_spaces_multiple_paths_link_and_folder_preserve_order_and_values ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

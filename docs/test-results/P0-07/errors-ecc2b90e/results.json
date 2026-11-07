@@ -1,0 +1,20 @@
+[
+    {
+        "case":  "existing-report",
+        "passed":  true,
+        "exit":  1,
+        "preserved":  true
+    },
+    {
+        "case":  "missing-parent",
+        "passed":  true,
+        "exit":  1,
+        "preserved":  true
+    },
+    {
+        "case":  "missing-argument",
+        "passed":  true,
+        "exit":  1,
+        "preserved":  true
+    }
+]

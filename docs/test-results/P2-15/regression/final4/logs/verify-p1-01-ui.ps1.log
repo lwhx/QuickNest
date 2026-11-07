@@ -1,0 +1,11 @@
+﻿All P1-01 UI acceptance phases passed.
+081818.605	window_found	pid=35988 rect=104,104,864,624
+081818.641	style	GWL_STYLE=0x16CF0000
+081818.643	frameless	client_top_offset=0 (0 means no title bar strip)
+081818.754	screenshot	p1-01-window.png
+081819.105	drag_probe	hit_root=0x8611FC title=QuickNest
+081819.390	drag_down	cursor=(340,434) want=(340,434) lbutton_down=True
+081820.135	drag	dx=180 dy=90 (cursor +200,+100)
+081820.228	wm_close_exit	exit=0
+081820.229	completed	all P1-01 UI phases passed
+

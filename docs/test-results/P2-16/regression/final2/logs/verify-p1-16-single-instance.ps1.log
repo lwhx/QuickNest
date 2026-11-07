@@ -1,0 +1,8 @@
+﻿the second launch did not wake the first instance
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-16-single-instance.ps1:96 字符: 34
++ ... nt -eq 0) { throw 'the second launch did not wake the first instance' ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (the second laun... first instance:String) [], RuntimeException
+    + FullyQualifiedErrorId : the second launch did not wake the first instance
+ 
+

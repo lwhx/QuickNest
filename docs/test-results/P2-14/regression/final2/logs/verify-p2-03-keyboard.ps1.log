@@ -1,0 +1,8 @@
+﻿索引超出了数组界限。
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-03-keyboard.ps1:225 字符: 23
++ ... xplorer = @([P005Desktop]::Windows() | Where-Object { $_.title -like  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (:) [], IndexOutOfRangeException
+    + FullyQualifiedErrorId : System.IndexOutOfRangeException
+ 
+

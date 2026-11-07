@@ -1,0 +1,8 @@
+﻿DWM readback after restart: 0
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-14-backdrop.ps1:60 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (DWM readback after restart: 0:String) [], RuntimeException
+    + FullyQualifiedErrorId : DWM readback after restart: 0
+ 
+

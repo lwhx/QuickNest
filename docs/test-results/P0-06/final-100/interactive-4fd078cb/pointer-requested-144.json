@@ -1,0 +1,51 @@
+﻿[
+    {
+        "screenX":  513,
+        "screenY":  67,
+        "clientX":  2,
+        "clientY":  2,
+        "dpi":  144
+    },
+    {
+        "screenX":  1586,
+        "screenY":  67,
+        "clientX":  1075,
+        "clientY":  2,
+        "dpi":  144
+    },
+    {
+        "screenX":  513,
+        "screenY":  906,
+        "clientX":  2,
+        "clientY":  841,
+        "dpi":  144
+    },
+    {
+        "screenX":  1586,
+        "screenY":  906,
+        "clientX":  1075,
+        "clientY":  841,
+        "dpi":  144
+    },
+    {
+        "screenX":  1049,
+        "screenY":  486,
+        "clientX":  538,
+        "clientY":  421,
+        "dpi":  144
+    },
+    {
+        "screenX":  1050,
+        "screenY":  487,
+        "clientX":  539,
+        "clientY":  422,
+        "dpi":  144
+    },
+    {
+        "screenX":  612,
+        "screenY":  268,
+        "clientX":  101,
+        "clientY":  203,
+        "dpi":  144
+    }
+]

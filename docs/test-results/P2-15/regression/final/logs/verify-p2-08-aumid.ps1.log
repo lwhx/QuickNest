@@ -1,0 +1,8 @@
+﻿AUMID activation did not open Calculator
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-08-aumid.ps1:44 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (AUMID activation did not open Calculator:String) [], RuntimeException
+    + FullyQualifiedErrorId : AUMID activation did not open Calculator
+ 
+

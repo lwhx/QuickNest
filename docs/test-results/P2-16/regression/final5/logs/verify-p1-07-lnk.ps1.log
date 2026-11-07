@@ -1,0 +1,9 @@
+﻿All P1-07 LNK phases passed.
+095505.411	lnk_created	C:\Users\ADMINI~1\AppData\Local\Temp\quicknest-p107\LnkProbe.lnk
+095506.187	window_found	pid=47292 rect=40,120,800,640
+095508.385	click_launch	LNK started with its own args+workdir
+095509.444	missing_lnk	status bar error expected
+095517.561	metadata_parsed	args/workdir filled from the shortcut
+095517.716	wm_close_exit	exit=0
+095517.717	completed	all P1-07 LNK phases passed
+

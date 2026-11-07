@@ -1,0 +1,10 @@
+﻿210840.409	system_registry	AppsUseLightTheme=1
+210841.367	case_light	theme=light accent=#2563eb bg=244,246,250 category=235,241,253
+210841.408	exit_light	exit=0
+210842.211	case_dark	theme=dark accent=#2563eb bg=16,21,29 category=28,48,85
+210842.234	exit_dark	exit=0
+210843.065	case_system	theme=system accent=#2563eb bg=244,246,250 category=235,241,253
+210843.086	exit_system	exit=0
+210843.895	case_accent_green	theme=light accent=#16a34a bg=244,246,250 category=234,247,239
+210843.916	exit_accent_green	exit=0
+210843.918	completed	headless palette checks passed (PrintWindow; live menu/regression pending)

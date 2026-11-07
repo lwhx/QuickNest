@@ -1,0 +1,65 @@
+﻿[
+    {
+        "name":  "100% (推荐)",
+        "type":  "ControlType.ListItem",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,VirtualizedItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "100% (推荐)",
+        "type":  "ControlType.Text",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "TextPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "125%",
+        "type":  "ControlType.ListItem",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,VirtualizedItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "125%",
+        "type":  "ControlType.Text",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "TextPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "150%",
+        "type":  "ControlType.ListItem",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,VirtualizedItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "150%",
+        "type":  "ControlType.Text",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "TextPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "175%",
+        "type":  "ControlType.ListItem",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,VirtualizedItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "175%",
+        "type":  "ControlType.Text",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "TextPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern"
+    },
+    {
+        "name":  "关闭",
+        "type":  "ControlType.Button",
+        "enabled":  true,
+        "offscreen":  false,
+        "patterns":  "InvokePatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern"
+    }
+]

@@ -1,0 +1,22 @@
+﻿signature: 955efb1f291bc8f5b744a47fefc7704e... (64 bytes)
+  app: 1793993922859	start	base_url=https://localhost:19443 current=1.2.0
+  app: 1793993925150	manifest_fetch	version=1.2.1 package_sha256=f592197769f0bb3b
+  app: 1793993925151	signature_verify	valid manifest signature accepted
+  app: 1793993925153	signature_reject	tampered manifest rejected
+  app: 1793993925153	version_check	1.2.0 -> 1.2.1 accepted
+  app: 1793993932135	package_download	bytes=18569728 sha256=f592197769f0bb3b
+  app: 1793993932169	package_corrupt_reject	corrupted package hash mismatch detected
+  app: 1793993932332	backup_apply_verify	updated; placed sha256=f592197769f0bb3b
+  app: 1793993932347	backup_integrity	backup holds the old program bytes
+  app: 1793993932559	rollback	rolled back: 放置后哈希不符（期望 deadbeef，实际 f592197769f0bb3b0eff47b19345285538433f2fc28dac6869ca85c9e24c1d33）
+  app: 1793993932571	rollback_restored	old program restored byte-for-byte
+  app: 1793993932588	data_untouched	data dir snapshot identical (0 entries)
+  app: 1793993932679	completed	all update phases passed
+All P4-04/05/06 update phases passed.
+193840.693	prepared	payload signed; package sha256=f592197769f0bb3b...
+193842.812	server_ready	https://localhost:19443 cert trusted into Root for the run
+193852.956	app_chain	all 12 update phases passed (fetch/sign/reject/version/download/corrupt/apply/backup/rollback/restore/data/completed)
+193852.958	https_server	manifest+package served over TLS (server log verified)
+193857.096	server_stopped	server process + cert + binding cleaned up
+193857.098	completed	all P4-04/05/06 update phases passed
+

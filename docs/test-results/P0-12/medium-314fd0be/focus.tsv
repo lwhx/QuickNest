@@ -1,0 +1,4 @@
+134	state_show	Hidden->Showing->Visible
+136	state_hide	Visible->Hiding->Hidden
+281	esc_hides	posted WM_KEYDOWN ESC -> escape-pressed -> Hidden
+10289	scenario_error	hotkey event did not arrive within the timeout

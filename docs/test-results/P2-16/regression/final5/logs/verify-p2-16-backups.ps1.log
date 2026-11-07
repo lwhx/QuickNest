@@ -1,0 +1,10 @@
+﻿All P2-16 backup phases passed.
+100042.483	seeded	live=Current valid=2026-12-31 broken=2027-01-01
+100046.223	dialog_opened	p2-16-dialog.png
+100047.708	restored	group=Restored
+100047.723	restore_kept_previous	backup=config.backup.20261105-100046-483.json count=4
+100049.152	backup_now	file=config.backup.20261105-100047-942.json count=5
+100050.008	dialog_closed	p2-16-closed.png
+100050.070	app_exit	exit=0 group=Restored
+100050.070	completed	all P2-16 backup phases passed
+

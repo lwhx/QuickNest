@@ -1,0 +1,10 @@
+﻿All P2-03 keyboard phases passed.
+093854.918	window_ready	pid=47396 rect=156,156,760x520
+093857.987	down_enter	default first; Down selected AlphaB; Enter launched it
+093900.926	up_wrap_enter	Up wrapped to AlphaC and Enter launched it
+093903.901	tab_scope_enter	Tab switched to all groups; Enter launched BetaOther
+093906.285	ctrl_d_location	explorer title=QuickNestP203-7a083bc1
+093909.034	esc_semantics	first Esc cleared, second closed
+093909.093	app_exit	exit=0
+093909.094	completed	all P2-03 keyboard phases passed
+

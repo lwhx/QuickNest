@@ -1,0 +1,5 @@
+﻿All P1-13 backup phases passed.
+083012.813	retention	10 backups kept after 14 saves
+083015.117	manual_backup	newest=config.backup.20261105-083013-941.json (before=config.backup.20261105-083011-843.json)
+083015.232	completed	all P1-13 backup phases passed
+

@@ -1,0 +1,14 @@
+0	parent	mutex	acquired before pipe
+400	parent	server_started	\\.\pipe\QuickNest-7523641ad8f38453-1
+469	parent	race_probe	pid=30340
+534	parent	command_sent	show pid=39372
+600	parent	command_sent	hide pid=14196
+668	parent	command_sent	toggle pid=4604
+734	parent	command_sent	show_and_focus pid=20336
+804	parent	command_sent	open_search pid=35168
+824	parent	dispatched	expected=["show_and_focus", "show", "hide", "toggle", "show_and_focus", "open_search"] received=["show_and_focus", "show", "hide", "toggle", "show_and_focus", "open_search"]
+890	parent	rejected_frame	unknown-command pid=36204
+959	parent	rejected_frame	wrong-version pid=40168
+1026	parent	rejected_frame	bad-json pid=41416
+1097	parent	rejected_frame	unknown-field pid=41816
+1098	parent	completed	all IPC phases passed

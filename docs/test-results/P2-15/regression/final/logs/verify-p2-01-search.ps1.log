@@ -1,0 +1,8 @@
+﻿clicking the AlphaOne result did not launch it (files=)
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-01-search.ps1:84 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (clicking the Al...nch it (files=):String) [], RuntimeException
+    + FullyQualifiedErrorId : clicking the AlphaOne result did not launch it (files=)
+ 
+

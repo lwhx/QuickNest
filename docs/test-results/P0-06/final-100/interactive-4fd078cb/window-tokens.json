@@ -1,0 +1,26 @@
+﻿[
+    {
+        "hwnd":  7410860,
+        "pid":  28196,
+        "title":  "fixtures - 文件资源管理器",
+        "rect":  {
+                     "Left":  10,
+                     "Top":  40,
+                     "Right":  910,
+                     "Bottom":  800
+                 },
+        "integrity":  8192
+    },
+    {
+        "hwnd":  200464,
+        "pid":  20684,
+        "title":  "QuickNest · P0-01 技术验证",
+        "rect":  {
+                     "Left":  26,
+                     "Top":  26,
+                     "Right":  802,
+                     "Bottom":  585
+                 },
+        "integrity":  8192
+    }
+]

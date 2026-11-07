@@ -1,0 +1,33 @@
+﻿{
+    "task":  "P0-01",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "99C19FC2BDAC98C6AD957E6B39DD7B84498BD278754BE5F533FA132EC4C81D95",
+    "exeBytes":  12129792,
+    "checks":  {
+                   "tests":  "5 passed, 0 failed",
+                   "clippy":  "Passed",
+                   "fmt":  "Passed",
+                   "release":  "Passed",
+                   "check":  "Passed"
+               },
+    "windowsRun":  "medium/run-20261103T063416625Z-1968166f",
+    "buttonEvidence":  "buttons-modules/button-results.json",
+    "standaloneEvidence":  "standalone/button-results.json",
+    "visualReview":  {
+                         "detail":  "Six Chinese names, icons, controls and restored layout visible",
+                         "status":  "Passed",
+                         "method":  "Assistant read all five medium-run desktop screenshots"
+                     },
+    "runtime":  {
+                    "childProcesses":  0,
+                    "msvcRuntime":  "VCRUNTIME140.dll",
+                    "browserNodePythonLoaded":  false
+                },
+    "limits":  [
+                   "Windows 11 x64, 100% only",
+                   "No Win10, multi-DPI, performance or long-duration tests",
+                   "Buttons dispatched with window mouse messages, not physical pointer",
+                   "P0 overall not accepted; P0-02 not started"
+               ]
+}

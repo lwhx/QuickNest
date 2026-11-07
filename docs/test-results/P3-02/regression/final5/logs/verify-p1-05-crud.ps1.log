@@ -1,0 +1,8 @@
+﻿added project missing from the config
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-05-crud.ps1:177 字符: 39
++ ... otmatch 'TestItem') { throw 'added project missing from the config' }
++                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (added project missing from the config:String) [], RuntimeException
+    + FullyQualifiedErrorId : added project missing from the config
+ 
+

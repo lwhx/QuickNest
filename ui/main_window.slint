@@ -1,0 +1,2154 @@
+import { Button, LineEdit, ComboBox, CheckBox, ScrollView, Palette } from "std-widgets.slint";
+
+export struct GridItem {
+    id: string,
+    name: string,
+    path: string,
+    note: string,
+    item-type: string,
+    path-missing: bool,
+    // 卡片规范 V1.0 §5: the concrete reason behind the badge (hover tip).
+    missing-reason: string,
+    // 卡片规范 V1.0 §2: the default artwork (app / browser / terminal).
+    artwork: string,
+    // P3-01: marked while the item is part of the batch selection.
+    batch-selected: bool,
+    // P3-07: favorites sort to the top in favorite mode.
+    favorite: bool,
+    // P3-06: usage counters for the tooltip.
+    launch-count: int,
+    last-used: string,
+    // P1-10: extracted icon; empty means the default artwork is used.
+    icon: image,
+}
+
+// P1-02: the group bar and the category list are driven by the data model.
+export struct GroupView {
+    id: string,
+    name: string,
+    accent: string,
+    active: bool,
+    item-count: int,
+    // Tab width in pixels, computed by the controller (slint 1.18 has no
+    // string measurement API).
+    tab-width: float,
+}
+
+export struct CategoryView {
+    id: string,
+    name: string,
+    item-count: int,
+}
+
+// P2-01: one search result row (baseline 13.1/13.2).
+export struct SearchRow {
+    id: string,
+    name: string,
+    path: string,
+    scope: string,
+    type-label: string,
+}
+
+// P2-12: semantic colors shared by the light and dark themes. Rust sets this
+// property at startup and whenever the theme/accent changes (baseline 16.1).
+export struct ThemeColors {
+    window: color,
+    panel: color,
+    sidebar: color,
+    border: color,
+    text: color,
+    secondary: color,
+    muted: color,
+    subtle: color,
+    accent: color,
+    accent-soft: color,
+    // 卡片规范 V1.0 §6: hover/pressed card states.
+    card-hover: color,
+    card-hover-border: color,
+    card-pressed: color,
+    // UI 优化（2026-11-06 侧边栏样式）: category row hover/selected pills.
+    sidebar-hover: color,
+    sidebar-active: color,
+    alt-row: color,
+    danger: color,
+    warning: color,
+}
+
+export component MainWindow inherits Window {
+    title: "QuickNest";
+    no-frame: true;
+    preferred-width: 760px;
+    preferred-height: 520px;
+    min-width: 680px;
+    min-height: 480px;
+    background: root.theme.window;
+    default-font-family: "Microsoft YaHei UI";
+    default-font-size: 14px;
+
+    // P2-12: light palette is the default; Rust replaces it with the
+    // persisted light/dark/system choice.
+    in property <ThemeColors> theme: {
+        window: #f4f6fa,
+        panel: #ffffff,
+        sidebar: #eef2f8,
+        border: #dbe2ed,
+        text: #17243b,
+        secondary: #4a586e,
+        muted: #63718a,
+        subtle: #9aa6b8,
+        accent: #2563eb,
+        accent-soft: #e8eefc,
+        card-hover: #f7f9ff,
+        card-hover-border: #b8ccf4,
+        card-pressed: #eef3ff,
+        sidebar-hover: #edf1fc,
+        sidebar-active: #dce6fc,
+        alt-row: #f7f9fc,
+        danger: #b91c1c,
+        warning: #b45309,
+    };
+    // P2-12: std-widgets (dialogs' buttons/editors) follow the same scheme.
+    in-out property <bool> dark-mode: false;
+    init => { Palette.color-scheme = root.dark-mode ? ColorScheme.dark : ColorScheme.light; }
+    changed dark-mode => { Palette.color-scheme = root.dark-mode ? ColorScheme.dark : ColorScheme.light; }
+
+    in property <[GridItem]> items;
+    // P3-01: batch launch state (how many items are selected).
+    in-out property <int> batch-count: 0;
+    in-out property <string> batch-launch-title: "批量启动所选";
+    // P1-04: grid metrics come from the controller (settings.icon_size).
+    in property <float> cell-width: 96;
+    in property <float> cell-height: 108;
+    in property <float> icon-px: 40;
+    // 卡片规范 V1.0 §2：图标区 40×40，实际渲染图像随三档缩放（32/40 档）。
+    in property <float> icon-inner-px: root.icon-px * 0.8;
+    in property <string> active-item-id;
+    // P2-04/P2-05: grid drag-sorting and cross-category target state.
+    in-out property <string> dragging-item-id;
+    in-out property <bool> item-drag-active: false;
+    in-out property <int> item-drop-index: -1;
+    // True while a card press is down; disables Flickable drag-panning so the
+    // card deterministically receives the move events that start a drag.
+    in-out property <bool> item-press-active: false;
+    in-out property <string> drag-target-category-id;
+    in-out property <string> drag-target-group-id;
+    in-out property <string> item-drag-hint;
+    // 卡片规范 V1.0: the sidebar width is the single source of truth for the
+    // grid offset used by the tooltip and the drag hit-testing.
+    in property <length> sidebar-width: 160px;
+    // Last focused card id for host compatibility; the ring uses has-focus.
+    in-out property <string> focused-item-id;
+    property <int> card-focus-request: -1;
+    function background-key(event: KeyEvent) -> bool {
+        if (root.any-modal-open) { return false; }
+        if (event.text == "\u{1b}") {
+            if (root.item-press-active || root.item-drag-active) {
+                root.cancel-item-drag();
+            } else {
+                root.escape-pressed();
+            }
+            return true;
+        }
+        if ((event.text == "f" || event.text == "F") && event.modifiers.control) {
+            root.search-requested();
+            return true;
+        }
+        return false;
+    }
+    // 卡片规范 V1.0 §5: the badge tooltip (hover tip with the reason).
+    in-out property <bool> badge-tooltip-visible;
+    in-out property <string> badge-tooltip-text;
+    in-out property <float> badge-tooltip-x;
+    in-out property <float> badge-tooltip-y;
+    callback item-drag-moved(string, float, float, float, float, int);
+    callback item-drop-requested(string, int);
+    callback item-drag-cancelled();
+    // Fired on pointer release/cancel, including release after Esc. The host
+    // may now refresh the item model without replacing the captured card.
+    callback item-drag-finished();
+    property <int> drag-generation: 0;
+    property <bool> drag-finish-pending: false;
+    Timer {
+        interval: 1ms;
+        running: root.drag-finish-pending;
+        triggered => {
+            root.drag-finish-pending = false;
+            root.item-drag-finished();
+        }
+    }
+    function clear-item-drag() {
+        root.drag-generation += 1;
+        root.item-press-active = false;
+        root.item-drag-active = false;
+        root.dragging-item-id = "";
+        root.item-drop-index = -1;
+        root.drag-target-category-id = "";
+        root.drag-target-group-id = "";
+        root.item-drag-hint = "";
+    }
+    function cancel-item-drag() {
+        root.clear-item-drag();
+        root.item-drag-cancelled();
+    }
+    // Slint 1.18.1: content-y is the supported API; viewport-y is its
+    // deprecated alias. Expose positive pixels when the list scrolls down.
+    out property <float> category-scroll-offset: -category-scroll.content-y / 1px;
+    // Hover tooltip state (full name/path/note, baseline 2.4). in-out because
+    // the card hit areas write them.
+    in-out property <string> hover-id;
+    in-out property <string> hover-name;
+    in-out property <string> hover-path;
+    in-out property <string> hover-note;
+    in-out property <float> hover-x;
+    in-out property <float> hover-y;
+    in property <[GroupView]> groups;
+    in property <[CategoryView]> categories;
+    in property <string> group-status: "";
+    in property <string> validation-status: "基础工程 · 仅演示图标，不启动项目";
+    // P1-17: external-drag feedback (baseline 5.6): the hovered group/category
+    // id, a grid highlight flag and a status-bar hint.
+    in property <string> drop-group-id;
+    in property <string> drop-category-id;
+    in property <bool> drop-grid-active: false;
+    in property <string> drop-hint: "";
+    // P2-01: search center state (baseline 13).
+    in-out property <bool> search-visible: false;
+    in-out property <string> search-query;
+    in property <string> search-scope-label: "范围：当前分组";
+    in property <[SearchRow]> search-results;
+    in-out property <int> search-selected-index: -1;
+    callback search-query-changed(string);
+    callback search-scope-toggled();
+    callback search-result-activated(string);
+    callback search-dismissed();
+    // P2-03 keyboard flow (baseline 13.4).
+    callback search-move(int);
+    callback search-activate();
+    callback search-activate-admin();
+    callback search-open-location();
+    // P2-03: shared key mapping for the search center. Special keys arrive as
+    // the Slint key codes for arrows/tab/return.
+    function search_key(event: KeyEvent) -> bool {
+        if (event.text == "\u{001b}") {
+            root.search-dismissed();
+            return true;
+        }
+        if (event.text == "\u{0009}") {
+            root.search-scope-toggled();
+            return true;
+        }
+        if (event.text == "\u{F700}" || event.text == "\u{F702}") {
+            root.search-move(-1);
+            return true;
+        }
+        if (event.text == "\u{F701}" || event.text == "\u{F703}") {
+            root.search-move(1);
+            return true;
+        }
+        if (event.text == "\u{000a}") {
+            if (event.modifiers.control) {
+                root.search-activate-admin();
+            } else {
+                root.search-activate();
+            }
+            return true;
+        }
+        if ((event.text == "d" || event.text == "D") && event.modifiers.control) {
+            root.search-open-location();
+            return true;
+        }
+        if ((event.text == "f" || event.text == "F") && event.modifiers.control) {
+            root.search-requested();
+            return true;
+        }
+        return false;
+    }
+    in property <bool> dpi-validation: false;
+    in property <float> marker-x: 0;
+    in property <float> marker-y: 0;
+    out property <float> reference-width: root.width / 1px;
+    out property <float> reference-height: root.height / 1px;
+    callback pointer-reference(float, float, float, float);
+    callback hide-requested();
+    callback exit-requested();
+    callback escape-pressed();
+    callback title-pin-toggled();
+    // P2-12: title-bar settings menu (theme + accent; baseline 16.1/21).
+    callback theme-menu-selected(string);
+    callback accent-menu-selected(string);
+    // P2-13: opacity (baseline 16.2) and rounded corners.
+    callback opacity-menu-selected(string);
+    callback corners-menu-selected(string);
+    // P2-14: DWM system backdrop (baseline 16.3).
+    callback backdrop-menu-selected(string);
+    // P2-16: historical backups (baseline 15.7/17.4).
+    callback backup-menu-opened();
+    callback backup-now-requested();
+    callback backup-restore-requested(int);
+    callback backup-dialog-cancelled();
+    in-out property <bool> backup-dialog-visible;
+    in-out property <[string]> backup-dialog-items;
+    in-out property <string> backup-dialog-selected;
+    in-out property <int> backup-dialog-selected-index: -1;
+    in-out property <string> backup-dialog-status;
+    in-out property <bool> backup-dialog-error;
+    // P2-17 (baseline 17.4): configuration export and import.
+    callback transfer-menu-opened();
+    callback transfer-export-all();
+    callback transfer-export-group();
+    callback transfer-merge-import();
+    callback transfer-overwrite-import();
+    callback transfer-dialog-cancelled();
+    in-out property <bool> transfer-dialog-visible;
+    in-out property <string> transfer-dialog-status;
+    in-out property <bool> transfer-dialog-error;
+    // P3-02 (baseline 22 启动组合): saved launch combinations.
+    callback combination-menu-opened();
+    // P3-05/P3-06/P3-07: grid sort mode.
+    callback sort-mode-selected(string);
+    // P3-09 (baseline 22 Everything 可选集成): the settings-menu toggle and
+    // the enabled state driving the search handoff row.
+    callback everything-toggle-requested();
+    // P4-04（基线 23 章）：更新检查状态与确认安装。
+    callback update-check-requested();
+    callback update-check-toggle-requested();
+    in-out property <string> update-pending-path;
+    in-out property <string> update-pending-version;
+    in-out property <string> update-pending-sha256;
+    in-out property <string> update-pending-kind;
+    in-out property <bool> update-check-enabled;
+    in-out property <bool> update-check-busy: false;
+    in-out property <bool> update-confirm-visible: false;
+    in-out property <string> update-confirm-version;
+    in-out property <string> update-confirm-notes;
+    in-out property <string> update-confirm-status;
+    callback update-install-confirmed();
+    callback update-install-cancelled();
+    in-out property <bool> everything-enabled;
+    in-out property <string> sort-mode-title: "排序：手动";
+    callback combination-save-opened();
+    callback combination-launch-requested(int);
+    callback combination-delete-requested(int);
+    callback combination-dialog-cancelled();
+    callback combination-save-requested(string);
+    in-out property <bool> combination-dialog-visible;
+    in-out property <[string]> combination-dialog-items;
+    in-out property <string> combination-dialog-selected;
+    in-out property <int> combination-dialog-selected-index: -1;
+    in-out property <string> combination-dialog-status;
+    in-out property <bool> combination-dialog-error;
+    in-out property <bool> combination-name-dialog-visible;
+    in-out property <string> combination-name-dialog-name;
+    // P3-08 (baseline 8.3): first-run confirmation for command items — the
+    // dialog shows program, arguments, working directory and the execution
+    // mode; the user may cancel.
+    callback command-confirm-confirmed();
+    callback command-confirm-cancelled();
+    in-out property <bool> command-confirm-visible;
+    in-out property <string> command-confirm-program;
+    in-out property <string> command-confirm-args;
+    in-out property <string> command-confirm-workdir;
+    in-out property <string> command-confirm-mode;
+    // P1-02: group interactions.
+    callback group-selected(string);
+    callback group-create-requested();
+    // P2-11: group tab context menu (baseline 2.2/3.5).
+    callback group-menu-rename(string);
+    callback group-menu-color(string, string);
+    callback group-menu-left(string);
+    callback group-menu-right(string);
+    callback group-menu-delete(string);
+    in property <bool> group-dialog-visible;
+    in property <string> group-dialog-title;
+    in property <string> group-dialog-initial;
+    in property <string> group-dialog-error;
+    callback group-dialog-confirmed(string);
+    callback group-dialog-cancelled();
+    in property <bool> group-delete-confirm-visible;
+    in property <string> group-delete-confirm-text;
+    in property <[string]> group-delete-confirm-names;
+    callback group-delete-confirm-delete();
+    callback group-delete-confirm-migrate(int);
+    callback group-delete-confirm-cancel();
+    // P1-03: category interactions.
+    callback category-selected(string);
+    callback category-create-opened(); // opens the create dialog
+    callback category-create-requested(string); // name from the dialog
+    callback category-rename-requested(string, string); // id, new name
+    callback category-delete-requested(string); // id (confirmed deletion)
+    callback category-migrate-requested(string, string); // source id, target id
+    callback category-move-requested(string, int); // id, target index
+    in property <[string]> category-names; // migrate target dropdown
+    in property <string> active-category-id;
+    in property <bool> category-dialog-visible;
+    in property <string> category-dialog-title;
+    in property <string> category-dialog-initial;
+    in property <string> category-dialog-error;
+    callback category-dialog-confirmed(string); // text input
+    callback category-dialog-cancelled();
+    in property <bool> category-delete-confirm-visible;
+    in property <string> category-delete-confirm-text;
+    callback category-delete-confirm-delete(); // drop the items
+    callback category-delete-confirm-migrate(string); // target category id
+    callback category-delete-confirm-cancel();
+    // P1-03: native context-menu actions (ContextMenuArea + Menu).
+    callback category-menu-rename(string);
+    callback category-menu-delete(string);
+    callback category-menu-up(string);
+    callback category-menu-down(string);
+    // P2-11: create a project directly in the right-clicked category.
+    callback category-menu-add-item(string);
+    // P1-04: project-grid entries. Launch (P1-06) and edit/delete (P1-05)
+    // bind to these callbacks in their tasks; the grid only emits them.
+    callback item-selected(string);
+    callback item-menu-open(string);
+    callback item-menu-edit(string);
+    callback item-menu-delete(string);
+    callback grid-add-requested();
+    // P1-05: project editor (add + edit share the dialog), delete confirm and
+    // move-to-category dialogs (baseline 3.4/3.5).
+    in-out property <bool> item-dialog-visible;
+    in-out property <string> item-dialog-title: "添加项目";
+    in-out property <string> item-dialog-name;
+    in-out property <string> item-dialog-target;
+    in-out property <string> item-dialog-args;
+    in-out property <string> item-dialog-workdir;
+    in-out property <string> item-dialog-icon;
+    in-out property <string> item-dialog-note;
+    in-out property <int> item-dialog-type-index: 0;
+    // P3-08 (baseline 8.2): the command execution mode picker (command items).
+    in-out property <int> item-dialog-exec-index: 0;
+    in-out property <[string]> exec-mode-names: ["直接执行", "CMD", "PowerShell"];
+    in-out property <int> item-dialog-window-index: 0;
+    in-out property <bool> item-dialog-run-as-admin: false;
+    in-out property <string> item-dialog-error;
+    in property <[string]> item-type-names: ["Windows 程序", "Windows 快捷方式", "普通文件", "文件夹", "网址/协议", "自定义命令", "自动化动作"];
+    in property <[string]> window-state-names: ["普通窗口", "最小化", "最大化"];
+    callback item-dialog-confirmed();
+    callback item-dialog-cancelled();
+    callback item-dialog-browse();
+    in-out property <bool> item-delete-confirm-visible;
+    in-out property <string> item-delete-confirm-text;
+    callback item-delete-confirm-confirmed();
+    callback item-delete-confirm-cancelled();
+    in-out property <bool> move-dialog-visible;
+    in-out property <int> move-dialog-target-index: 0;
+    in property <[string]> move-target-names;
+    callback move-dialog-confirmed(int);
+    callback move-dialog-cancelled();
+    callback item-menu-copy-path(string);
+    callback item-menu-move(string);
+    callback item-menu-duplicate(string);
+    // P3-01: batch selection (pick an item / start the selected items).
+    callback item-menu-toggle-batch(string);
+    callback item-menu-toggle-favorite(string);
+    // 卡片规范 V1.0 §5: the badge hit test (the geometry lives in Rust so it
+    // can be unit-tested). Returns true when the pointer is on the badge.
+    callback badge-tip-update(string, string, bool, float, float, float, float, float) -> bool;
+    callback item-menu-favorite-title(string);
+    callback item-menu-batch-launch();
+    callback item-menu-open-location(string);
+    callback item-menu-run-as-admin(string);
+    // P1-13: manual backup of the current config (status bar entry).
+    callback backup-requested();
+    // P1-14: Ctrl+F search shortcut (baseline 11.2).
+    callback search-requested();
+    in property <bool> pin-toggled: false;
+    in property <string> status-prefix: "";
+    // Read-only shared gate for background keyboard input and host OLE drops.
+    // Search is modal too; add any future modal's visibility to this binding.
+    out property <bool> any-modal-open: root.search-visible || root.dialog-modal-open;
+    property <bool> dialog-modal-open: root.category-dialog-visible || root.category-delete-confirm-visible
+        || root.group-dialog-visible || root.group-delete-confirm-visible
+        || root.backup-dialog-visible || root.transfer-dialog-visible
+        || root.combination-dialog-visible || root.combination-name-dialog-visible
+        || root.command-confirm-visible || root.item-dialog-visible
+        || root.item-delete-confirm-visible || root.move-dialog-visible
+        || root.update-confirm-visible;
+    changed any-modal-open => {
+        root.hover-id = "";
+        root.hover-name = "";
+        root.badge-tooltip-visible = false;
+        if (root.any-modal-open) {
+            if (root.item-press-active || root.item-drag-active) {
+                root.cancel-item-drag();
+            }
+        } else {
+            focus-scope.focus();
+        }
+    }
+
+    // P2-11: group accent colors are stored as "#rrggbb" strings; map the
+    // preset palette to Slint colors for the tab accent bar.
+    function accent_color(value: string) -> color {
+        if (value == "#2563eb") { return #2563eb; }
+        if (value == "#16a34a") { return #16a34a; }
+        if (value == "#ea580c") { return #ea580c; }
+        if (value == "#7c3aed") { return #7c3aed; }
+        return transparent;
+    }
+
+    // 根容器：手动画布。Slint 的 Window 会自动给直接子元素套一层布局，
+    // 直接摆放标题栏与主布局会被布局覆盖（标题栏被压在下面，标题栏鼠标
+    // 事件因此永远收不到——P1-01 实测教训）。这里用一个 Rectangle 承载
+    // 全部内容，坐标与层序完全由声明顺序决定。
+    canvas := Rectangle {
+        width: parent.width;
+        height: parent.height;
+
+        VerticalLayout {
+            y: title-bar.height;
+            height: parent.height - title-bar.height;
+            // 顶部一级分组（基线 2.2）：由数据模型驱动，当前分组高亮，
+            // 右侧 ▼ 为分组过多时的下拉入口。
+            group-bar := Rectangle {
+                height: 40px;
+                background: root.theme.panel;
+                HorizontalLayout {
+                    padding-left: 14px;
+                    padding-right: 14px;
+                    padding-top: 8px;
+                    padding-bottom: 8px;
+                    spacing: 24px;
+                    for group[index] in root.groups: group-tab := Rectangle {
+                        width: group.tab-width * 1px;
+                        height: 24px;
+                        background: group.active
+                            ? root.theme.accent-soft
+                            : ((group.id == root.drop-group-id || group.id == root.drag-target-group-id)
+                                ? root.theme.accent-soft
+                                : transparent);
+                        border-radius: 6px;
+                        // P2-11: optional group accent (baseline 2.2).
+                        Rectangle {
+                            x: 4px;
+                            y: parent.height - 3px;
+                            width: parent.width - 8px;
+                            height: 3px;
+                            background: accent_color(group.accent);
+                            border-radius: 1px;
+                            visible: group.accent != "";
+                        }
+                        Text {
+                            x: 4px;
+                            text: group.name;
+                            color: group.active ? root.theme.text : root.theme.muted;
+                            font-weight: group.active ? 600 : 400;
+                            vertical-alignment: center;
+                        }
+                        // 点击切换分组；右键显示分组菜单（基线 2.2/3.5）。
+                        group-menu := ContextMenuArea {
+                            enabled: !root.any-modal-open;
+                            width: parent.width;
+                            height: parent.height;
+                            group-hit := TouchArea {
+                                enabled: !root.any-modal-open;
+                                width: parent.width;
+                                height: parent.height;
+                                clicked => { root.group-selected(group.id); }
+                                pointer-event(event) => {
+                                    if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
+                                        group-menu.show({ x: self.mouse-x, y: self.mouse-y });
+                                    }
+                                }
+                            }
+                            Menu {
+                                MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
+                                MenuItem { title: "重命名分组"; activated => { root.group-menu-rename(group.id); } }
+                                MenuItem { title: "左移"; activated => { root.group-menu-left(group.id); } }
+                                MenuItem { title: "右移"; activated => { root.group-menu-right(group.id); } }
+                                MenuItem { title: "颜色：蓝色"; activated => { root.group-menu-color(group.id, "#2563eb"); } }
+                                MenuItem { title: "颜色：绿色"; activated => { root.group-menu-color(group.id, "#16a34a"); } }
+                                MenuItem { title: "颜色：橙色"; activated => { root.group-menu-color(group.id, "#ea580c"); } }
+                                MenuItem { title: "颜色：紫色"; activated => { root.group-menu-color(group.id, "#7c3aed"); } }
+                                MenuItem { title: "颜色：默认"; activated => { root.group-menu-color(group.id, ""); } }
+                                MenuItem { title: "删除分组"; activated => { root.group-menu-delete(group.id); } }
+                            }
+                        }
+                    }
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Text {
+                        text: "▼";
+                        color: root.theme.subtle;
+                        vertical-alignment: center;
+                        TouchArea {
+                            enabled: !root.any-modal-open;
+                            width: parent.width + 12px;
+                            height: parent.height;
+                            clicked => { root.group-create-requested(); }
+                        }
+                    }
+                }
+                Rectangle { y: parent.height - 1px; width: parent.width; height: 1px; background: root.theme.border; }
+            }
+
+        HorizontalLayout {
+            spacing: 0px;
+            // 左侧二级分类（基线 2.3）：只显示当前一级分组下的分类；
+            // 垂直滚动 + 右键菜单（重命名/上移/下移/删除）。
+            category-bar := Rectangle {
+                width: 160px;
+                background: root.theme.sidebar;
+                // P1-03 垂直滚动：分类行放进 ScrollView 的 viewport；右键
+                // 菜单由每行的 ContextMenuArea 提供（基线 2.3）。
+                // UI 优化（2026-11-06 侧边栏样式）：36px 行高 + 2px 间距、
+                // 6px 圆角药丸、hover/选中双态（浅色下明显可辨）、左侧
+                // 12px 内边距 + 16px 图标位（无图标时为圆点标记）、13px
+                // 文字；选中/拖放命中用 sidebar-active 药丸。
+                category-scroll := ScrollView {
+                    x: 0px;
+                    y: 10px;
+                    width: parent.width;
+                    height: parent.height - new-category-row.height - 28px;
+                    // Keep the pill geometry independent of native/overlay
+                    // scrollbar styles; Rust reserves this same 14px lane.
+                    horizontal-scrollbar-policy: ScrollBarPolicy.always-off;
+                    viewport := Rectangle {
+                        width: category-scroll.width;
+                        height: max(category-scroll.visible-height, root.categories.length * 38px);
+                        for category[index] in root.categories: category-row := Rectangle {
+                            y: index * 38px;
+                            x: 6px;
+                            width: parent.width - 26px;
+                            height: 36px;
+                            border-radius: 6px;
+                            background: category.id == root.active-category-id
+                                ? root.theme.sidebar-active
+                                : (category.id == root.drop-category-id
+                                    ? root.theme.sidebar-active
+                                    : (category.id == root.drag-target-category-id
+                                        ? root.theme.sidebar-active
+                                        : (category-hit.has-hover ? root.theme.sidebar-hover : transparent)));
+                            border-width: category.id == root.drag-target-category-id ? 2px : 0px;
+                            border-color: root.theme.accent;
+                            // 16px 图标位：项目分类暂无图标数据，以圆点标记
+                            // 占位（选中时用强调色）。
+                            Rectangle {
+                                x: 6px;
+                                y: (parent.height - 16px) / 2;
+                                width: 16px;
+                                height: 16px;
+                                border-radius: 8px;
+                                background: transparent;
+                                Rectangle {
+                                    x: 5px;
+                                    y: 5px;
+                                    width: 6px;
+                                    height: 6px;
+                                    border-radius: 3px;
+                                    background: category.id == root.active-category-id
+                                        ? root.theme.accent
+                                        : root.theme.subtle;
+                                }
+                            }
+                            Text {
+                                x: 28px;
+                                width: parent.width - 34px;
+                                font-size: 13px;
+                                text: category.name;
+                                color: category.id == root.active-category-id ? root.theme.accent : root.theme.secondary;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+                            // 基线 2.3 右键菜单：Slint 原生 ContextMenuArea（其菜单
+                            // 由 muda 弹出，自动处理屏幕边缘截断与 DPI）。TouchArea
+                            // 会吞掉右键，因此在右键释放时显式调用菜单的 show()。
+                            context-menu := ContextMenuArea {
+                                enabled: !root.any-modal-open;
+                                width: parent.width;
+                                height: parent.height;
+                                category-hit := TouchArea {
+                                    enabled: !root.any-modal-open;
+                                    width: parent.width;
+                                    height: parent.height;
+                                    clicked => { root.category-selected(category.id); }
+                                    pointer-event(event) => {
+                                        if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
+                                            context-menu.show({ x: self.mouse-x, y: self.mouse-y });
+                                        }
+                                    }
+                                }
+                                Menu {
+                                    MenuItem { title: "重命名"; activated => { root.category-menu-rename(category.id); } }
+                                    MenuItem { title: "上移"; activated => { root.category-menu-up(category.id); } }
+                                    MenuItem { title: "下移"; activated => { root.category-menu-down(category.id); } }
+                                    MenuItem { title: "删除"; activated => { root.category-menu-delete(category.id); } }
+                                    MenuItem { title: "新建项目"; activated => { root.category-menu-add-item(category.id); } }
+                                }
+                            }
+                        }
+                    }
+                }
+                new-category-row := Rectangle {
+                    x: 0px;
+                    y: parent.height - 48px;
+                    width: parent.width;
+                    height: 36px;
+                    // UI 优化：列表与固定入口之间的分隔线（左右各留 6px）。
+                    Rectangle {
+                        y: 0px;
+                        x: 6px;
+                        width: parent.width - 12px;
+                        height: 1px;
+                        background: root.theme.border;
+                    }
+                    Text {
+                        x: 14px;
+                        text: "+ 新建分类";
+                        font-size: 13px;
+                        color: root.theme.muted;
+                        vertical-alignment: center;
+                    }
+                    TouchArea {
+                        enabled: !root.any-modal-open;
+                        width: parent.width;
+                        height: parent.height;
+                        clicked => { root.category-create-opened(); }
+                    }
+                }
+                Rectangle { x: parent.width - 1px; width: 1px; height: parent.height; background: root.theme.border; }
+            }
+            // 右侧项目网格（基线 2.4）：当前分类的项目，列数随宽度自适应；
+            // 图标三档来自 settings.icon_size（默认中）；名称最多两行省略；
+            // 失效路径显示红色角标；悬停显示完整名称/路径/备注。
+            Rectangle {
+                background: root.theme.window;
+                border-width: root.drop-grid-active ? 2px : 0px;
+                border-color: root.theme.accent;
+                grid-area := Flickable {
+                    x: 12px;
+                    y: 12px;
+                    width: parent.width - 24px;
+                    height: parent.height - 24px;
+                    // P2-04: while a card press is active, stop the Flickable
+                    // from claiming the gesture for panning (it races the
+                    // card's drag detection); wheel scrolling still works.
+                    mouse-drag-pan-enabled: !root.item-press-active;
+                    grid-viewport := Rectangle {
+                        width: grid-area.width;
+                        property <int> columns: max(1, floor(grid-area.width / (root.cell-width * 1px)));
+                        height: max(grid-area.height, ceil(root.items.length * 1.0 / columns) * (root.cell-height * 1px));
+                        // 空白区域右键添加（基线 2.4）；卡片声明在其后（上层），
+                        // 卡片区域的右键由卡片的菜单接管。
+                        blank-menu := ContextMenuArea {
+                            enabled: !root.any-modal-open;
+                            width: parent.width;
+                            height: parent.height;
+                            blank-hit := TouchArea {
+                                enabled: !root.any-modal-open;
+                                width: parent.width;
+                                height: parent.height;
+                                pointer-event(event) => {
+                                    if (event.kind == PointerEventKind.up && event.button == PointerEventButton.right) {
+                                        blank-menu.show({ x: self.mouse-x, y: self.mouse-y });
+                                    }
+                                }
+                            }
+                                Menu {
+                                    MenuItem { title: "添加项目"; activated => { root.grid-add-requested(); } }
+                                    MenuItem { title: "新建分类"; activated => { root.category-create-opened(); } }
+                                    MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
+                                }
+                        }
+                        for item[index] in root.items: card := Rectangle {
+                            property <bool> press-active: false;
+                            property <bool> dragging: false;
+                            property <int> press-generation: -1;
+                            property <bool> gesture-valid: card.press-active
+                                && card.press-generation == root.drag-generation
+                                && !root.any-modal-open;
+                            property <bool> hovered: false;
+                            property <bool> badge-hovered: false;
+                            property <length> press-x;
+                            property <length> press-y;
+                            property <length> scroll-x: grid-area.content-x;
+                            property <length> scroll-y: grid-area.content-y;
+                            changed scroll-x => { item-hit.update-hover(); }
+                            changed scroll-y => { item-hit.update-hover(); }
+                            x: mod(index, columns) * (root.cell-width * 1px) + 4px;
+                            y: floor(index / columns) * (root.cell-height * 1px) + 4px;
+                            width: root.cell-width * 1px - 8px;
+                            height: root.cell-height * 1px - 8px;
+                            opacity: item.id == root.dragging-item-id ? 0.4 : 1.0;
+                            property <bool> focus-requested: root.card-focus-request == index;
+                            changed focus-requested => {
+                                if (card.focus-requested && !root.any-modal-open) {
+                                    card-focus.focus();
+                                    root.card-focus-request = -1;
+                                }
+                            }
+                            card-focus := FocusScope {
+                                width: parent.width;
+                                height: parent.height;
+                                enabled: !root.any-modal-open;
+                                focus-on-click: false;
+                                focus-on-tab-navigation: true;
+                                changed has-focus => {
+                                    if (self.has-focus) { root.focused-item-id = item.id; }
+                                }
+                                key-pressed(event) => {
+                                    if (root.background-key(event)) {
+                                        accept
+                                    } else if (event.text == "\u{000a}" || event.text == " ") {
+                                        root.item-selected(item.id);
+                                        accept
+                                    } else if (event.text == "\u{F702}" || event.text == "\u{F703}"
+                                        || event.text == "\u{F700}" || event.text == "\u{F701}") {
+                                        root.card-focus-request = max(0, min(root.items.length - 1,
+                                            index + (event.text == "\u{F702}" ? -1
+                                                : (event.text == "\u{F703}" ? 1
+                                                : (event.text == "\u{F700}" ? -grid-viewport.columns : grid-viewport.columns)))));
+                                        accept
+                                    } else { reject }
+                                }
+                            }
+                            // 卡片规范 V1.0 §6: the hover shadow sits behind the
+                            // card face (Slint 1.18 has no box-shadow).
+                            Rectangle {
+                                x: -2px;
+                                y: 2px;
+                                width: parent.width + 4px;
+                                height: parent.height;
+                                border-radius: 13px;
+                                background: #0000001f;
+                                visible: card.hovered && !card.dragging;
+                            }
+                            // The card face: one component for every item type
+                            // (icon + title on the same vertical axis).
+                            Rectangle {
+                                width: parent.width;
+                                height: parent.height;
+                                border-radius: 11px;
+                                background: item.batch-selected ? root.theme.accent-soft
+                                    : (item.id == root.active-item-id ? root.theme.accent-soft
+                                    : (card.gesture-valid && !card.dragging ? root.theme.card-pressed
+                                    : (card.hovered ? root.theme.card-hover : root.theme.panel)));
+                                border-width: (item.batch-selected || card-focus.has-focus) ? 2px : 1px;
+                                border-color: item.batch-selected ? root.theme.accent
+                                    : (item.id == root.active-item-id ? root.theme.accent
+                                    : (card-focus.has-focus ? root.theme.accent
+                                    : (card.hovered ? root.theme.card-hover-border : root.theme.border)));
+                                VerticalLayout {
+                                    alignment: center;
+                                    padding-top: 10px;
+                                    padding-bottom: 10px;
+                                    padding-left: 8px;
+                                    padding-right: 8px;
+                                    spacing: 8px;
+                                    // 卡片规范 V1.0 §2/§3: a fixed 40x40 icon
+                                    // area holding a 32x32 image (contain), so
+                                    // every source keeps its aspect ratio and
+                                    // the icon never shifts the layout.
+                                    HorizontalLayout {
+                                        alignment: center;
+                                        Rectangle {
+                                            width: root.icon-px * 1px;
+                                            height: root.icon-px * 1px;
+                                            Image {
+                                                // 卡片规范 V1.0 §2: URL → 浏览器
+                                                // 图标，命令 → 终端图标。
+                                                source: item.artwork == "browser" ? @image-url("../assets/browser.svg")
+                                                    : (item.artwork == "terminal" ? @image-url("../assets/terminal.svg")
+                                                    : @image-url("../assets/demo-app.svg"));
+                                                width: root.icon-inner-px * 1px;
+                                                height: root.icon-inner-px * 1px;
+                                                x: (parent.width - self.width) / 2;
+                                                y: (parent.height - self.height) / 2;
+                                                image-fit: contain;
+                                            }
+                                            // P1-10: extracted icon overlays the
+                                            // default artwork; extraction
+                                            // failures keep the default.
+                                            if item.icon.width > 0: Image {
+                                                source: item.icon;
+                                                width: root.icon-inner-px * 1px;
+                                                height: root.icon-inner-px * 1px;
+                                                x: (parent.width - self.width) / 2;
+                                                y: (parent.height - self.height) / 2;
+                                                image-fit: contain;
+                                            }
+                                        }
+                                    }
+                                    // 卡片规范 V1.0 §4: 12px/18px, one line,
+                                    // ellipsis, horizontally centered.
+                                    Text {
+                                        text: item.name;
+                                        wrap: word-wrap;
+                                        overflow: elide;
+                                        max-lines: 1;
+                                        horizontal-alignment: center;
+                                        color: root.theme.text;
+                                        font-size: 12px;
+                                        font-weight: 400;
+                                        height: 18px;
+                                    }
+                                }
+                            }
+                            // 路径失效角标（基线 2.4）。
+                            if item.path-missing: Rectangle {
+                                x: parent.width - 20px;
+                                y: 5px;
+                                width: 15px;
+                                height: 15px;
+                                border-radius: 8px;
+                                background: #e5484d;
+                                Text {
+                                    text: "!";
+                                    color: #ffffff;
+                                    font-size: 10px;
+                                    horizontal-alignment: center;
+                                    vertical-alignment: center;
+                                }
+                            }
+                            // 基线 2.3 分类行的同一模式：TouchArea 吞右键，右键
+                            // 释放时显式 show()。
+                            item-menu := ContextMenuArea {
+                                enabled: !root.any-modal-open;
+                                width: parent.width;
+                                height: parent.height;
+                                item-hit := TouchArea {
+                                    enabled: !root.any-modal-open;
+                                    width: parent.width;
+                                    height: parent.height;
+                                    // Flickable 会消费拖动用的 move 事件，因此
+                                    // 悬停提示在进入卡片时按卡片坐标定位显示
+                                    //（基线 2.4：悬停显示完整名称/路径/备注）。
+                                    function update-hover() {
+                                        card.hovered = self.has-hover && !root.any-modal-open;
+                                        if (card.hovered && !root.item-press-active) {
+                                            card.badge-hovered = root.badge-tip-update(
+                                                item.id, item.missing-reason, item.path-missing,
+                                                self.mouse-x / 1px, self.mouse-y / 1px, card.width / 1px,
+                                                (root.sidebar-width + 12px + grid-area.content-x + card.x + card.width - 20px) / 1px,
+                                                (84px + 12px + grid-area.content-y + card.y + 5px) / 1px
+                                            );
+                                            if (card.badge-hovered) {
+                                                root.hover-id = "";
+                                                root.hover-name = "";
+                                            } else {
+                                                root.hover-id = item.id;
+                                                root.hover-name = item.name;
+                                                root.hover-path = item.path;
+                                                root.hover-note = item.note;
+                                                root.hover-x = (root.sidebar-width + 12px + grid-area.content-x + card.x) / 1px;
+                                                root.hover-y = (84px + 12px + grid-area.content-y + card.y + card.height + 6px) / 1px;
+                                            }
+                                        } else {
+                                            card.badge-hovered = false;
+                                            root.badge-tip-update(item.id, item.missing-reason, item.path-missing,
+                                                -1000.0, -1000.0, card.width / 1px, 0.0, 0.0);
+                                            if (root.hover-id == item.id) {
+                                                root.hover-id = "";
+                                                root.hover-name = "";
+                                            }
+                                        }
+                                    }
+                                    changed has-hover => { self.update-hover(); }
+                                    // The mouse may move onto the badge without
+                                    // leaving the card, so the hit test also runs
+                                    // on every pointer move.
+                                    changed mouse-x => { self.update-hover(); }
+                                    changed mouse-y => { self.update-hover(); }
+                                    pointer-event(event) => {
+                                        if (event.kind == PointerEventKind.down && event.button == PointerEventButton.left && !root.any-modal-open) {
+                                            root.drag-generation += 1;
+                                            card.press-generation = root.drag-generation;
+                                            card.press-active = true;
+                                            card.dragging = false;
+                                            root.focused-item-id = item.id;
+                                            card-focus.focus();
+                                            root.hover-id = "";
+                                            root.hover-name = "";
+                                            root.badge-tooltip-visible = false;
+                                            card.press-x = self.mouse-x;
+                                            card.press-y = self.mouse-y;
+                                            root.item-press-active = true;
+                                        } else if (event.kind == PointerEventKind.move && card.gesture-valid) {
+                                            if (!card.dragging
+                                                && ((self.mouse-x - card.press-x > 8px)
+                                                    || (card.press-x - self.mouse-x > 8px)
+                                                    || (self.mouse-y - card.press-y > 8px)
+                                                    || (card.press-y - self.mouse-y > 8px))) {
+                                                card.dragging = true;
+                                                root.dragging-item-id = item.id;
+                                                root.item-drag-active = true;
+                                                root.item-drop-index = index;
+                                            }
+                                            if (card.dragging && root.item-drag-active) {
+                                                root.item-drag-moved(
+                                                    item.id,
+                                                    (card.x + self.mouse-x) / 1px,
+                                                    (card.y + self.mouse-y) / 1px,
+                                                    (root.sidebar-width + 12px + card.x + grid-area.content-x + self.mouse-x) / 1px,
+                                                    (84px + 12px + card.y + grid-area.content-y + self.mouse-y) / 1px,
+                                                    grid-viewport.columns
+                                                );
+                                            }
+                                        } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                                            if (event.kind == PointerEventKind.up
+                                                && event.button == PointerEventButton.left && card.gesture-valid) {
+                                                if (card.dragging && root.item-drag-active) {
+                                                    root.item-drop-requested(item.id, root.item-drop-index);
+                                                } else if (!card.dragging) {
+                                                    root.item-selected(item.id);
+                                                }
+                                            } else if (card.gesture-valid) {
+                                                root.cancel-item-drag();
+                                            }
+                                            if (card.press-active) {
+                                                card.press-active = false;
+                                                card.dragging = false;
+                                                root.clear-item-drag();
+                                                // Timer emits finished after pointer capture release.
+                                                root.drag-finish-pending = true;
+                                            }
+                                        }
+                                        if (event.kind == PointerEventKind.up && event.button == PointerEventButton.right && !root.any-modal-open) {
+                                            item-menu.show({ x: self.mouse-x, y: self.mouse-y });
+                                        }
+                                    }
+                                }
+                                Menu {
+                                    MenuItem { title: "打开"; activated => { root.item-menu-open(item.id); } }
+                                    MenuItem { title: "管理员身份运行"; activated => { root.item-menu-run-as-admin(item.id); } }
+                                    MenuItem { title: "编辑"; activated => { root.item-menu-edit(item.id); } }
+                                    MenuItem { title: "打开文件所在位置"; activated => { root.item-menu-open-location(item.id); } }
+                                    MenuItem { title: "复制路径"; activated => { root.item-menu-copy-path(item.id); } }
+                                    MenuItem { title: "移动到其他分类"; activated => { root.item-menu-move(item.id); } }
+                                    MenuItem { title: "复制项目"; activated => { root.item-menu-duplicate(item.id); } }
+                                    MenuItem {
+                                        title: item.favorite ? "取消收藏" : "收藏";
+                                        activated => { root.item-menu-toggle-favorite(item.id); }
+                                    }
+                                    MenuItem {
+                                        title: item.batch-selected ? "移出批量选择" : "加入批量选择";
+                                        activated => { root.item-menu-toggle-batch(item.id); }
+                                    }
+                                    MenuItem {
+                                        title: root.batch-launch-title;
+                                        enabled: root.batch-count > 0;
+                                        activated => { root.item-menu-batch-launch(); }
+                                    }
+                                    MenuItem {
+                                        title: "保存批量选择为组合…";
+                                        enabled: root.batch-count > 0;
+                                        activated => { root.combination-save-opened(); }
+                                    }
+                                    MenuItem { title: "启动组合…"; activated => { root.combination-menu-opened(); } }
+                                    MenuItem { title: "删除"; activated => { root.item-menu-delete(item.id); } }
+                                }
+                            }
+                        }
+                        // P2-04/P2-05/P2-06: insertion marker only while the
+                        // grid itself is the target (a category or group hover
+                        // hides it).
+                        if root.item-drag-active
+                            && root.item-drop-index >= 0
+                            && root.drag-target-category-id == ""
+                            && root.drag-target-group-id == "": Rectangle {
+                            x: mod(root.item-drop-index, grid-viewport.columns) * (root.cell-width * 1px);
+                            y: floor(root.item-drop-index / grid-viewport.columns) * (root.cell-height * 1px) + 4px;
+                            width: 3px;
+                            height: root.cell-height * 1px - 8px;
+                            border-radius: 2px;
+                            background: root.theme.accent;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 状态栏（基线 2.1 底部：计数 · 本地配置 | 视图 排序 添加）。
+        status-bar := Rectangle {
+            height: 32px;
+            background: root.theme.panel;
+            HorizontalLayout {
+                padding-left: 14px;
+            padding-right: 14px;
+                spacing: 12px;
+                Text {
+                    text: root.drop-hint != ""
+                        ? root.drop-hint
+                        : (root.item-drag-hint != ""
+                            ? root.item-drag-hint
+                            : root.items.length + " 个项目 · 本地配置");
+                    color: (root.drop-hint != "" || root.item-drag-hint != "") ? root.theme.accent : root.theme.muted;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                }
+                Rectangle { horizontal-stretch: 1; background: transparent; }
+                Text { text: validation-status; color: root.theme.subtle; font-size: 12px; vertical-alignment: center; }
+                Text { text: "视图"; color: root.theme.muted; font-size: 12px; vertical-alignment: center; }
+                Text { text: "排序"; color: root.theme.muted; font-size: 12px; vertical-alignment: center; }
+                Text { text: "添加"; color: root.theme.muted; font-size: 12px; vertical-alignment: center; }
+                // P1-13: manual backup entry (baseline 15.7).
+                backup-entry := Text {
+                    text: "备份";
+                    color: root.theme.muted;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    TouchArea {
+                        enabled: !root.any-modal-open;
+                        width: parent.width;
+                        height: parent.height;
+                        clicked => { root.backup-requested(); }
+                    }
+                }
+            }
+            Rectangle { width: parent.width; height: 1px; background: root.theme.border; }
+        }
+        }
+    }
+
+    // 标题栏声明在主布局之后：层序更高，确保覆盖主布局顶部且接收鼠标
+    // 事件（基线 2.5：标题栏可拖动窗口）。
+    title-bar := Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: 44px;
+        background: root.theme.panel;
+        HorizontalLayout {
+            padding-left: 14px;
+            padding-right: 8px;
+            padding-top: 6px;
+            padding-bottom: 6px;
+            spacing: 8px;
+            Image { source: @image-url("../assets/demo-app.svg"); width: 26px; height: 26px; }
+            Text { text: "QuickNest"; font-size: 16px; font-weight: 700; color: root.theme.text; vertical-alignment: center; }
+            // 标题栏空白区拖动窗口（基线 2.5：标题栏可拖动窗口）。
+            WindowMoveArea { horizontal-stretch: 1; }
+            title-search := Text {
+                text: "搜索";
+                color: root.theme.muted;
+                vertical-alignment: center;
+                TouchArea {
+                    enabled: !root.any-modal-open;
+                    width: parent.width + 12px;
+                    height: parent.height;
+                    x: -6px;
+                    clicked => { root.search-requested(); }
+                }
+            }
+            title-pin := Text {
+                text: root.pin-toggled ? "已固定" : "固定";
+                color: root.pin-toggled ? root.theme.warning : root.theme.muted;
+                vertical-alignment: center;
+                // P1-01 对照实验：验证标题栏鼠标事件确实到达 Slint 元素
+                //（点击后文字变化，截图可判定）。
+                pin-state := TouchArea {
+                    enabled: !root.any-modal-open;
+                    clicked => { root.title-pin-toggled(); }
+                }
+            }
+            title-settings := Rectangle {
+                width: 44px;
+                height: 24px;
+                background: transparent;
+                Text {
+                    text: "设置";
+                    color: root.theme.muted;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                // P2-12: left/right click opens the theme + accent menu.
+                settings-menu := ContextMenuArea {
+                    enabled: !root.any-modal-open;
+                    width: parent.width;
+                    height: parent.height;
+                    settings-hit := TouchArea {
+                        enabled: !root.any-modal-open;
+                        width: parent.width;
+                        height: parent.height;
+                        clicked => { settings-menu.show({ x: title-settings.x, y: title-bar.height }); }
+                        pointer-event(event) => {
+                            if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
+                                settings-menu.show({ x: title-settings.x, y: title-bar.height });
+                            }
+                        }
+                    }
+                    Menu {
+                        MenuItem { title: "浅色"; activated => { root.theme-menu-selected("light"); } }
+                        MenuItem { title: "深色"; activated => { root.theme-menu-selected("dark"); } }
+                        MenuItem { title: "跟随系统"; activated => { root.theme-menu-selected("system"); } }
+                        MenuItem { title: "强调色：蓝色"; activated => { root.accent-menu-selected("#2563eb"); } }
+                        MenuItem { title: "强调色：绿色"; activated => { root.accent-menu-selected("#16a34a"); } }
+                        MenuItem { title: "强调色：橙色"; activated => { root.accent-menu-selected("#ea580c"); } }
+                        MenuItem { title: "强调色：紫色"; activated => { root.accent-menu-selected("#7c3aed"); } }
+                        MenuItem { title: "透明度：100%"; activated => { root.opacity-menu-selected("1.0"); } }
+                        MenuItem { title: "透明度：95%"; activated => { root.opacity-menu-selected("0.95"); } }
+                        MenuItem { title: "透明度：85%"; activated => { root.opacity-menu-selected("0.85"); } }
+                        MenuItem { title: "透明度：70%"; activated => { root.opacity-menu-selected("0.7"); } }
+                        MenuItem { title: "透明度：50%"; activated => { root.opacity-menu-selected("0.5"); } }
+                        MenuItem { title: "圆角：开"; activated => { root.corners-menu-selected("on"); } }
+                        MenuItem { title: "圆角：关"; activated => { root.corners-menu-selected("off"); } }
+                        MenuItem { title: "背景：纯色"; activated => { root.backdrop-menu-selected("none"); } }
+                        MenuItem { title: "背景：Mica"; activated => { root.backdrop-menu-selected("mica"); } }
+                        MenuItem { title: "背景：Acrylic"; activated => { root.backdrop-menu-selected("acrylic"); } }
+                        MenuItem { title: "历史备份恢复…"; activated => { root.backup-menu-opened(); } }
+                        MenuItem { title: "配置导入导出…"; activated => { root.transfer-menu-opened(); } }
+                        MenuItem { title: "排序：手动"; activated => { root.sort-mode-selected("manual"); } }
+                        MenuItem { title: "排序：最近使用"; activated => { root.sort-mode-selected("recent"); } }
+                        MenuItem { title: "排序：高频"; activated => { root.sort-mode-selected("frequent"); } }
+                        MenuItem { title: "排序：收藏置顶"; activated => { root.sort-mode-selected("favorite"); } }
+                        MenuItem { title: root.everything-enabled ? "Everything 搜索：开" : "Everything 搜索：关"; activated => { root.everything-toggle-requested(); } }
+                        MenuItem {
+                            title: root.update-check-busy ? "正在检查更新…" : "检查更新";
+                            enabled: !root.update-check-busy;
+                            activated => { root.update-check-requested(); }
+                        }
+                        MenuItem { title: root.update-check-enabled ? "自动检查更新：开" : "自动检查更新：关"; activated => { root.update-check-toggle-requested(); } }
+                    }
+                }
+            }
+            title-close := Text {
+                text: "×";
+                font-size: 20px;
+                color: root.theme.muted;
+                vertical-alignment: center;
+                TouchArea {
+                    enabled: !root.any-modal-open;
+                    width: parent.width + 16px;
+                    height: parent.height;
+                    x: -8px;
+                    clicked => { root.hide-requested(); }
+                }
+            }
+        }
+        Rectangle { y: parent.height - 1px; width: parent.width; height: 1px; background: root.theme.border; }
+    }
+
+    focus-scope := FocusScope {
+        // 避开自定义标题栏：FocusScope 覆盖全窗口时其鼠标事件处理会
+        // 挡住 WindowMoveArea 的拖动判定（P1-01 实测）。
+        y: title-bar.height;
+        width: parent.width;
+        height: parent.height - title-bar.height;
+        enabled: !root.any-modal-open;
+        focus-on-click: false;
+        focus-on-tab-navigation: false;
+        key-pressed(event) => {
+            if (root.background-key(event)) { accept } else { reject }
+        }
+        init => {
+            self.focus();
+        }
+    }
+
+    // P2-01: search center (baseline 2.6/13). Covers the content below the
+    // title bar; clicking the dim backdrop closes it. Kept instantiated so the
+    // LineEdit keeps its edit pipeline across open/close cycles.
+    Rectangle {
+        visible: root.search-visible;
+        x: 0px;
+        y: title-bar.height;
+        width: parent.width;
+        height: parent.height - title-bar.height;
+        background: #00000022;
+        TouchArea {
+            width: parent.width;
+            height: parent.height;
+            clicked => { root.search-dismissed(); }
+        }
+        search-panel := Rectangle {
+            x: (parent.width - 600px) / 2;
+            y: 20px;
+            width: 600px;
+            height: 400px;
+            background: root.theme.panel;
+            border-radius: 12px;
+            border-width: 1px;
+            border-color: root.theme.border;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                HorizontalLayout {
+                    spacing: 10px;
+                    search-input := LineEdit {
+                        enabled: !root.dialog-modal-open;
+                        horizontal-stretch: 1;
+                        height: 34px;
+                        text <=> root.search-query;
+                        placeholder-text: "搜索项目名称或路径";
+                        edited(text) => {
+                            root.search-query-changed(text);
+                        }
+                        key-pressed(event) => {
+                            if (root.search-visible && search_key(event)) {
+                                accept
+                            } else {
+                                reject
+                            }
+                        }
+                    }
+                    search-scope := Rectangle {
+                        width: 150px;
+                        height: 34px;
+                        background: root.theme.sidebar;
+                        border-radius: 6px;
+                        border-width: 1px;
+                        border-color: root.theme.border;
+                        Text {
+                            text: root.search-scope-label;
+                            color: root.theme.text;
+                            font-size: 12px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                        TouchArea {
+                            width: parent.width;
+                            height: parent.height;
+                            clicked => { root.search-scope-toggled(); }
+                        }
+                    }
+                }
+                Text {
+                    text: root.search-results.length + " 个结果";
+                    color: root.theme.muted;
+                    font-size: 12px;
+                }
+                search-scroll := ScrollView {
+                    vertical-stretch: 1;
+                    search-viewport := Rectangle {
+                        width: search-scroll.visible-width;
+                        height: max(search-scroll.visible-height, root.search-results.length * 46px);
+                        for row[index] in root.search-results: Rectangle {
+                            y: index * 46px;
+                            width: parent.width;
+                            height: 46px;
+                            background: index == root.search-selected-index
+                                ? root.theme.accent-soft
+                                : (mod(index, 2) == 0 ? root.theme.alt-row : transparent);
+                            border-radius: 6px;
+                            border-width: index == root.search-selected-index ? 2px : 0px;
+                            border-color: root.theme.accent;
+                            Text {
+                                x: 8px;
+                                y: 4px;
+                                text: row.name;
+                                font-weight: 600;
+                                color: root.theme.text;
+                            }
+                            Text {
+                                x: parent.width - 170px;
+                                y: 4px;
+                                width: 162px;
+                                text: row.scope;
+                                color: root.theme.subtle;
+                                font-size: 11px;
+                                horizontal-alignment: right;
+                                overflow: elide;
+                            }
+                            Text {
+                                x: 8px;
+                                y: 23px;
+                                width: parent.width - 16px;
+                                text: row.path + "  ·  " + row.type-label;
+                                color: root.theme.muted;
+                                font-size: 11px;
+                                overflow: elide;
+                            }
+                            TouchArea {
+                                width: parent.width;
+                                height: parent.height;
+                                clicked => {
+                                    root.search-selected-index = index;
+                                    root.search-result-activated(row.id);
+                                }
+                            }
+                        }
+                    }
+                }
+                if root.search-results.length == 0: Text {
+                    text: "无匹配项目";
+                    color: root.theme.subtle;
+                    font-size: 12px;
+                    horizontal-alignment: center;
+                }
+                Text {
+                    text: "点击结果启动 · 切换范围 · Esc 清空/关闭";
+                    color: root.theme.subtle;
+                    font-size: 11px;
+                    horizontal-alignment: center;
+                }
+            }
+            // Opening from the title-bar click can move focus after init;
+            // re-assert the input focus while the center is visible.
+            Timer {
+                interval: 100ms;
+                running: root.search-visible && !root.dialog-modal-open;
+                triggered => { search-input.focus(); }
+            }
+        }
+    }
+
+
+    // P1-03: category create/rename dialog (modal overlay).
+    if root.category-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 320px) / 2;
+            y: (parent.height - 140px) / 2;
+            width: 320px;
+            height: 140px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: root.category-dialog-title; font-weight: 600; color: root.theme.text; }
+                category-dialog-input := LineEdit {
+                    text: root.category-dialog-initial;
+                    placeholder-text: "分类名称";
+                }
+                Text { text: root.category-dialog-error; color: root.theme.danger; font-size: 12px; height: 14px; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.category-dialog-cancelled(); } }
+                    Button { text: "确定"; primary: true; clicked => { root.category-dialog-confirmed(category-dialog-input.text); } }
+                }
+            }
+            init => { category-dialog-input.focus(); }
+        }
+    }
+
+    // P1-03: delete confirmation with the migrate choice (baseline 2.3).
+    if root.category-delete-confirm-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 360px) / 2;
+            y: (parent.height - 190px) / 2;
+            width: 360px;
+            height: 190px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "删除分类"; font-weight: 600; color: root.theme.text; }
+                Text {
+                    text: root.category-delete-confirm-text;
+                    wrap: word-wrap;
+                    color: root.theme.secondary;
+                    height: 54px;
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.category-delete-confirm-cancel(); } }
+                    Button { text: "迁移项目并删除"; clicked => { root.category-delete-confirm-migrate(root.category-names[category-delete-target.current-index]); } }
+                    Button { text: "删除项目"; clicked => { root.category-delete-confirm-delete(); } }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "迁移目标："; color: root.theme.muted; vertical-alignment: center; }
+                    category-delete-target := ComboBox {
+                        model: root.category-names;
+                        width: 180px;
+                    }
+                }
+            }
+        }
+    }
+
+    // P2-11: group create/rename dialog (baseline 2.2).
+    if root.group-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 320px) / 2;
+            y: (parent.height - 140px) / 2;
+            width: 320px;
+            height: 140px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: root.group-dialog-title; font-weight: 600; color: root.theme.text; }
+                group-dialog-input := LineEdit {
+                    text: root.group-dialog-initial;
+                    placeholder-text: "分组名称";
+                }
+                Text { text: root.group-dialog-error; color: root.theme.danger; font-size: 12px; height: 14px; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.group-dialog-cancelled(); } }
+                    Button { text: "确定"; primary: true; clicked => { root.group-dialog-confirmed(group-dialog-input.text); } }
+                }
+            }
+            init => { group-dialog-input.focus(); }
+        }
+    }
+
+    // P2-16 (baseline 15.7/17.4): historical backups - list, back up now,
+    // restore the selected one.
+    if root.backup-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 480px) / 2;
+            y: (parent.height - 380px) / 2;
+            width: 480px;
+            height: 380px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "历史备份"; font-weight: 600; color: root.theme.text; }
+                Text {
+                    text: "选择一份备份恢复到当前配置；恢复前的配置会自动保留为备份。";
+                    color: root.theme.secondary;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                Rectangle {
+                    vertical-stretch: 1;
+                    background: root.theme.window;
+                    border-radius: 6px;
+                    border-width: 1px;
+                    border-color: root.theme.border;
+                    clip: true;
+                    Flickable {
+                        content-height: max(root.backup-dialog-items.length * 34px, parent.height);
+                        content-width: parent.width;
+                        VerticalLayout {
+                            width: parent.width;
+                            spacing: 2px;
+                            for label[index] in root.backup-dialog-items: Rectangle {
+                                height: 32px;
+                                width: parent.width;
+                                background: root.backup-dialog-selected == label ? root.theme.accent-soft : transparent;
+                                border-radius: 4px;
+                                Text {
+                                    x: 10px;
+                                    vertical-alignment: center;
+                                    text: label;
+                                    color: root.backup-dialog-selected == label ? root.theme.accent : root.theme.text;
+                                }
+                                TouchArea {
+                                    clicked => {
+                                        root.backup-dialog-selected = label;
+                                        root.backup-dialog-selected-index = index;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if root.backup-dialog-items.length == 0: Text {
+                        x: 12px;
+                        y: 12px;
+                        text: "暂无可用备份";
+                        color: root.theme.muted;
+                        font-size: 12px;
+                    }
+                }
+                Text {
+                    text: root.backup-dialog-status;
+                    color: root.backup-dialog-error ? root.theme.danger : root.theme.secondary;
+                    font-size: 12px;
+                    height: 16px;
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Button { text: "立即备份"; clicked => { root.backup-now-requested(); } }
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.backup-dialog-cancelled(); } }
+                    Button {
+                        text: "恢复所选";
+                        primary: true;
+                        enabled: root.backup-dialog-selected-index >= 0;
+                        clicked => { root.backup-restore-requested(root.backup-dialog-selected-index); }
+                    }
+                }
+            }
+        }
+    }
+
+    // P2-17 (baseline 17.4): export all / export the current group / merge
+    // import / overwrite import. The file is chosen with the native dialog.
+    if root.transfer-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 480px) / 2;
+            y: (parent.height - 260px) / 2;
+            width: 480px;
+            height: 260px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "配置导入导出"; font-weight: 600; color: root.theme.text; }
+                Text {
+                    text: "导出会写出一个 JSON 文件；导入会先备份当前配置。合并导入保留现有数据，覆盖导入替换全部分组与设置。";
+                    color: root.theme.secondary;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Button { text: "导出全部配置"; clicked => { root.transfer-export-all(); } }
+                    Button { text: "导出当前分组"; clicked => { root.transfer-export-group(); } }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Button { text: "合并导入"; clicked => { root.transfer-merge-import(); } }
+                    Button { text: "覆盖导入"; primary: true; clicked => { root.transfer-overwrite-import(); } }
+                }
+                Text {
+                    text: root.transfer-dialog-status;
+                    color: root.transfer-dialog-error ? root.theme.danger : root.theme.secondary;
+                    font-size: 12px;
+                    height: 32px;
+                    wrap: word-wrap;
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.transfer-dialog-cancelled(); } }
+                }
+            }
+        }
+    }
+
+    // P3-02 (baseline 22 启动组合): the combination list (launch / delete).
+    if root.combination-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 480px) / 2;
+            y: (parent.height - 380px) / 2;
+            width: 480px;
+            height: 380px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "启动组合"; font-weight: 600; color: root.theme.text; }
+                Text {
+                    text: "启动组合会按保存时的顺序逐项启动其中所有项目；已删除的项目自动跳过。";
+                    color: root.theme.secondary;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                Rectangle {
+                    vertical-stretch: 1;
+                    background: root.theme.window;
+                    border-radius: 6px;
+                    border-width: 1px;
+                    border-color: root.theme.border;
+                    clip: true;
+                    Flickable {
+                        content-height: max(root.combination-dialog-items.length * 34px, parent.height);
+                        content-width: parent.width;
+                        VerticalLayout {
+                            width: parent.width;
+                            spacing: 2px;
+                            for label[index] in root.combination-dialog-items: Rectangle {
+                                height: 32px;
+                                width: parent.width;
+                                background: transparent;
+                                border-radius: 4px;
+                                Text {
+                                    x: 10px;
+                                    vertical-alignment: center;
+                                    text: label;
+                                    color: root.theme.text;
+                                }
+                                TouchArea {
+                                    clicked => {
+                                        root.combination-dialog-selected = label;
+                                        root.combination-dialog-selected-index = index;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if root.combination-dialog-items.length == 0: Text {
+                        x: 12px;
+                        y: 12px;
+                        text: "暂无启动组合";
+                        color: root.theme.muted;
+                        font-size: 12px;
+                    }
+                }
+                Text {
+                    text: root.combination-dialog-status;
+                    color: root.combination-dialog-error ? root.theme.danger : root.theme.secondary;
+                    font-size: 12px;
+                    height: 16px;
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Button { text: "启动组合"; enabled: root.combination-dialog-selected-index >= 0; clicked => { root.combination-launch-requested(root.combination-dialog-selected-index); } }
+                    Button { text: "删除"; enabled: root.combination-dialog-selected-index >= 0; clicked => { root.combination-delete-requested(root.combination-dialog-selected-index); } }
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.combination-dialog-cancelled(); } }
+                }
+            }
+        }
+    }
+
+    // P3-02: the name dialog for saving the current batch selection.
+    if root.combination-name-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 320px) / 2;
+            y: (parent.height - 140px) / 2;
+            width: 320px;
+            height: 140px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "保存启动组合"; font-weight: 600; color: root.theme.text; }
+                combination-name-input := LineEdit {
+                    text: root.combination-name-dialog-name;
+                    placeholder-text: "组合名称";
+                }
+                Text { text: root.combination-dialog-status; color: root.theme.danger; font-size: 12px; height: 14px; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.combination-dialog-cancelled(); } }
+                    Button {
+                        text: "保存";
+                        primary: true;
+                        clicked => { root.combination-save-requested(combination-name-input.text); }
+                    }
+                }
+            }
+            init => { combination-name-input.focus(); }
+        }
+    }
+
+    // P3-08 (baseline 8.3): first-run confirmation — shows the program, the
+    // arguments, the working directory and the execution mode; the command
+    // may modify the system or files, so the user can cancel.
+    if root.command-confirm-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 470px) / 2;
+            y: (parent.height - 270px) / 2;
+            width: 470px;
+            height: 270px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "首次执行确认"; font-weight: 600; color: root.theme.text; }
+                Text {
+                    text: "该命令尚未确认过，执行可能修改系统或文件。请核对以下内容：";
+                    color: root.theme.secondary;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                VerticalLayout {
+                    spacing: 4px;
+                    Rectangle {
+                        background: root.theme.window;
+                        border-radius: 6px;
+                        border-width: 1px;
+                        border-color: root.theme.border;
+                        clip: true;
+                        height: 108px;
+                        VerticalLayout {
+                            padding: 8px;
+                            spacing: 3px;
+                            Text { text: "程序：" + root.command-confirm-program; color: root.theme.text; font-size: 12px; overflow: elide; }
+                            Text { text: "参数：" + root.command-confirm-args; color: root.theme.text; font-size: 12px; overflow: elide; }
+                            Text { text: "工作目录：" + root.command-confirm-workdir; color: root.theme.text; font-size: 12px; overflow: elide; }
+                            Text { text: "执行方式：" + root.command-confirm-mode; color: root.theme.text; font-size: 12px; overflow: elide; }
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.command-confirm-cancelled(); } }
+                    Button { text: "确认执行"; primary: true; clicked => { root.command-confirm-confirmed(); } }
+                }
+            }
+        }
+    }
+
+    // P2-11: non-empty group deletion - migrate or delete all (baseline 2.2).
+    if root.group-delete-confirm-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 380px) / 2;
+            y: (parent.height - 200px) / 2;
+            width: 380px;
+            height: 200px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "删除分组"; font-weight: 600; color: root.theme.text; }
+                Text {
+                    text: root.group-delete-confirm-text;
+                    wrap: word-wrap;
+                    color: root.theme.secondary;
+                    height: 54px;
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.group-delete-confirm-cancel(); } }
+                    Button {
+                        text: "迁移并删除";
+                        enabled: root.group-delete-confirm-names.length > 0;
+                        clicked => { root.group-delete-confirm-migrate(group-delete-target.current-index); }
+                    }
+                    Button { text: "删除全部"; clicked => { root.group-delete-confirm-delete(); } }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "迁移目标："; color: root.theme.muted; vertical-alignment: center; }
+                    group-delete-target := ComboBox {
+                        model: root.group-delete-confirm-names;
+                        width: 180px;
+                    }
+                }
+            }
+        }
+    }
+
+    // P1-05: project editor (add + edit share the dialog, baseline 3.4).
+    if root.item-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 470px) / 2;
+            y: (parent.height - 396px) / 2;
+            width: 470px;
+            height: 396px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 14px;
+                spacing: 6px;
+                Text { text: root.item-dialog-title; font-weight: 600; color: root.theme.text; }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "名称"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    item-name-input := LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-name; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "类型"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    ComboBox { horizontal-stretch: 1; model: root.item-type-names; current-index <=> root.item-dialog-type-index; }
+                    Text { text: "窗口"; width: 32px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    ComboBox { width: 116px; model: root.window-state-names; current-index <=> root.item-dialog-window-index; }
+                }
+                if root.item-dialog-type-index == 5: HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "执行模式"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    ComboBox { horizontal-stretch: 1; model: root.exec-mode-names; current-index <=> root.item-dialog-exec-index; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "目标"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-target; placeholder-text: "路径或 URI"; }
+                    Button { text: "浏览…"; width: 64px; clicked => { root.item-dialog-browse(); } }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "参数"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-args; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "工作目录"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-workdir; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "自定义图标"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-icon; placeholder-text: "可选，P1-10 起可自动提取"; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "备注"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-note; }
+                }
+                CheckBox { text: "以管理员身份运行"; checked <=> root.item-dialog-run-as-admin; }
+                Text { text: root.item-dialog-error; color: root.theme.danger; font-size: 12px; height: 16px; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.item-dialog-cancelled(); } }
+                    Button { text: "保存"; primary: true; clicked => { root.item-dialog-confirmed(); } }
+                }
+            }
+        }
+    }
+
+    // P1-05: delete-project confirmation.
+    if root.item-delete-confirm-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 360px) / 2;
+            y: (parent.height - 160px) / 2;
+            width: 360px;
+            height: 160px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "删除项目"; font-weight: 600; color: root.theme.text; }
+                Text { text: root.item-delete-confirm-text; wrap: word-wrap; color: root.theme.secondary; height: 40px; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.item-delete-confirm-cancelled(); } }
+                    Button { text: "删除"; primary: true; clicked => { root.item-delete-confirm-confirmed(); } }
+                }
+            }
+        }
+    }
+
+    // P1-05: move-project-to-category dialog (baseline 3.5).
+    if root.move-dialog-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+                // 模态屏障：吸收对话框外的点击（P4 审核）。
+                TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 360px) / 2;
+            y: (parent.height - 170px) / 2;
+            width: 360px;
+            height: 170px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                Text { text: "移动到其他分类"; font-weight: 600; color: root.theme.text; }
+                Text { text: "选择目标分类："; color: root.theme.secondary; }
+                ComboBox { model: root.move-target-names; current-index <=> root.move-dialog-target-index; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                    Button { text: "取消"; clicked => { root.move-dialog-cancelled(); } }
+                    Button { text: "移动"; primary: true; clicked => { root.move-dialog-confirmed(root.move-dialog-target-index); } }
+                }
+            }
+        }
+    }
+
+    // Explicit install confirmation. These strings only describe the update;
+    // the host retains the typed, verified update used for installation.
+    if root.update-confirm-visible: Rectangle {
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+        TouchArea { width: parent.width; height: parent.height; }
+        FocusScope {
+            width: parent.width;
+            height: parent.height;
+            focus-on-click: false;
+            focus-on-tab-navigation: false;
+            key-pressed(event) => {
+                if (event.text == "\u{1b}") {
+                    root.update-install-cancelled();
+                    accept
+                } else { reject }
+            }
+            init => { self.focus(); }
+        }
+        Rectangle {
+            x: (parent.width - 460px) / 2;
+            y: (parent.height - 300px) / 2;
+            width: 460px;
+            height: 300px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 12px;
+                Text { text: "安装更新 " + root.update-confirm-version; color: root.theme.text; font-weight: 600; }
+                Text { text: "确认后将启动更新安装。"; color: root.theme.secondary; }
+                ScrollView {
+                    vertical-stretch: 1;
+                    Text {
+                        width: parent.width;
+                        text: root.update-confirm-notes;
+                        color: root.theme.secondary;
+                        wrap: word-wrap;
+                    }
+                }
+                Text { text: root.update-confirm-status; color: root.theme.secondary; wrap: word-wrap; }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Rectangle { horizontal-stretch: 1; }
+                    Button { text: "取消"; clicked => { root.update-install-cancelled(); } }
+                    Button {
+                        text: "确认安装";
+                        primary: true;
+                        enabled: !root.update-check-busy;
+                        clicked => { root.update-install-confirmed(); }
+                    }
+                }
+            }
+        }
+    }
+
+    // P1-04 悬停提示（基线 2.4）：完整名称/路径/备注。声明在画布之后，
+    // 保证层序最高（与标题栏同一层序规则）。
+    if root.hover-name != "" && !root.badge-tooltip-visible && !root.any-modal-open
+        && !root.item-press-active && !root.dpi-validation: Rectangle {
+        x: min(max(8px, root.hover-x * 1px + 14px), root.width - self.width - 8px);
+        y: min(max(8px, root.hover-y * 1px + 18px), root.height - self.height - 8px);
+        width: 320px;
+        height: 84px;
+        background: #17243b;
+        border-radius: 8px;
+        clip: true;
+        VerticalLayout {
+            padding: 8px;
+            spacing: 2px;
+            Text { text: root.hover-name; color: #ffffff; font-size: 12px; font-weight: 600; overflow: elide; }
+            Text { text: root.hover-path; color: #dbe2ed; font-size: 11px; overflow: elide; }
+            Text { text: root.hover-note; color: #9aa6b8; font-size: 11px; overflow: elide; }
+        }
+    }
+
+    // 卡片规范 V1.0 §5: the badge tooltip (the concrete reason).
+    if root.badge-tooltip-visible && !root.any-modal-open && !root.item-press-active && !root.dpi-validation: Rectangle {
+        x: min(max(8px, root.badge-tooltip-x * 1px - 150px), root.width - self.width - 8px);
+        y: min(max(8px, root.badge-tooltip-y * 1px - 34px), root.height - self.height - 8px);
+        width: 300px;
+        height: 28px;
+        background: #17243b;
+        border-radius: 6px;
+        clip: true;
+        Text {
+            x: 10px;
+            width: parent.width - 20px;
+            text: root.badge-tooltip-text;
+            color: #ffffff;
+            font-size: 11px;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+
+    if root.dpi-validation: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: root.theme.window;
+        Rectangle { x: 0px; y: 0px; width: parent.width / 2; height: parent.height / 2; background: root.theme.accent-soft; }
+        Rectangle { x: parent.width / 2; y: parent.height / 2; width: parent.width / 2; height: parent.height / 2; background: #dcfce7; }
+        Rectangle { x: parent.width / 2; y: 0px; width: 1px; height: parent.height; background: #64748b; }
+        Rectangle { x: 0px; y: parent.height / 2; width: parent.width; height: 1px; background: #64748b; }
+        Text { x: 16px; y: 16px; text: "P0-06 DPI 坐标验证（技术窗口）"; font-size: 18px; color: root.theme.text; }
+        Text { x: 16px; y: 50px; width: parent.width - 32px; height: 80px; wrap: word-wrap; text: root.validation-status; color: root.theme.text; }
+        Rectangle { x: root.marker-x * 1px - 4px; y: root.marker-y * 1px - 4px; width: 8px; height: 8px; border-radius: 4px; background: #dc2626; }
+        area := TouchArea {
+            width: parent.width;
+            height: parent.height;
+            pointer-event(event) => {
+                if event.kind == PointerEventKind.move {
+                    root.pointer-reference(self.mouse-x / 1px, self.mouse-y / 1px, parent.width / 1px, parent.height / 1px);
+                }
+            }
+        }
+    }
+
+    // P2-01: when the search center closes, hand the key scope back so
+    // Ctrl+F reopens it and Esc keeps reaching the window handler.
+    changed search-visible => {
+        if (!self.search-visible && !root.any-modal-open) { focus-scope.focus(); }
+    }
+}

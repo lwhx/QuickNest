@@ -1,0 +1,8 @@
+﻿Explorer window for the folder not found
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-08-shell-targets.ps1:167 字符: 38
++ ... $explorerWindow) { throw 'Explorer window for the folder not found' }
++                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Explorer window for the folder not found:String) [], RuntimeException
+    + FullyQualifiedErrorId : Explorer window for the folder not found
+ 
+

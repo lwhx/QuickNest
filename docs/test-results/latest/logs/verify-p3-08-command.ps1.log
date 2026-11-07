@@ -1,0 +1,11 @@
+﻿All P3-08 command phases passed.
+193725.991	seeded	4 unverified command items: c1 direct, c2 cmd, c3 powershell, c4 direct (batch skip)
+193730.072	direct_confirmed	c1 direct: dialog confirmed, probe1 written, flag cleared
+193731.604	direct_verified_no_dialog	c1 relaunched without the dialog (probe1 lines: 2)
+193734.069	cmd_cancelled	c2 cancel: probe2 absent, flag still true
+193736.043	cmd_confirmed	c2 cmd mode: confirmed run wrote probe2, mode persisted
+193738.018	powershell_confirmed	c3 powershell mode: confirmed run wrote probe3
+193749.079	batch_skips_unverified	c1 started (probe1 lines: 3); c4 skipped, flag true
+193749.157	persisted	exit=0 c1/c2/c3 verified, c4 unverified
+193749.159	completed	all P3-08 command phases passed
+

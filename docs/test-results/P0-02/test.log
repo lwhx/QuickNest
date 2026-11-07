@@ -1,0 +1,30 @@
+   Compiling windows-sys v0.61.2
+   Compiling i-slint-core v1.18.1
+   Compiling i-slint-backend-selector v1.18.1
+   Compiling softbuffer v0.4.8
+   Compiling arboard v3.7.0
+   Compiling muda v0.19.3
+   Compiling i-slint-renderer-software v1.18.1
+   Compiling i-slint-backend-winit v1.18.1
+   Compiling slint v1.18.1
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.56s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-cac60403a7b0197f.exe)
+
+running 7 tests
+test infrastructure::windows::window_handle::tests::null_handle_is_rejected_as_an_observation ... ok
+test tests::smoke_test_requires_explicit_argument ... ok
+test tests::help_does_not_open_a_window ... ok
+test tests::demo_grid_has_six_distinct_non_launching_items ... ok
+test tests::no_arguments_selects_interactive_mode ... ok
+test tests::unexpected_arguments_are_rejected ... ok
+test tests::hwnd_test_requires_one_nonempty_report_path ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (target\debug\deps\quicknest-1a298f08c88d020a.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

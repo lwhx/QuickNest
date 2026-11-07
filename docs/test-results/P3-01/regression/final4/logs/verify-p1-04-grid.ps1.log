@@ -1,0 +1,17 @@
+﻿All P1-04 grid phases passed.
+134311.545	window_found	pid=44452 rect=40,120,800,640
+134312.372	category_switch_empty	p1-04-empty-category.png (second category has no projects)
+134313.486	model_seeded	config contains the six demo projects
+134313.519	medium_initial	p1-04-medium-initial.png window=760x520 (medium 96x108, default)
+134314.053	hover_tooltip	p1-04-hover.png (pointer over the first tile)
+134314.878	tile_menu	p1-04-tile-menu.png
+134316.113	blank_menu	p1-04-blank-menu.png
+134316.965	columns_narrow	p1-04-narrow-680.png (expected 5 columns, two rows)
+134317.521	columns_wide	p1-04-wide-1100.png (expected 9 columns)
+134317.661	wm_close_exit	medium exit=0
+134318.420	small_preset	p1-04-small-preset.png
+134318.508	wm_close_exit	small exit=0
+134319.157	large_preset	p1-04-large-preset.png
+134319.268	wm_close_exit	large exit=0
+134319.269	completed	all P1-04 grid phases passed
+

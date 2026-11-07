@@ -1,0 +1,56 @@
+﻿{
+    "task":  "P0-04",
+    "status":  "Passed",
+    "date":  "2026-11-03",
+    "sha256":  "A70908402952196B06A8B0718A0DB641777F4F8E954F17462A098DED1C301528",
+    "exeBytes":  12245504,
+    "checks":  {
+                   "check":  "Passed",
+                   "clippy":  "Passed",
+                   "threadConstraints":  "3 passed, 0 failed",
+                   "release":  "Passed",
+                   "unitTests":  "14 passed, 0 failed",
+                   "fmt":  "Passed"
+               },
+    "mediumRuns":  [
+                       {
+                           "directory":  "run-20261103T080857748Z-d0873c893c964200afb5f86aaceb1e82",
+                           "pid":  3756,
+                           "integrity":  "Medium",
+                           "exitCode":  0,
+                           "generations":  3,
+                           "report":  "drop.tsv"
+                       },
+                       {
+                           "directory":  "run-20261103T081017521Z-890bc6d488804262b9868dcad06c03aa",
+                           "pid":  19620,
+                           "integrity":  "Medium",
+                           "exitCode":  0,
+                           "generations":  3,
+                           "report":  "drop.tsv"
+                       },
+                       {
+                           "directory":  "run-20261103T081018003Z-d14bb383a62045179eb0a912c9a814d2",
+                           "pid":  29592,
+                           "integrity":  "Medium",
+                           "exitCode":  0,
+                           "generations":  3,
+                           "report":  "drop.tsv"
+                       }
+                   ],
+    "totalGenerations":  9,
+    "errors":  "errors/7daa80d6d64c4c73ab95bd2b6e2b638b/results.json",
+    "p0_01Regression":  "p0-01-regression/run-20261103T080941091Z-3d529ff0",
+    "otherRegressions":  [
+                             "p0-02-regression\\run-20261103T081018464Z-f69fa6a054d64f04bef6593577b12e2d",
+                             "p0-03-regression\\run-20261103T080940555Z-f1863cd3371943c883ff00ad100b94ca"
+                         ],
+    "buttons":  "button-regression/button-results.json",
+    "backend":  "Slint pinned unstable-winit-030 hook disables winit built-in drag-and-drop before window creation; native winit/software retained",
+    "limits":  [
+                   "Registration test mode only; normal demo has no file-drop import",
+                   "Rejects all effects; Explorer drop and data parsing not tested",
+                   "Direct COM callback tests are not actual OLE routing",
+                   "Windows 11 x64 100% only; P0 overall not accepted"
+               ]
+}

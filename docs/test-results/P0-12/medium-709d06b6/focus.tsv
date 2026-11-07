@@ -1,0 +1,4 @@
+85	state_show	Hidden->Showing->Visible
+85	state_hide	Visible->Hiding->Hidden
+246	esc_hides	posted WM_KEYDOWN ESC -> escape-pressed -> Hidden
+10250	scenario_error	state stayed Hidden, expected Visible within 10s

@@ -1,0 +1,8 @@
+﻿drag reorder failed: SortA,SortB,SortC
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-04-sorting.ps1:55 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (drag reorder failed: SortA,SortB,SortC:String) [], RuntimeException
+    + FullyQualifiedErrorId : drag reorder failed: SortA,SortB,SortC
+ 
+

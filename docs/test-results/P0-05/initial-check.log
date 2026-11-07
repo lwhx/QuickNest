@@ -1,0 +1,21 @@
+    Checking windows v0.62.2
+    Checking fontique v0.11.1
+    Checking parley v0.11.1
+    Checking i-slint-common v1.18.1
+    Checking i-slint-core v1.18.1
+    Checking i-slint-renderer-software v1.18.1
+    Checking i-slint-backend-winit v1.18.1
+    Checking i-slint-backend-selector v1.18.1
+    Checking slint v1.18.1
+    Checking quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+warning: unused import: `File`
+ --> src\file_drop_validation.rs:3:15
+  |
+3 | use std::fs::{File, OpenOptions};
+  |               ^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `quicknest` (bin "quicknest" test) generated 1 warning (run `cargo fix --bin "quicknest" -p quicknest --tests` to apply 1 suggestion)
+warning: `quicknest` (bin "quicknest") generated 1 warning (1 duplicate)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 19.28s

@@ -1,0 +1,32 @@
+{
+    "scope":  "all",
+    "version":  1,
+    "schema_version":  2,
+    "settings":  {
+                     "backdrop":  "none",
+                     "auto_hide_on_launch":  false,
+                     "accent_color":  "#16a34a",
+                     "pinned":  true,
+                     "theme":  "dark"
+                 },
+    "groups":  [
+                   {
+                       "id":  "og",
+                       "name":  "Replaced",
+                       "color":  "",
+                       "icon":  "",
+                       "last_category_id":  "oc",
+                       "categories":  [
+                                          {
+                                              "icon":  "",
+                                              "name":  "Cat",
+                                              "id":  "oc",
+                                              "items":  [
+
+                                                        ]
+                                          }
+                                      ]
+                   }
+               ],
+    "format":  "quicknest-export"
+}

@@ -1,0 +1,7 @@
+﻿All P3-01 batch phases passed.
+155532.667	selected	two cards picked through the context menu
+155538.305	batch_launch	notepad=0->2
+155542.997	selection_cleared	a second batch starts nothing
+155543.048	app_exit	exit=0
+155543.049	completed	all P3-01 batch phases passed
+

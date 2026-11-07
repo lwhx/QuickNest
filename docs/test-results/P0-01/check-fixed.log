@@ -1,0 +1,25 @@
+   Compiling quicknest v0.1.0 (E:\Programs\ZCODE\01\QuickNest)
+error[E0308]: `if` and `else` have incompatible types
+  --> src\main.rs:83:20
+   |
+81 |               let result = if current > 6 {
+   |                            -------------- `if` and `else` have incompatible types
+82 |                   slint::quit_event_loop()
+   |                   ------------------------ expected because of this
+83 |               } else if let Some(ui) = weak.upgrade() {
+   |  ____________________^
+84 | |                 if current % 2 == 1 {
+85 | |                     ui.hide()
+86 | |                 } else {
+...  |
+91 | |                 std::process::exit(1);
+92 | |             };
+   | |_____________^ expected `Result<(), EventLoopError>`, found `Result<(), PlatformError>`
+   |
+   = note: expected enum `Result<_, EventLoopError>`
+              found enum `Result<_, PlatformError>`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `quicknest` (bin "quicknest") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quicknest` (bin "quicknest" test) due to 1 previous error

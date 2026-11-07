@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
+   Doc-tests quicknest
+
+running 3 tests
+test src\infrastructure\windows\ole.rs - infrastructure::windows::ole::OleGuard (line 69) - compile fail ... ok
+test src\infrastructure\windows\drop_target.rs - infrastructure::windows::drop_target::DropRegistration (line 128) - compile fail ... ok
+test src\infrastructure\windows\ole.rs - infrastructure::windows::ole::OleGuard (line 75) - compile fail ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+

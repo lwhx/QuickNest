@@ -1,0 +1,8 @@
+﻿Tab+Enter did not launch the all-group BetaOther
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-03-keyboard.ps1:87 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Tab+Enter did n...group BetaOther:String) [], RuntimeException
+    + FullyQualifiedErrorId : Tab+Enter did not launch the all-group BetaOther
+ 
+

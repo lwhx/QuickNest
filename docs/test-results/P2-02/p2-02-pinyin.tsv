@@ -1,0 +1,7 @@
+﻿193154.882	window_ready	pid=25972 rect=234,234,760x520
+193157.757	query_launch	query=weixin launched weixin
+193200.507	query_launch	query=wx launched weixin
+193203.236	query_launch	query=wyy launched netease
+193205.957	query_launch	query=yinyue launched music
+193206.044	app_exit	exit=0
+193206.046	completed	all P2-02 pinyin phases passed

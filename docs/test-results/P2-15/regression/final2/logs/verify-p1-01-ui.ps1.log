@@ -1,0 +1,8 @@
+﻿client area does not cover the window top (offset=148 px): decorations still drawn
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-01-ui.ps1:68 字符: 9
++         throw "client area does not cover the window top (offset=$non ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (client area doe...ons still drawn:String) [], RuntimeException
+    + FullyQualifiedErrorId : client area does not cover the window top (offset=148 px): decorations still drawn
+ 
+

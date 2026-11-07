@@ -1,0 +1,8 @@
+﻿query 'wx' did not launch the expected item
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-02-pinyin.ps1:80 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (query 'wx' did ...e expected item:String) [], RuntimeException
+    + FullyQualifiedErrorId : query 'wx' did not launch the expected item
+ 
+

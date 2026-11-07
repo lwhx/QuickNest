@@ -1,0 +1,8 @@
+﻿settings menu items: 19 (expected 18)
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-16-backups.ps1:39 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (settings menu items: 19 (expected 18):String) [], RuntimeException
+    + FullyQualifiedErrorId : settings menu items: 19 (expected 18)
+ 
+

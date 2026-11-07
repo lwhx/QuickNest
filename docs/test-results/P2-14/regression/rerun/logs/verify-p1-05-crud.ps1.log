@@ -1,0 +1,9 @@
+﻿Get-Content : 找不到路径“C:\Users\Administrator\AppData\Roaming\QuickNest\config.json”，因为该路径不存在。
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-05-crud.ps1:176 字符: 13
++     $json = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\Admini...est\config.json:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 
+

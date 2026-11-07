@@ -1,0 +1,8 @@
+[tray-diag] TrackPopupMenu enter: menu_valid=true point=(489,709)
+[tray-diag] TrackPopupMenu returned 0 gle=0
+[tray-diag] TrackPopupMenu enter: menu_valid=true point=(489,709)
+[scen-diag] f: menu open, sending down+enter
+[scen-diag] f: input sent, waiting MenuSelected
+[tray-diag] TrackPopupMenu returned 6 gle=0
+[scen-diag] f: got MenuSelected { command: Exit }
+Error: "expected Show command, got Exit"

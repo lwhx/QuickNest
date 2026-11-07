@@ -1,0 +1,8 @@
+﻿All P1-16 single-instance phases passed.
+155942.329	first_instance	pid=24124 rect=40,120
+155942.371	second_exit	exit=0 windows=1
+155943.733	hidden	first instance hidden
+155944.662	wake_up	visible=1 second_exit=0
+155944.772	first_exit	exit=0
+155944.778	completed	all P1-16 single-instance phases passed
+

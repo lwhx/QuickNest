@@ -1,0 +1,162 @@
+﻿{
+    "machine":  "AMD64 (0x8664)",
+    "optionalMagic":  "PE32+ (0x020B)",
+    "subsystem":  2,
+    "imports":  [
+                    "ADVAPI32.dll",
+                    "api-ms-win-core-synch-l1-2-0.dll",
+                    "api-ms-win-core-winrt-error-l1-1-0.dll",
+                    "api-ms-win-crt-heap-l1-1-0.dll",
+                    "api-ms-win-crt-locale-l1-1-0.dll",
+                    "api-ms-win-crt-math-l1-1-0.dll",
+                    "api-ms-win-crt-runtime-l1-1-0.dll",
+                    "api-ms-win-crt-stdio-l1-1-0.dll",
+                    "api-ms-win-crt-string-l1-1-0.dll",
+                    "bcryptprimitives.dll",
+                    "combase.dll",
+                    "comctl32.dll",
+                    "dwmapi.dll",
+                    "dwrite.dll",
+                    "gdi32.dll",
+                    "imm32.dll",
+                    "kernel32.dll",
+                    "ntdll.dll",
+                    "ole32.dll",
+                    "oleaut32.dll",
+                    "shell32.dll",
+                    "shlwapi.dll",
+                    "user32.dll",
+                    "uxtheme.dll",
+                    "VCRUNTIME140.dll"
+                ],
+    "delayImports":  [
+
+                     ],
+    "dllResolutionHints":  [
+                               {
+                                   "name":  "ADVAPI32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\ADVAPI32.dll"
+                               },
+                               {
+                                   "name":  "api-ms-win-core-synch-l1-2-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-core-winrt-error-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-crt-heap-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-crt-locale-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-crt-math-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-crt-runtime-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-crt-stdio-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "api-ms-win-crt-string-l1-1-0.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "Windows API-set contract (virtual DLL)"
+                               },
+                               {
+                                   "name":  "bcryptprimitives.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\bcryptprimitives.dll"
+                               },
+                               {
+                                   "name":  "combase.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\combase.dll"
+                               },
+                               {
+                                   "name":  "comctl32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\comctl32.dll"
+                               },
+                               {
+                                   "name":  "dwmapi.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\dwmapi.dll"
+                               },
+                               {
+                                   "name":  "dwrite.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\dwrite.dll"
+                               },
+                               {
+                                   "name":  "gdi32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\gdi32.dll"
+                               },
+                               {
+                                   "name":  "imm32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\imm32.dll"
+                               },
+                               {
+                                   "name":  "kernel32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\kernel32.dll"
+                               },
+                               {
+                                   "name":  "ntdll.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\ntdll.dll"
+                               },
+                               {
+                                   "name":  "ole32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\ole32.dll"
+                               },
+                               {
+                                   "name":  "oleaut32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\oleaut32.dll"
+                               },
+                               {
+                                   "name":  "shell32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\shell32.dll"
+                               },
+                               {
+                                   "name":  "shlwapi.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\shlwapi.dll"
+                               },
+                               {
+                                   "name":  "user32.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\user32.dll"
+                               },
+                               {
+                                   "name":  "uxtheme.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\uxtheme.dll"
+                               },
+                               {
+                                   "name":  "VCRUNTIME140.dll",
+                                   "delayLoaded":  false,
+                                   "resolutionHint":  "C:\\Windows\\system32\\VCRUNTIME140.dll"
+                               }
+                           ]
+}

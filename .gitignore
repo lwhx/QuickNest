@@ -1,0 +1,21 @@
+# Rust 构建输出（含 37GB 本地缓存）
+/target/
+
+# 第三方工具链：Inno Setup 安装副本与其安装包，按文档说明自行获取
+/tools/
+
+# 打包产物与运行期数据（安装包、便携包、解压目录、用户配置与图标缓存）
+/installer/output/
+
+# 本地代理工作区与计划文件
+/.zcode/
+
+# 一次性源码修补脚本与临时探针文件（其改动已并入源码，不应再执行）
+scripts/tmp-*
+*.probe
+
+# 编辑器与系统文件
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store

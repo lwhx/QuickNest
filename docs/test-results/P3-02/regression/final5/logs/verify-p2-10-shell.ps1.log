@@ -1,0 +1,8 @@
+﻿ms-settings:display did not open the Settings window
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-10-shell.ps1:80 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (ms-settings:dis...Settings window:String) [], RuntimeException
+    + FullyQualifiedErrorId : ms-settings:display did not open the Settings window
+ 
+

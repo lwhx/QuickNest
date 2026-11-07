@@ -1,0 +1,13 @@
+﻿193507.623	pmv2_awareness	context=34 pmv2=1 awareness=2
+193507.667	initial_state	251	state	scale=1.0000 dpi=96 size=760x520 pos=26,26 window_dpi=96 rect=26,26,786,546 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+193508.437	scale_factor	100% dpi=96 scale=1 size=760x520
+193509.150	scale_factor	125% dpi=120 scale=1.25 size=950x650
+193509.861	scale_factor	150% dpi=144 scale=1.5 size=1140x780
+193510.577	scale_factor	175% dpi=168 scale=1.75 size=1330x910
+193510.619	scale_exit	exit=0
+193511.851	offscreen_corrected	rect=0,0,760,520 work=0,0,1920,1032
+193513.374	position_persisted	x=120 y=90 monitor=\\.\DISPLAY3
+193513.406	app_exit	exit=0
+193514.560	position_restored	rect=120,90
+193514.591	app_exit_restart	exit=0
+193514.593	completed	all P2-15 DPI phases passed

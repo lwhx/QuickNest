@@ -1,0 +1,10 @@
+﻿193819.976	preflight	zip_sha256=F5D23478BD479A4B...
+193820.517	extracted	rootA=E:\Programs\ZCODE\01\QuickNest\docs\test-results\P4-02\root-a
+193823.043	first_launch_data_dir	data\config.json created inside the folder; %APPDATA% untouched
+193823.119	seeded_relatives	three relative-path command items (probe scripts use %~dp0)
+193827.426	relative_launch_root_a	click launched probe-1.cmd; probe written inside root A
+193827.500	moved_to_root_b	rootB=C:\qn-p402-root-b (E: -> C:)
+193831.774	relative_launch_root_b	config survived the move; relative resolution follows the new root
+193831.779	roaming_untouched	%APPDATA%\QuickNest never used by the portable copy
+193831.809	cleanup	roots removed
+193831.811	completed	all P4-02 portable phases passed

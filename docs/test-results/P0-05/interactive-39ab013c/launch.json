@@ -1,0 +1,8 @@
+﻿{
+    "run":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-39ab013c",
+    "fixtures":  "E:\\Programs\\ZCODE\\01\\QuickNest\\docs\\test-results\\P0-05\\interactive-39ab013c\\fixtures",
+    "target_pid":  29184,
+    "requested_explorer_pid":  26504,
+    "sha256":  "8BE01530722210A5661919592E4528E888B63BA6D2F8409DB40479BEC678A5E4",
+    "note":  "Requested Explorer PID may delegate to an existing process. Inspect actual window owner and both tokens."
+}

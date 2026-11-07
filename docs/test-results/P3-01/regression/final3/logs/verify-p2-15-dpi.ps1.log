@@ -1,0 +1,15 @@
+﻿All P2-15 DPI phases passed.
+134053.355	pmv2_awareness	context=34 pmv2=1 awareness=2
+134053.431	initial_state	254	state	scale=1.0000 dpi=96 size=760x520 pos=52,52 window_dpi=96 rect=52,52,812,572 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+134054.211	scale_factor	100% dpi=96 scale=1 size=760x520
+134054.927	scale_factor	125% dpi=120 scale=1.25 size=950x650
+134055.640	scale_factor	150% dpi=144 scale=1.5 size=1140x780
+134056.359	scale_factor	175% dpi=168 scale=1.75 size=1330x910
+134056.403	scale_exit	exit=0
+134057.635	offscreen_corrected	rect=0,0,760,520 work=0,0,1920,1032
+134059.169	position_persisted	x=120 y=90 monitor=\\.\DISPLAY3
+134059.200	app_exit	exit=0
+134100.340	position_restored	rect=120,90
+134100.379	app_exit_restart	exit=0
+134100.381	completed	all P2-15 DPI phases passed
+

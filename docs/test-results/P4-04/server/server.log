@@ -1,0 +1,6 @@
+﻿193842.268	cert created thumbprint=EFFABCA546A11A6A3D00880C60E48CEA0518AD4D
+193842.304	listener ready
+193845.132	request /manifest.json
+193845.289	request /package
+193852.969	listener stopping
+193853.008	cleanup done

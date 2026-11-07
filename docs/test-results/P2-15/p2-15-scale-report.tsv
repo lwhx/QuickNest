@@ -1,0 +1,19 @@
+elapsed_ms	phase	detail
+1	monitors	scale=1.0000 dpi=96 size=680x480 pos=0,0 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+2	required_scale	dpi=96 scale=1.0000
+2	required_scale	dpi=120 scale=1.2500
+2	required_scale	dpi=144 scale=1.5000
+2	required_scale	dpi=168 scale=1.7500
+251	state	scale=1.0000 dpi=96 size=760x520 pos=26,26 window_dpi=96 rect=26,26,786,546 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+501	state	scale=1.0000 dpi=96 size=760x520 pos=26,26 window_dpi=96 rect=26,26,786,546 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+752	state	scale=1.0000 dpi=96 size=760x520 pos=26,26 window_dpi=96 rect=26,26,786,546 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+1002	state	scale=1.0000 dpi=96 size=760x520 pos=26,26 window_dpi=96 rect=26,26,786,546 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+1253	state	scale=1.2500 dpi=120 size=950x650 pos=26,26 window_dpi=96 rect=26,26,976,676 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+1503	state	scale=1.2500 dpi=120 size=950x650 pos=26,26 window_dpi=96 rect=26,26,976,676 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+1753	state	scale=1.2500 dpi=120 size=950x650 pos=26,26 window_dpi=96 rect=26,26,976,676 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+2003	state	scale=1.5000 dpi=144 size=1140x780 pos=26,26 window_dpi=96 rect=26,26,1166,806 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+2254	state	scale=1.5000 dpi=144 size=1140x780 pos=26,26 window_dpi=96 rect=26,26,1166,806 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+2504	state	scale=1.7500 dpi=168 size=1330x910 pos=26,26 window_dpi=96 rect=26,26,1356,936 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+2755	state	scale=1.7500 dpi=168 size=1330x910 pos=26,26 window_dpi=96 rect=26,26,1356,936 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+3005	state	scale=1.7500 dpi=168 size=1330x910 pos=26,26 window_dpi=96 rect=26,26,1356,936 monitor0=\\.\DISPLAY3:0,0,1920,1032@96dpi
+3226	completed	dpi scale validation finished

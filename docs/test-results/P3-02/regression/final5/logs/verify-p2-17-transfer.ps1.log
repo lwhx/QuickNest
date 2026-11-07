@@ -1,0 +1,12 @@
+﻿All P2-17 transfer phases passed.
+154400.486	validation_mode	export_all/export_group/merge/overwrite/broken pass
+154400.568	seeded	live=Alpha merge=Imported overwrite=Replaced/dark
+154404.207	dialog_opened	p2-17-dialog.png
+154406.277	export_all_dialog	save dialog opened and cancelled
+154408.325	export_group_dialog	save dialog opened and cancelled
+154411.198	merge_import	groups=Alpha,Imported unverified=True backups=1->3
+154414.014	overwrite_import	groups=Replaced theme=dark
+154414.783	dialog_closed	p2-17-closed.png
+154414.859	app_exit	exit=0 group=Replaced
+154414.859	completed	all P2-17 transfer phases passed
+

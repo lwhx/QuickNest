@@ -1,0 +1,43 @@
+{
+    "schema_version":  2,
+    "format":  "quicknest-export",
+    "version":  1,
+    "groups":  [
+                   {
+                       "id":  "xg",
+                       "name":  "Imported",
+                       "color":  "",
+                       "icon":  "",
+                       "last_category_id":  "xc",
+                       "categories":  [
+                                          {
+                                              "icon":  "",
+                                              "name":  "Cat",
+                                              "id":  "xc",
+                                              "items":  [
+                                                            {
+                                                                "id":  "xi",
+                                                                "name":  "Run Thing",
+                                                                "launch":  {
+                                                                               "args":  [
+                                                                                            "/c",
+                                                                                            "echo hi"
+                                                                                        ],
+                                                                               "run_as_admin":  false,
+                                                                               "msi_advertised":  false,
+                                                                               "path":  "cmd.exe",
+                                                                               "workdir":  "",
+                                                                               "aumid":  ""
+                                                                           },
+                                                                "icon":  "",
+                                                                "note":  "",
+                                                                "window_state":  "normal",
+                                                                "item_type":  "command"
+                                                            }
+                                                        ]
+                                          }
+                                      ]
+                   }
+               ],
+    "scope":  "group"
+}

@@ -1,0 +1,8 @@
+﻿mshta did not start from the menu
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p1-06-launch.ps1:208 字符: 31
++ ... if ($null -eq $started) { throw 'mshta did not start from the menu' }
++                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (mshta did not start from the menu:String) [], RuntimeException
+    + FullyQualifiedErrorId : mshta did not start from the menu
+ 
+

@@ -1,0 +1,9 @@
+elapsed_ms	case	phase	pid	tid	hresult	apartment_hr	apartment	qualifier
+0	fresh	before	19096	10048	0x00000000	0x800401F0	-1	-1
+2	fresh	ole_outer	19096	10048	0x00000000	0x00000000	3	0
+2	fresh	ole_inner	19096	10048	0x00000001	0x00000000	3	0
+2	fresh	inner_released	19096	10048	0x00000000	0x00000000	3	0
+3	fresh	outer_released	19096	10048	0x00000000	0x800401F0	-1	-1
+3	fresh	cleaned	19096	10048	0x00000000	0x800401F0	-1	-1
+3	sta	before	19096	30584	0x00000000	0x800401F0	-1	-1
+4	sta	com_initialized	19096	30584	0x00000000	0x00000000	3	0

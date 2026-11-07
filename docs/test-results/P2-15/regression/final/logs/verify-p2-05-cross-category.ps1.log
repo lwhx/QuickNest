@@ -1,0 +1,8 @@
+﻿source category still has the item: MoveMe,StayHere
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\verify-p2-05-cross-category.ps1:58 字符: 28
++     if (-not $Condition) { throw $Message }
++                            ~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (source category...MoveMe,StayHere:String) [], RuntimeException
+    + FullyQualifiedErrorId : source category still has the item: MoveMe,StayHere
+ 
+

@@ -1,0 +1,14 @@
+elapsed_ms	phase	detail
+0	ui_apartment_before	hresult=0x00000000 kind=3 initialized=true
+0	service_started	tid=36964
+0	service_thread_probe	probe_elapsed_ms=0 logical_cpus=12
+1	fixture	dir="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-38740" target="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt"
+30	create_link	executed
+39	generated_resolve	path=Some("C:\\Users\\Administrator\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt") idlist=Some("C:\\Users\\Administrator\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt") args="" workdir="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-38740" icon="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt" index=0
+41	real_link_resolve	path=Some("E:\\Program Files\\115-Desktop\\115-Desktop.exe") idlist=Some("E:\\Program Files\\115-Desktop\\115-Desktop.exe") args="" workdir="E:\\Program Files\\115-Desktop" icon="" index=0
+62	execute_folder	executed
+62	ui_apartment_after	hresult=0x00000000 kind=3
+65	service_stopped	shutdown without hanging
+66	service_restarted	tid=37400
+70	restart_resolve	path=Some("C:\\Users\\Administrator\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt") idlist=Some("C:\\Users\\Administrator\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt") args="" workdir="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-38740" icon="C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\quicknest-p0-07-38740\\sample target.txt" index=0
+71	completed	all shell STA phases passed
