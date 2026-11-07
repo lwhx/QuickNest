@@ -2,7 +2,7 @@
 //! persists changes through the atomic save chain (P0-13).
 
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -862,6 +862,29 @@ impl LibraryController {
         self.batch_selection.borrow().clone()
     }
 
+    /// Selected items in launch order: visible items follow the current grid,
+    /// then live items from other categories follow their selection order.
+    /// Deleted items are omitted without changing the global selection.
+    pub fn ordered_batch_selection_ids(&self) -> Vec<String> {
+        let selected = self.batch_selection_ids();
+        if selected.is_empty() {
+            return selected;
+        }
+        let mut remaining: HashSet<&str> = selected.iter().map(String::as_str).collect();
+        let mut ordered: Vec<String> = self
+            .item_rows()
+            .into_iter()
+            .filter_map(|row| remaining.remove(row.id.as_str()).then_some(row.id))
+            .collect();
+        ordered.extend(
+            selected
+                .iter()
+                .filter(|id| remaining.remove(id.as_str()) && self.library.find_item(id).is_some())
+                .cloned(),
+        );
+        ordered
+    }
+
     /// P3-01: drops the batch selection.
     pub fn clear_batch_selection(&self) {
         self.batch_selection.borrow_mut().clear();
@@ -1185,6 +1208,144 @@ mod tests {
 
     fn controller() -> LibraryController {
         LibraryController::load(None)
+    }
+
+    fn batch_selection_controller() -> LibraryController {
+        let mut library = Library::default();
+        library.add_group("Batch", "batch-group").unwrap();
+        for (category, ids) in [
+            ("batch-a", ["a1", "a2", "a3"]),
+            ("batch-b", ["b1", "b2", "b3"]),
+        ] {
+            library
+                .add_category("batch-group", category, category)
+                .unwrap();
+            for id in ids {
+                assert!(library.add_item_to_category(
+                    category,
+                    Item::new(
+                        id,
+                        id,
+                        ItemKind::Uri,
+                        format!("https://example.invalid/{id}")
+                    ),
+                ));
+            }
+        }
+        LibraryController::loaded(library, None, LoadState::Loaded)
+    }
+
+    #[test]
+    fn ordered_batch_selection_preserves_items_across_category_and_group_switches() {
+        let mut controller = batch_selection_controller();
+        for id in ["a2", "a1"] {
+            assert!(controller.toggle_batch_selection(id));
+        }
+        assert!(controller.select_category("batch-b"));
+        for id in ["b2", "b1"] {
+            assert!(controller.toggle_batch_selection(id));
+        }
+        let selected = controller.batch_selection_ids();
+        assert_eq!(selected, ["a2", "a1", "b2", "b1"]);
+        assert_eq!(
+            controller.ordered_batch_selection_ids(),
+            ["b1", "b2", "a2", "a1"]
+        );
+        assert!(controller.select_category("batch-a"));
+        assert_eq!(
+            controller.ordered_batch_selection_ids(),
+            ["a1", "a2", "b2", "b1"]
+        );
+        assert_eq!(controller.batch_selection_ids(), selected);
+
+        controller
+            .library
+            .add_group("Other", "other-group")
+            .unwrap();
+        controller
+            .library
+            .add_category("other-group", "C", "batch-c")
+            .unwrap();
+        assert!(controller.library.add_item(Item::new(
+            "c1",
+            "C",
+            ItemKind::Uri,
+            "https://example.invalid/c1"
+        )));
+        assert!(controller.toggle_batch_selection("c1"));
+        assert_eq!(
+            controller.ordered_batch_selection_ids(),
+            ["c1", "a2", "a1", "b2", "b1"]
+        );
+        assert!(controller.select_group("batch-group"));
+        assert_eq!(
+            controller.ordered_batch_selection_ids(),
+            ["a1", "a2", "b2", "b1", "c1"]
+        );
+        assert_eq!(
+            controller.batch_selection_ids(),
+            ["a2", "a1", "b2", "b1", "c1"]
+        );
+    }
+
+    #[test]
+    fn ordered_batch_selection_prioritizes_current_grid_sort_over_selection_order() {
+        let mut controller = batch_selection_controller();
+        assert!(controller.select_category("batch-b"));
+        for id in ["b2", "b1", "a2", "a1"] {
+            assert!(controller.toggle_batch_selection(id));
+        }
+        assert!(controller.select_category("batch-a"));
+        for (id, last_used, launch_count, favorite) in [
+            ("a1", 100, 1, false),
+            ("a2", 200, 10, true),
+            ("a3", 300, 100, true),
+        ] {
+            let item = controller.library.find_item_mut(id).unwrap();
+            item.last_used = last_used;
+            item.launch_count = launch_count;
+            item.favorite = favorite;
+        }
+        let selected = controller.batch_selection_ids();
+        for (mode, expected) in [
+            ("manual", ["a1", "a2", "b2", "b1"]),
+            ("recent", ["a2", "a1", "b2", "b1"]),
+            ("frequent", ["a2", "a1", "b2", "b1"]),
+            ("favorite", ["a2", "a1", "b2", "b1"]),
+        ] {
+            controller.set_sort_mode(mode);
+            assert_eq!(controller.ordered_batch_selection_ids(), expected, "{mode}");
+            assert_eq!(controller.batch_selection_ids(), selected, "{mode}");
+        }
+    }
+
+    #[test]
+    fn ordered_batch_selection_omits_deleted_items_in_visible_and_other_categories() {
+        let mut controller = batch_selection_controller();
+        for id in ["a2", "a1"] {
+            assert!(controller.toggle_batch_selection(id));
+        }
+        assert!(controller.select_category("batch-b"));
+        for id in ["b2", "b1"] {
+            assert!(controller.toggle_batch_selection(id));
+        }
+        assert!(controller.delete_item("b2"));
+        assert!(controller.select_category("batch-a"));
+        assert!(controller.delete_item("a2"));
+        assert_eq!(controller.ordered_batch_selection_ids(), ["a1", "b1"]);
+        assert!(controller.select_category("batch-b"));
+        assert_eq!(controller.ordered_batch_selection_ids(), ["b1", "a1"]);
+        assert_eq!(controller.batch_selection_ids(), ["a2", "a1", "b2", "b1"]);
+    }
+
+    #[test]
+    fn ordered_batch_selection_returns_no_items_for_an_empty_selection() {
+        let controller = batch_selection_controller();
+        assert!(!controller.item_rows().is_empty());
+        assert!(controller.ordered_batch_selection_ids().is_empty());
+        assert!(controller.toggle_batch_selection("a1"));
+        controller.clear_batch_selection();
+        assert!(controller.ordered_batch_selection_ids().is_empty());
     }
 
     #[test]

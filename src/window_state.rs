@@ -151,7 +151,7 @@ pub enum BlurRecheck {
 /// re-check is worth scheduling at all.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BlurObservation {
-    /// Not in a state that auto-hides (hidden, suppressed or shutting down).
+    /// Auto-hide is disabled or the panel is hidden, suppressed or shutting down.
     Ignore,
     /// Panel is visible, unsuppressed and the foreground is ours.
     ForegroundOurs,
@@ -167,6 +167,7 @@ pub enum BlurObservation {
 pub struct FocusStateMachine {
     state: PanelState,
     pinned: bool,
+    auto_hide_on_blur_enabled: bool,
     /// Platform-fed hint for observe_blur; validation layers refresh it from
     /// GetForegroundWindow before consulting the machine.
     foreground_is_ours: bool,
@@ -184,6 +185,7 @@ impl FocusStateMachine {
         Self {
             state: PanelState::Hidden,
             pinned: false,
+            auto_hide_on_blur_enabled: true,
             foreground_is_ours: true,
             suppressions: Arc::new(Mutex::new(SuppressionSet::default())),
         }
@@ -210,6 +212,10 @@ impl FocusStateMachine {
         } else {
             set.release(SuppressionReason::Pinned);
         }
+    }
+
+    pub fn set_auto_hide_on_blur(&mut self, enabled: bool) {
+        self.auto_hide_on_blur_enabled = enabled;
     }
 
     pub fn is_suppressed(&self) -> bool {
@@ -243,7 +249,7 @@ impl FocusStateMachine {
     /// The platform layer refreshes the foreground hint from
     /// GetForegroundWindow/GetWindowThreadProcessId before calling this.
     pub fn observe_blur(&self) -> BlurObservation {
-        if self.state != PanelState::Visible {
+        if !self.auto_hide_on_blur_enabled || self.state != PanelState::Visible {
             return BlurObservation::Ignore;
         }
         if self.is_suppressed() {
@@ -256,10 +262,10 @@ impl FocusStateMachine {
         }
     }
 
-    /// Delayed re-check decision (baseline 10.3 steps 6-8): hide only when the
-    /// foreground is still outside and no suppression appeared meanwhile.
+    /// Delayed re-check decision (baseline 10.3 steps 6-8): hide only when auto-hide
+    /// is enabled, the foreground is still outside and no suppression appeared.
     pub fn evaluate_blur_recheck(&self, foreground_is_ours: bool) -> BlurRecheck {
-        if self.state != PanelState::Visible {
+        if !self.auto_hide_on_blur_enabled || self.state != PanelState::Visible {
             return BlurRecheck::Stay;
         }
         if self.is_suppressed() {
@@ -473,6 +479,102 @@ mod tests {
         set.release(SuppressionReason::SystemDialogActive);
         set.release(SuppressionReason::SystemDialogActive);
         assert!(!set.is_suppressed());
+    }
+
+    #[test]
+    fn disabled_auto_hide_ignores_blur_and_rechecks() {
+        let mut machine = FocusStateMachine::new();
+        machine.show().expect("show");
+        machine.set_auto_hide_on_blur(false);
+        for foreground_is_ours in [false, true] {
+            machine.set_foreground_hint(foreground_is_ours);
+            assert_eq!(machine.observe_blur(), BlurObservation::Ignore);
+            assert_eq!(
+                machine.evaluate_blur_recheck(foreground_is_ours),
+                BlurRecheck::Stay
+            );
+        }
+        assert_eq!(machine.state(), PanelState::Visible);
+        assert!(!machine.is_suppressed());
+    }
+
+    #[test]
+    fn re_enabling_auto_hide_restores_blur_checks() {
+        let mut machine = FocusStateMachine::new();
+        machine.set_auto_hide_on_blur(false);
+        machine.show().expect("show");
+        machine.set_foreground_hint(false);
+        assert_eq!(machine.observe_blur(), BlurObservation::Ignore);
+        assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Stay);
+        machine.set_auto_hide_on_blur(true);
+        assert_eq!(machine.observe_blur(), BlurObservation::StartDelayedCheck);
+        assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Hide);
+        machine.set_foreground_hint(true);
+        assert_eq!(machine.observe_blur(), BlurObservation::ForegroundOurs);
+        assert_eq!(machine.evaluate_blur_recheck(true), BlurRecheck::Stay);
+    }
+
+    #[test]
+    fn disabling_auto_hide_before_recheck_blocks_the_hide() {
+        let mut machine = FocusStateMachine::new();
+        machine.show().expect("show");
+        machine.set_foreground_hint(false);
+        assert_eq!(machine.observe_blur(), BlurObservation::StartDelayedCheck);
+        machine.set_auto_hide_on_blur(false);
+        assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Stay);
+        assert_eq!(machine.observe_blur(), BlurObservation::Ignore);
+        assert_eq!(machine.state(), PanelState::Visible);
+    }
+
+    #[test]
+    fn disabled_auto_hide_preserves_explicit_visibility_and_shutdown() {
+        let mut machine = FocusStateMachine::new();
+        machine.set_auto_hide_on_blur(false);
+        assert_eq!(
+            machine.show().expect("show"),
+            vec![PanelState::Showing, PanelState::Visible]
+        );
+        assert_eq!(
+            machine.hide().expect("hide"),
+            vec![PanelState::Hiding, PanelState::Hidden]
+        );
+        machine.toggle().expect("toggle to visible");
+        assert_eq!(machine.state(), PanelState::Visible);
+        machine.toggle().expect("toggle to hidden");
+        assert_eq!(machine.state(), PanelState::Hidden);
+        assert_eq!(machine.begin_shutdown(), PanelState::ShuttingDown);
+        for enabled in [false, true] {
+            machine.set_auto_hide_on_blur(enabled);
+            assert_eq!(machine.observe_blur(), BlurObservation::Ignore);
+            assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Stay);
+            assert!(matches!(machine.show(), Err(StateError::ShuttingDown)));
+            assert!(matches!(machine.hide(), Err(StateError::ShuttingDown)));
+            assert!(matches!(machine.toggle(), Err(StateError::ShuttingDown)));
+        }
+    }
+
+    #[test]
+    fn auto_hide_setting_preserves_pinned_and_other_suppression() {
+        let mut machine = FocusStateMachine::new();
+        machine.show().expect("show");
+        machine.set_foreground_hint(false);
+        machine.set_pinned(true);
+        let token = machine.acquire(SuppressionReason::ContextMenuOpen);
+        for enabled in [false, true] {
+            machine.set_auto_hide_on_blur(enabled);
+            assert!(machine.is_pinned());
+            assert_eq!(machine.holds(SuppressionReason::Pinned), 1);
+            assert_eq!(machine.holds(SuppressionReason::ContextMenuOpen), 1);
+            assert_eq!(machine.observe_blur(), BlurObservation::Ignore);
+            assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Stay);
+        }
+        machine.set_pinned(false);
+        assert_eq!(machine.observe_blur(), BlurObservation::Ignore);
+        assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Stay);
+        drop(token);
+        assert!(!machine.is_suppressed());
+        assert_eq!(machine.observe_blur(), BlurObservation::StartDelayedCheck);
+        assert_eq!(machine.evaluate_blur_recheck(false), BlurRecheck::Hide);
     }
 
     #[test]

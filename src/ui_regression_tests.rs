@@ -33,6 +33,9 @@ fn ui_fixture() -> (
     register_backup_open_callback(&ui, &controller, &Rc::new(RefCell::new(Vec::new())));
     register_transfer_open_callback(&ui);
     appearance_ui::register(&ui, &controller);
+    register_combination_launch_callback(&ui, &controller);
+    register_combination_delete_callback(&ui, &controller);
+    register_batch_launch_callback(&ui, &controller);
     refresh_ui(&controller, &ui.as_weak());
     ui.show().unwrap();
     (ui, controller, directory)
@@ -129,6 +132,238 @@ fn appearance_callbacks_immediately_sync_selection_and_report_save_failure() {
     assert_eq!(failing.borrow().library().settings, before);
     assert!(ui.get_validation_status().starts_with("保存失败"));
     assert!(!missing_parent.exists());
+    ui.hide().unwrap();
+}
+
+#[test]
+fn combination_failures_name_items_without_counting_them_as_started() {
+    use quicknest::library_model::ItemKind;
+    let (ui, controller, directory) = ui_fixture();
+    let ids: Vec<_> = controller
+        .borrow()
+        .item_rows()
+        .into_iter()
+        .take(2)
+        .map(|row| row.id)
+        .collect();
+    let command_id = controller.borrow().item_rows().last().unwrap().id.clone();
+    {
+        let mut state = controller.borrow_mut();
+        for (index, id) in ids.iter().enumerate() {
+            let item = state.library_mut().find_item_mut(id).unwrap();
+            item.item_type = ItemKind::Exe;
+            item.name = format!("缺失程序{}", index + 1);
+            item.launch.path = directory
+                .0
+                .join(format!("missing-{index}.exe"))
+                .to_string_lossy()
+                .into_owned();
+            item.launch.delay_seconds = 0;
+        }
+        let command = state.library_mut().find_item_mut(&command_id).unwrap();
+        command.item_type = ItemKind::Command;
+        command.launch.confirm_on_first_run = true;
+        state
+            .library_mut()
+            .add_combination("失败反馈回归", ids.clone());
+        state
+            .library_mut()
+            .add_combination("跳过与失败", vec![ids[0].clone(), command_id]);
+    }
+    controller.borrow().persist().unwrap();
+    ui.set_combination_dialog_visible(true);
+    ui.invoke_combination_launch_requested(0);
+    let status = ui.get_combination_dialog_status().to_string();
+    assert!(status.contains("0/2 个项目已启动"), "{status}");
+    assert!(status.contains("2 个失败"), "{status}");
+    assert!(
+        status.contains("缺失程序1") && status.contains("缺失程序2"),
+        "{status}"
+    );
+    assert!(ui.get_combination_dialog_error());
+
+    ui.invoke_combination_launch_requested(1);
+    let status = ui.get_combination_dialog_status().to_string();
+    assert!(status.contains("1 个失败"), "{status}");
+    assert!(status.contains("跳过 1 个未确认命令"), "{status}");
+    for id in ids {
+        assert_eq!(controller.borrow().item(&id).unwrap().launch_count, 0);
+    }
+    assert!(!directory.0.join("missing-0.exe").exists());
+    assert!(!directory.0.join("missing-1.exe").exists());
+    ui.hide().unwrap();
+}
+
+#[test]
+fn batch_launch_includes_hidden_categories_in_its_results() {
+    use quicknest::library_model::{Item, ItemKind, new_uuid};
+    let (ui, controller, directory) = ui_fixture();
+    let first_id = controller.borrow().item_rows()[0].id.clone();
+    {
+        let mut state = controller.borrow_mut();
+        let first = state.library_mut().find_item_mut(&first_id).unwrap();
+        first.item_type = ItemKind::Exe;
+        first.launch.path = directory
+            .0
+            .join("missing-first.exe")
+            .to_string_lossy()
+            .into_owned();
+        state.toggle_batch_selection(&first_id);
+    }
+    let category = controller
+        .borrow_mut()
+        .add_category("Other selected category")
+        .unwrap();
+    controller.borrow_mut().select_category(&category);
+    let second_id = new_uuid();
+    let second = Item::new(
+        &second_id,
+        "Second missing target",
+        ItemKind::Exe,
+        directory.0.join("missing-second.exe").to_string_lossy(),
+    );
+    controller
+        .borrow_mut()
+        .library_mut()
+        .active_category_mut()
+        .unwrap()
+        .items
+        .push(second);
+    controller.borrow_mut().toggle_batch_selection(&second_id);
+    refresh_ui(&controller, &ui.as_weak());
+    assert_eq!(controller.borrow().batch_selection_ids().len(), 2);
+    ui.invoke_item_menu_batch_launch();
+    let status = ui.get_validation_status().to_string();
+    assert!(status.contains("0/2 个项目已启动"), "{status}");
+    assert!(status.contains("2 个失败"), "{status}");
+    assert!(controller.borrow().batch_selection_ids().is_empty());
+    assert_eq!(controller.borrow().item(&first_id).unwrap().launch_count, 0);
+    assert_eq!(
+        controller.borrow().item(&second_id).unwrap().launch_count,
+        0
+    );
+    ui.hide().unwrap();
+}
+
+#[cfg(windows)]
+#[test]
+fn combination_delete_reports_commit_failure_and_retains_selection() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::FILE_SHARE_READ;
+    let (ui, controller, directory) = ui_fixture();
+    let item_id = controller.borrow().item_rows()[0].id.clone();
+    controller
+        .borrow_mut()
+        .library_mut()
+        .add_combination("Keep on failure", vec![item_id]);
+    controller.borrow().persist().unwrap();
+    ui.set_combination_dialog_items(ModelRc::new(VecModel::from(vec![
+        "Keep on failure（1 项）".into(),
+    ])));
+    ui.set_combination_dialog_selected_index(0);
+    ui.set_combination_dialog_selected("Keep on failure".into());
+    let config = directory.0.join("config.json");
+    let before = std::fs::read(&config).unwrap();
+    let lock = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&config)
+        .unwrap();
+    ui.invoke_combination_delete_requested(0);
+    assert!(ui.get_combination_dialog_error());
+    assert!(ui.get_combination_dialog_status().starts_with("删除失败"));
+    assert_eq!(controller.borrow().combination_rows().len(), 1);
+    assert_eq!(ui.get_combination_dialog_selected_index(), 0);
+    assert_eq!(ui.get_combination_dialog_items().row_count(), 1);
+    assert_eq!(std::fs::read(&config).unwrap(), before);
+    drop(lock);
+    ui.invoke_combination_delete_requested(0);
+    assert!(!ui.get_combination_dialog_error());
+    assert!(ui.get_combination_dialog_status().starts_with("已删除组合"));
+    assert!(controller.borrow().combination_rows().is_empty());
+    assert_eq!(ui.get_combination_dialog_selected_index(), -1);
+    assert_eq!(ui.get_combination_dialog_items().row_count(), 0);
+    ui.hide().unwrap();
+}
+
+#[test]
+fn restore_and_overwrite_import_reapply_pinning_appearance_and_blur_policy() {
+    use quicknest::config_transfer::ImportMode;
+    use quicknest::window_state::{BlurObservation, BlurRecheck, FocusStateMachine};
+    let (ui, controller, directory) = ui_fixture();
+    let machine = Rc::new(RefCell::new(FocusStateMachine::new()));
+    machine.borrow_mut().show().unwrap();
+    machine.borrow_mut().set_foreground_hint(false);
+    {
+        let mut state = controller.borrow_mut();
+        let settings = &mut state.library_mut().settings;
+        settings.pinned = true;
+        settings.theme = "light".into();
+        settings.auto_hide_on_blur = true;
+    }
+    controller.borrow().persist().unwrap();
+    apply_runtime_settings(&ui, &controller, &machine);
+    assert!(machine.borrow().is_pinned());
+    assert!(ui.get_pin_toggled());
+    let light = ui.get_theme().window;
+    let mut restored = controller.borrow().library().clone();
+    restored.settings.pinned = false;
+    restored.settings.theme = "dark".into();
+    restored.settings.opacity = 0.7;
+    restored.settings.rounded_corners = false;
+    restored.settings.backdrop = "mica".into();
+    restored.settings.auto_hide_on_blur = false;
+    restored.settings.hot_zone_enabled = true;
+    restored.settings.hotkey = "Ctrl+Alt+F9".into();
+    let backup = directory.0.join("settings-backup.json");
+    std::fs::write(&backup, serde_json::to_string_pretty(&restored).unwrap()).unwrap();
+    let message = restore_configuration_from_path(&ui, &controller, &machine, &backup).unwrap();
+    assert!(message.contains("快捷键变更需重启"));
+    assert!(!machine.borrow().is_pinned());
+    assert!(!ui.get_pin_toggled());
+    assert_eq!(ui.get_theme_mode(), "dark");
+    assert_ne!(ui.get_theme().window, light);
+    assert_eq!(ui.get_opacity_value(), "0.70");
+    assert!(!ui.get_corners_on());
+    assert_eq!(ui.get_backdrop_value(), "mica");
+    assert_eq!(machine.borrow().observe_blur(), BlurObservation::Ignore);
+    assert_eq!(
+        machine.borrow().evaluate_blur_recheck(false),
+        BlurRecheck::Stay
+    );
+
+    restored.settings.theme = "light".into();
+    restored.settings.auto_hide_on_blur = true;
+    let import_path = directory.0.join("settings-import.json");
+    std::fs::write(
+        &import_path,
+        serde_json::to_string_pretty(&restored).unwrap(),
+    )
+    .unwrap();
+    import_configuration_from_path(
+        &ui,
+        &controller,
+        &machine,
+        &import_path,
+        ImportMode::Overwrite,
+    )
+    .unwrap();
+    assert_eq!(ui.get_theme_mode(), "light");
+    assert_eq!(ui.get_theme().window, light);
+    assert!(!machine.borrow().is_pinned());
+    assert_eq!(
+        machine.borrow().evaluate_blur_recheck(false),
+        BlurRecheck::Hide
+    );
+    let theme = ui.get_theme().window;
+    let invalid = directory.0.join("invalid-import.json");
+    std::fs::write(&invalid, "{broken").unwrap();
+    assert!(
+        import_configuration_from_path(&ui, &controller, &machine, &invalid, ImportMode::Overwrite)
+            .is_err()
+    );
+    assert_eq!(ui.get_theme().window, theme);
+    assert!(!machine.borrow().is_pinned());
     ui.hide().unwrap();
 }
 

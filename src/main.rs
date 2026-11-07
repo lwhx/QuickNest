@@ -1105,6 +1105,223 @@ fn register_transfer_open_callback(ui: &MainWindow) {
     });
 }
 
+fn register_batch_launch_callback(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+) {
+    let weak = ui.as_weak();
+    let controller = Rc::clone(controller);
+    ui.on_item_menu_batch_launch(move || {
+        let Some(ui) = weak.upgrade() else { return };
+        let ordered = controller.borrow().ordered_batch_selection_ids();
+        if ordered.is_empty() {
+            ui.set_validation_status("未选择项目".into());
+            return;
+        }
+        let total = ordered.len();
+        let mut started = 0_usize;
+        let mut delayed = 0_usize;
+        let mut failed = 0_usize;
+        let mut skipped = 0_usize;
+        for item_id in &ordered {
+            let unverified = controller.borrow().item(item_id).is_some_and(|item| {
+                item.item_type == quicknest::library_model::ItemKind::Command
+                    && item.launch.confirm_on_first_run
+            });
+            if unverified {
+                skipped += 1;
+                continue;
+            }
+            let (launched, delay) = launch_item_maybe_delayed(&controller, item_id, false);
+            if launched {
+                if delay > 0 {
+                    delayed += 1;
+                } else {
+                    started += 1;
+                    controller.borrow_mut().record_launch(item_id);
+                }
+            } else {
+                failed += 1;
+            }
+        }
+        controller.borrow_mut().clear_batch_selection();
+        ui.set_batch_count(0);
+        ui.set_batch_launch_title("批量启动所选".into());
+        refresh_ui(&controller, &weak);
+        let mut message = format!("批量启动：{started}/{total} 个项目已启动");
+        if delayed > 0 {
+            message.push_str(&format!("，{delayed} 个已排队等待启动"));
+        }
+        if skipped > 0 {
+            message.push_str(&format!("，跳过 {skipped} 个未确认命令"));
+        }
+        if failed > 0 {
+            message.push_str(&format!("（{failed} 个失败）"));
+        }
+        ui.set_validation_status(message.into());
+    });
+}
+
+fn register_combination_launch_callback(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+) {
+    let weak = ui.as_weak();
+    let controller = Rc::clone(controller);
+    ui.on_combination_launch_requested(move |index: i32| {
+        let Some(ui) = weak.upgrade() else { return };
+        let rows = controller.borrow().combination_rows();
+        let Some((id, name, _)) = usize::try_from(index)
+            .ok()
+            .and_then(|index| rows.get(index))
+        else {
+            return;
+        };
+        let Some(item_ids) = controller.borrow().combination_item_ids(id) else {
+            return;
+        };
+        let total = item_ids.len();
+        if total == 0 {
+            ui.set_combination_dialog_status(format!("组合“{name}”中没有可启动的项目").into());
+            ui.set_combination_dialog_error(true);
+            return;
+        }
+        let mut started = 0_usize;
+        let mut delayed = 0_usize;
+        let mut failures = Vec::new();
+        let mut skipped = 0_usize;
+        for item_id in &item_ids {
+            let item = controller.borrow().item(item_id);
+            if item.as_ref().is_some_and(|item| {
+                item.item_type == quicknest::library_model::ItemKind::Command
+                    && item.launch.confirm_on_first_run
+            }) {
+                skipped += 1;
+                continue;
+            }
+            let (launched, delay) = launch_item_maybe_delayed(&controller, item_id, false);
+            if launched {
+                if delay > 0 {
+                    delayed += 1;
+                } else {
+                    started += 1;
+                    controller.borrow_mut().record_launch(item_id);
+                }
+            } else {
+                failures.push(
+                    item.map(|item| item.name)
+                        .unwrap_or_else(|| item_id.clone()),
+                );
+            }
+        }
+        refresh_ui(&controller, &weak);
+        let mut summary = format!("组合“{name}”：{started}/{total} 个项目已启动");
+        if delayed > 0 {
+            summary.push_str(&format!("，{delayed} 个已排队等待启动"));
+        }
+        if skipped > 0 {
+            summary.push_str(&format!("，跳过 {skipped} 个未确认命令"));
+        }
+        if !failures.is_empty() {
+            summary.push_str(&format!(
+                "（{} 个失败：{}）",
+                failures.len(),
+                failures.join("、")
+            ));
+        }
+        ui.set_combination_dialog_status(summary.into());
+        ui.set_combination_dialog_error(!failures.is_empty());
+    });
+}
+
+fn register_combination_delete_callback(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+) {
+    let weak = ui.as_weak();
+    let controller = Rc::clone(controller);
+    ui.on_combination_delete_requested(move |index: i32| {
+        let Some(ui) = weak.upgrade() else { return };
+        let rows = controller.borrow().combination_rows();
+        let Some((id, name, _)) = usize::try_from(index)
+            .ok()
+            .and_then(|index| rows.get(index))
+        else {
+            return;
+        };
+        let result = controller.borrow_mut().delete_combination(id);
+        match result {
+            Ok(()) => {
+                let labels: Vec<slint::SharedString> = controller
+                    .borrow()
+                    .combination_rows()
+                    .iter()
+                    .map(|(_, name, count)| format!("{name}（{count} 项）").into())
+                    .collect();
+                ui.set_combination_dialog_items(ModelRc::new(VecModel::from(labels)));
+                ui.set_combination_dialog_selected_index(-1);
+                ui.set_combination_dialog_selected("".into());
+                ui.set_combination_dialog_status(format!("已删除组合“{name}”").into());
+                ui.set_combination_dialog_error(false);
+            }
+            Err(error) => {
+                ui.set_combination_dialog_status(format!("删除失败：{error}").into());
+                ui.set_combination_dialog_error(true);
+            }
+        }
+    });
+}
+
+fn apply_runtime_settings(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    machine: &SharedFocusMachine,
+) {
+    let settings = controller.borrow().library().settings.clone();
+    {
+        let mut machine = machine.borrow_mut();
+        machine.set_pinned(settings.pinned);
+        machine.set_auto_hide_on_blur(settings.auto_hide_on_blur);
+    }
+    ui.set_pin_toggled(settings.pinned);
+    apply_theme(ui, controller);
+    refresh_ui(controller, &ui.as_weak());
+}
+
+fn restore_configuration_from_path(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    machine: &SharedFocusMachine,
+    path: &std::path::Path,
+) -> Result<String, String> {
+    let old_hotkey = controller.borrow().library().settings.hotkey.clone();
+    let result = controller.borrow_mut().restore_backup(path);
+    let mut message = result?;
+    apply_runtime_settings(ui, controller, machine);
+    if old_hotkey != controller.borrow().library().settings.hotkey {
+        message.push_str("；快捷键变更需重启后生效");
+    }
+    Ok(message)
+}
+
+fn import_configuration_from_path(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    machine: &SharedFocusMachine,
+    path: &std::path::Path,
+    mode: quicknest::config_transfer::ImportMode,
+) -> Result<String, String> {
+    let old_hotkey = controller.borrow().library().settings.hotkey.clone();
+    let result = controller.borrow_mut().import_from(path, mode);
+    let report = result?;
+    apply_runtime_settings(ui, controller, machine);
+    let mut message = format!("{}：{}", report.summary(), path.display());
+    if old_hotkey != controller.borrow().library().settings.hotkey {
+        message.push_str("；快捷键变更需重启后生效");
+    }
+    Ok(message)
+}
+
 fn show_update_confirmation(ui: &MainWindow) {
     ui.set_settings_panel_visible(false);
     ui.set_update_confirm_visible(true);
@@ -1631,9 +1848,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let tray_menu_suppression: Rc<RefCell<Option<quicknest::window_state::SuppressionToken>>> =
         Rc::new(RefCell::new(None));
     {
-        let pinned = controller.borrow().library().settings.pinned;
-        focus_machine.borrow_mut().set_pinned(pinned);
-        ui.set_pin_toggled(pinned);
+        let settings = controller.borrow().library().settings.clone();
+        focus_machine.borrow_mut().set_pinned(settings.pinned);
+        focus_machine
+            .borrow_mut()
+            .set_auto_hide_on_blur(settings.auto_hide_on_blur);
+        ui.set_pin_toggled(settings.pinned);
     }
     // P2-12: apply the persisted theme before the first paint.
     apply_theme(&ui, &controller);
@@ -2789,72 +3009,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     });
                 });
             }
-            // P3-01: start every selected item, in grid order.
-            {
-                let weak = weak.clone();
-                let controller = Rc::clone(&controller);
-                ui.on_item_menu_batch_launch(move || {
-                    let Some(ui) = weak.upgrade() else {
-                        return;
-                    };
-                    let selected = controller.borrow().batch_selection_ids();
-                    if selected.is_empty() {
-                        ui.set_validation_status("未选择项目".into());
-                        return;
-                    }
-                    // Grid order, so the batch follows the visible layout.
-                    let mut ordered: Vec<String> = Vec::new();
-                    for row in controller.borrow().item_rows() {
-                        if selected.iter().any(|id| id == &row.id) {
-                            ordered.push(row.id);
-                        }
-                    }
-                    let total = ordered.len();
-                    let mut started = 0_usize;
-                    let mut delayed = 0_usize;
-                    let mut failed = 0_usize;
-                    let mut skipped = 0_usize;
-                    for item_id in &ordered {
-                        // P3-08 (baseline 8.3/8.4): unverified command items
-                        // never run silently inside a batch; skip and report.
-                        let unverified = controller.borrow().item(item_id).is_some_and(|item| {
-                            item.item_type == quicknest::library_model::ItemKind::Command
-                                && item.launch.confirm_on_first_run
-                        });
-                        if unverified {
-                            skipped += 1;
-                            continue;
-                        }
-                        let (launched, delay) =
-                            launch_item_maybe_delayed(&controller, item_id, false);
-                        if launched {
-                            if delay > 0 {
-                                delayed += 1;
-                            } else {
-                                started += 1;
-                                controller.borrow_mut().record_launch(item_id);
-                            }
-                        } else {
-                            failed += 1;
-                        }
-                    }
-                    controller.borrow_mut().clear_batch_selection();
-                    ui.set_batch_count(0);
-                    ui.set_batch_launch_title("批量启动所选".into());
-                    refresh_ui(&controller, &weak);
-                    let mut message = format!("批量启动：{started}/{total} 个项目已启动");
-                    if delayed > 0 {
-                        message.push_str(&format!("，{delayed} 个已排队等待启动"));
-                    }
-                    if skipped > 0 {
-                        message.push_str(&format!("，跳过 {skipped} 个未确认命令"));
-                    }
-                    if failed > 0 {
-                        message.push_str(&format!("（{failed} 个失败）"));
-                    }
-                    ui.set_validation_status(message.into());
-                });
-            }
+            register_batch_launch_callback(&ui, &controller);
             ui.on_item_menu_duplicate(move |item_id: slint::SharedString| {
                 controller.borrow_mut().duplicate_item(item_id.as_ref());
                 refresh_ui(&controller, &weak);
@@ -3935,6 +4090,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
             let paths = Rc::clone(&backup_paths);
+            let machine = Rc::clone(&focus_machine);
             ui.on_backup_restore_requested(move |index: i32| {
                 let Some(ui) = weak.upgrade() else {
                     return;
@@ -3947,11 +4103,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     ui.set_backup_dialog_error(true);
                     return;
                 };
-                let result = controller.borrow_mut().restore_backup(&path);
+                let result = restore_configuration_from_path(&ui, &controller, &machine, &path);
                 match result {
                     Ok(message) => {
-                        // Show the restored library right away.
-                        refresh_ui(&controller, &weak);
                         let entries = controller.borrow().backup_entries();
                         let labels: Vec<slint::SharedString> = entries
                             .iter()
@@ -3989,6 +4143,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         fn import_configuration(
             weak: &slint::Weak<MainWindow>,
             controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+            machine: &SharedFocusMachine,
             mode: quicknest::config_transfer::ImportMode,
         ) {
             let Some(ui) = weak.upgrade() else {
@@ -4000,13 +4155,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 ui.set_transfer_dialog_error(false);
                 return;
             };
-            let result = controller.borrow_mut().import_from(&path, mode);
+            let result = import_configuration_from_path(&ui, controller, machine, &path, mode);
             match result {
-                Ok(report) => {
-                    refresh_ui(controller, weak);
-                    ui.set_transfer_dialog_status(
-                        format!("{}：{}", report.summary(), path.display()).into(),
-                    );
+                Ok(message) => {
+                    ui.set_transfer_dialog_status(message.into());
                     ui.set_transfer_dialog_error(false);
                 }
                 Err(error) => {
@@ -4090,10 +4242,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
+            let machine = Rc::clone(&focus_machine);
             ui.on_transfer_merge_import(move || {
                 import_configuration(
                     &weak,
                     &controller,
+                    &machine,
                     quicknest::config_transfer::ImportMode::Merge,
                 );
             });
@@ -4101,10 +4255,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
+            let machine = Rc::clone(&focus_machine);
             ui.on_transfer_overwrite_import(move || {
                 import_configuration(
                     &weak,
                     &controller,
+                    &machine,
                     quicknest::config_transfer::ImportMode::Overwrite,
                 );
             });
@@ -4315,97 +4471,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             });
         }
-        {
-            let weak = ui.as_weak();
-            let controller = Rc::clone(&controller);
-            ui.on_combination_launch_requested(move |index: i32| {
-                let Some(ui) = weak.upgrade() else {
-                    return;
-                };
-                let rows = controller.borrow().combination_rows();
-                let Some((_id, name, _count)) = usize::try_from(index)
-                    .ok()
-                    .and_then(|index| rows.get(index))
-                else {
-                    return;
-                };
-                let name = name.clone();
-                let Some(item_ids) = controller.borrow().combination_item_ids(_id) else {
-                    return;
-                };
-                let total = item_ids.len();
-                if total == 0 {
-                    ui.set_combination_dialog_status(
-                        format!("组合“{name}”中没有可启动的项目").into(),
-                    );
-                    ui.set_combination_dialog_error(true);
-                    return;
-                }
-                let mut started = 0_usize;
-                let mut delayed = 0_usize;
-                let mut failed = 0_usize;
-                let mut skipped = 0_usize;
-                for item_id in &item_ids {
-                    // P3-08 (baseline 8.3/8.4): unverified command items are
-                    // skipped and reported, never run silently.
-                    let unverified = controller.borrow().item(item_id).is_some_and(|item| {
-                        item.item_type == quicknest::library_model::ItemKind::Command
-                            && item.launch.confirm_on_first_run
-                    });
-                    if unverified {
-                        skipped += 1;
-                        continue;
-                    }
-                    let (launched, delay) = launch_item_maybe_delayed(&controller, item_id, false);
-                    if launched {
-                        if delay > 0 {
-                            delayed += 1;
-                        } else {
-                            started += 1;
-                            controller.borrow_mut().record_launch(item_id);
-                        }
-                    } else {
-                        failed += 1;
-                    }
-                }
-                refresh_ui(&controller, &weak);
-                let mut summary = format!("组合“{name}”：{started}/{total} 个项目已启动");
-                if delayed > 0 {
-                    summary.push_str(&format!("，{delayed} 个延时启动"));
-                }
-                if skipped > 0 {
-                    summary.push_str(&format!("，跳过 {skipped} 个未确认命令"));
-                }
-                ui.set_combination_dialog_status(summary.into());
-                ui.set_combination_dialog_error(failed > 0);
-            });
-        }
-        {
-            let weak = ui.as_weak();
-            let controller = Rc::clone(&controller);
-            ui.on_combination_delete_requested(move |index: i32| {
-                let Some(ui) = weak.upgrade() else {
-                    return;
-                };
-                let rows = controller.borrow().combination_rows();
-                let Some((id, name, _)) = usize::try_from(index)
-                    .ok()
-                    .and_then(|index| rows.get(index))
-                else {
-                    return;
-                };
-                let name = name.clone();
-                let _ = controller.borrow_mut().delete_combination(id);
-                let rows = controller.borrow().combination_rows();
-                let labels: Vec<slint::SharedString> = rows
-                    .iter()
-                    .map(|(_id, name, count)| format!("{name}（{count} 项）").into())
-                    .collect();
-                ui.set_combination_dialog_items(ModelRc::new(VecModel::from(labels)));
-                ui.set_combination_dialog_status(format!("已删除组合“{name}”").into());
-                ui.set_combination_dialog_error(false);
-            });
-        }
+        register_combination_launch_callback(&ui, &controller);
+        register_combination_delete_callback(&ui, &controller);
         {
             let weak = ui.as_weak();
             ui.on_combination_dialog_cancelled(move || {
@@ -4523,71 +4590,73 @@ fn main() -> Result<(), Box<dyn Error>> {
     // to leave the edge before the next trigger, so a parked cursor cannot
     // oscillate the panel.
     if mode == RunMode::Interactive {
-        let hot_zone_enabled = controller.borrow().library().settings.hot_zone_enabled;
-        if hot_zone_enabled {
-            let weak = ui.as_weak();
-            let machine = Rc::clone(&focus_machine);
-            let controller = Rc::clone(&controller);
-            let at_edge_since: Rc<RefCell<Option<Instant>>> = Rc::new(RefCell::new(None));
-            let triggered: Rc<Cell<bool>> = Rc::new(Cell::new(false));
-            let timer = Timer::default();
-            timer.start(TimerMode::Repeated, Duration::from_millis(200), move || {
-                let Some(ui) = weak.upgrade() else {
-                    return;
-                };
-                let (enabled, edge) = {
-                    let library = controller.borrow();
-                    let enabled = library.library().settings.hot_zone_enabled;
-                    // normalize returns a &'static str, so it outlives the borrow.
-                    let edge = quicknest::library_model::normalize_hot_zone_edge(
-                        &library.library().settings.hot_zone_edge,
-                    );
-                    (enabled, edge)
-                };
-                if !enabled {
-                    return;
-                }
-                let Some((x, y)) = quicknest::infrastructure::windows::launch::cursor_position()
-                else {
-                    return;
-                };
-                let Some(bounds) = quicknest::infrastructure::windows::placement::primary_bounds()
-                else {
-                    return;
-                };
-                // A few pixels inside the edge count as "on the edge".
-                const EDGE_BAND: i32 = 2;
-                let at_edge = match edge {
-                    "right" => x >= bounds.right - EDGE_BAND,
-                    "top" => y <= bounds.top + EDGE_BAND,
-                    "bottom" => y >= bounds.bottom - EDGE_BAND,
-                    _ => x <= bounds.left + EDGE_BAND,
-                };
-                let mut dwell = at_edge_since.borrow_mut();
-                if !at_edge {
-                    *dwell = None;
-                    triggered.set(false);
-                    return;
-                }
-                let Some(since) = *dwell else {
-                    *dwell = Some(Instant::now());
-                    return;
-                };
-                if triggered.get() || since.elapsed() < Duration::from_millis(600) {
-                    return;
-                }
-                // Dwell satisfied: toggle the panel once for this visit.
-                triggered.set(true);
-                let visible =
-                    machine.borrow().state() == quicknest::window_state::PanelState::Visible;
-                if visible {
-                    hide_panel(&ui, &machine);
-                } else {
-                    show_panel(&ui, &machine);
-                }
-            });
-            _hot_zone_timer_keepalive = Some(timer);
-        }
+        let weak = ui.as_weak();
+        let machine = Rc::clone(&focus_machine);
+        let controller = Rc::clone(&controller);
+        let at_edge_since: Rc<RefCell<Option<Instant>>> = Rc::new(RefCell::new(None));
+        let triggered: Rc<Cell<bool>> = Rc::new(Cell::new(false));
+        let previous_edge = Cell::new(None::<&'static str>);
+        let timer = Timer::default();
+        timer.start(TimerMode::Repeated, Duration::from_millis(200), move || {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let (enabled, edge) = {
+                let library = controller.borrow();
+                let enabled = library.library().settings.hot_zone_enabled;
+                // normalize returns a &'static str, so it outlives the borrow.
+                let edge = quicknest::library_model::normalize_hot_zone_edge(
+                    &library.library().settings.hot_zone_edge,
+                );
+                (enabled, edge)
+            };
+            if !enabled {
+                at_edge_since.borrow_mut().take();
+                triggered.set(false);
+                return;
+            }
+            if previous_edge.replace(Some(edge)) != Some(edge) {
+                at_edge_since.borrow_mut().take();
+                triggered.set(false);
+            }
+            let Some((x, y)) = quicknest::infrastructure::windows::launch::cursor_position() else {
+                return;
+            };
+            let Some(bounds) = quicknest::infrastructure::windows::placement::primary_bounds()
+            else {
+                return;
+            };
+            // A few pixels inside the edge count as "on the edge".
+            const EDGE_BAND: i32 = 2;
+            let at_edge = match edge {
+                "right" => x >= bounds.right - EDGE_BAND,
+                "top" => y <= bounds.top + EDGE_BAND,
+                "bottom" => y >= bounds.bottom - EDGE_BAND,
+                _ => x <= bounds.left + EDGE_BAND,
+            };
+            let mut dwell = at_edge_since.borrow_mut();
+            if !at_edge {
+                *dwell = None;
+                triggered.set(false);
+                return;
+            }
+            let Some(since) = *dwell else {
+                *dwell = Some(Instant::now());
+                return;
+            };
+            if triggered.get() || since.elapsed() < Duration::from_millis(600) {
+                return;
+            }
+            // Dwell satisfied: toggle the panel once for this visit.
+            triggered.set(true);
+            let visible = machine.borrow().state() == quicknest::window_state::PanelState::Visible;
+            if visible {
+                hide_panel(&ui, &machine);
+            } else {
+                show_panel(&ui, &machine);
+            }
+        });
+        _hot_zone_timer_keepalive = Some(timer);
     }
     // P1-18: blur/auto-hide polling (baseline 10.3). Runs only in interactive
     // mode; validation modes keep their deterministic show/hide scripts.
@@ -4595,6 +4664,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _ = focus_machine.borrow_mut().show();
         let machine = Rc::clone(&focus_machine);
         let dialogs = Rc::clone(&dialog_suppression);
+        let controller = Rc::clone(&controller);
         let weak = ui.as_weak();
         let pending: Rc<RefCell<Option<Instant>>> = Rc::new(RefCell::new(None));
         let hwnd_slot: Rc<Cell<isize>> = Rc::new(Cell::new(0));
@@ -4626,6 +4696,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 } else {
                     token.take();
                 }
+            }
+            let auto_hide = controller.borrow().library().settings.auto_hide_on_blur;
+            machine.borrow_mut().set_auto_hide_on_blur(auto_hide);
+            if !auto_hide {
+                *pending.borrow_mut() = None;
+                return;
             }
             let hwnd = if hwnd_slot.get() == 0 {
                 match quicknest::infrastructure::windows::window_handle::inspect_window(ui.window())

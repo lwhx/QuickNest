@@ -1,0 +1,16 @@
+   Compiling quicknest v1.2.0 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.91s
+     Running unittests src\main.rs (target\debug\deps\quicknest-7c1a0fff506a215a.exe)
+
+running 8 tests
+test ui_regression_tests::appearance_callbacks_immediately_sync_selection_and_report_save_failure ... ok
+test ui_regression_tests::batch_launch_includes_hidden_categories_in_its_results ... ok
+test ui_regression_tests::combination_delete_reports_commit_failure_and_retains_selection ... ok
+test ui_regression_tests::combination_failures_name_items_without_counting_them_as_started ... ok
+test ui_regression_tests::deleting_empty_category_needs_no_confirmation ... ok
+test ui_regression_tests::deleting_nonempty_category_prepares_confirmation_without_nested_borrow ... ok
+test ui_regression_tests::restore_and_overwrite_import_reapply_pinning_appearance_and_blur_policy ... ok
+test ui_regression_tests::settings_close_buttons_and_child_dialogs_change_real_visibility ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.42s
+

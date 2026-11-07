@@ -2002,11 +2002,15 @@ export component MainWindow inherits Window {
                         font-size: 12px;
                     }
                 }
-                Text {
-                    text: root.combination-dialog-status;
-                    color: root.combination-dialog-error ? root.theme.danger : root.theme.secondary;
-                    font-size: 12px;
-                    height: 16px;
+                ScrollView {
+                    height: root.combination-dialog-status == "" ? 16px : 64px;
+                    Text {
+                        width: parent.width;
+                        text: root.combination-dialog-status;
+                        color: root.combination-dialog-error ? root.theme.danger : root.theme.secondary;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
                 }
                 HorizontalLayout {
                     spacing: 10px;
