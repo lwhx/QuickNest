@@ -277,13 +277,16 @@ impl Item {
         resolved
     }
 
-    /// 卡片规范 V1.0 §2: the default artwork used when the item has no
-    /// native icon — URLs get the browser artwork, commands the terminal
-    /// artwork, everything else the application artwork.
+    /// 卡片规范 V1.0 §2 + UI 体验修复（2026-11-07 第三批）: the default
+    /// artwork used when the item has no native icon — URLs get the browser
+    /// artwork, commands the terminal artwork, folders/files their own
+    /// dedicated artwork, everything else the application artwork.
     pub fn default_artwork(&self) -> &'static str {
         match self.item_type {
             ItemKind::Uri => "browser",
             ItemKind::Command => "terminal",
+            ItemKind::Folder => "folder",
+            ItemKind::File => "file",
             _ => "app",
         }
     }
@@ -2762,7 +2765,9 @@ mod card_ui_tests {
         );
         assert_eq!(command.default_artwork(), "terminal");
         let folder = Item::new("i4", "目录", ItemKind::Folder, "C:/Windows");
-        assert_eq!(folder.default_artwork(), "app");
+        assert_eq!(folder.default_artwork(), "folder");
+        let file = Item::new("i5", "文档", ItemKind::File, "C:/Windows/hosts");
+        assert_eq!(file.default_artwork(), "file");
     }
 
     // 卡片规范 V1.0 §5: the badge reason names the concrete cause; healthy

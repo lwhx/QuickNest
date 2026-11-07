@@ -52,14 +52,33 @@ pub fn hit_test(
     groups: &[GroupRow],
     categories: &[CategoryRow],
 ) -> DropZone {
-    hit_test_scrolled(x, y, width, height, groups, categories, 0.0)
+    hit_test_scrolled(x, y, width, height, groups, categories, ScrollOffsets::ZERO)
 }
 
-/// As `hit_test`, with the sidebar's scroll offset in logical pixels.
-/// Positive means scrolling down: content moves up, so the offset is added to
-/// the pointer's viewport y. A negative value represents overscroll above the
-/// first row; it is never interpreted as scrolling down. Slint exposes the
-/// opposite sign as `ScrollView.content-y`; pass `-content_y / 1px` here.
+/// Scroll offsets for [`hit_test_scrolled`], in logical pixels.
+///
+/// Positive `category_y` means scrolling down: content moves up, so the
+/// offset is added to the pointer's viewport y. A negative value represents
+/// overscroll above the first row; it is never interpreted as scrolling down.
+/// Slint exposes the opposite sign as `ScrollView.content-y`; pass
+/// `-content_y / 1px` here. `group_x` follows the same convention for the
+/// top group tabs (positive = scrolled right, content moved left). UI 体验
+/// 修复（2026-11-07 第三批）：分组栏支持横向滚动后，拖放命中必须补偿滚动
+/// 偏移。
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ScrollOffsets {
+    pub group_x: f32,
+    pub category_y: f32,
+}
+
+impl ScrollOffsets {
+    pub const ZERO: Self = Self {
+        group_x: 0.0,
+        category_y: 0.0,
+    };
+}
+
+/// As `hit_test`, with both scroll offsets in logical pixels.
 pub fn hit_test_scrolled(
     x: f32,
     y: f32,
@@ -67,12 +86,15 @@ pub fn hit_test_scrolled(
     height: f32,
     groups: &[GroupRow],
     categories: &[CategoryRow],
-    category_scroll_y: f32,
+    offsets: ScrollOffsets,
 ) -> DropZone {
+    let group_scroll_x = offsets.group_x;
+    let category_scroll_y = offsets.category_y;
     if !x.is_finite()
         || !y.is_finite()
         || !width.is_finite()
         || !height.is_finite()
+        || !group_scroll_x.is_finite()
         || x < 0.0
         || y < 0.0
         || x >= width
@@ -93,10 +115,15 @@ pub fn hit_test_scrolled(
         if y < tab_top || y > tab_bottom {
             return DropZone::None;
         }
+        // The pointer is in viewport coordinates: add the scroll offset to
+        // reach content coordinates. A negative offset (overscroll) shifts
+        // the content right, so the gap before the first tab grows and the
+        // point naturally falls into the padding whitespace.
+        let effective_x = x + group_scroll_x;
         let mut left = GROUP_PADDING_LEFT;
         for group in groups {
             let tab_width = group.tab_width.max(0.0);
-            if x >= left && x < left + tab_width {
+            if effective_x >= left && effective_x < left + tab_width {
                 return DropZone::Group(group.id.clone());
             }
             left += tab_width + GROUP_TAB_SPACING;
@@ -219,6 +246,37 @@ mod tests {
         );
     }
 
+    // UI 体验修复（2026-11-07 第三批）：分组栏横向滚动后，拖放命中按
+    // ScrollOffsets.group_x 补偿；负向超滚（内容右移）不把空白当 tab。
+    #[test]
+    fn group_tab_hits_compensate_horizontal_scroll() {
+        let groups = [group("g1", 60.0), group("g2", 40.0)];
+        let hit_at = |x, group_x| {
+            hit_test_scrolled(
+                x,
+                60.0,
+                800.0,
+                600.0,
+                &groups,
+                &[],
+                ScrollOffsets {
+                    group_x,
+                    category_y: 0.0,
+                },
+            )
+        };
+        // 未滚动时 x=30 命中 g1；滚动 90px（内容左移）后同一屏幕位置
+        // 命中 g2（内容坐标 120 落在 g2 的 98..138）。
+        assert_eq!(hit_at(30.0, 0.0), DropZone::Group("g1".into()));
+        assert_eq!(hit_at(30.0, 90.0), DropZone::Group("g2".into()));
+        // 滚动后视口左侧 0..14 仍是留白，不命中任何 tab。
+        assert_eq!(hit_at(5.0, 90.0), DropZone::None);
+        // 负向超滚只扩大首 tab 前的空白，不产生假命中。
+        assert_eq!(hit_at(30.0, -100.0), DropZone::None);
+        // 非有限偏移整体拒绝。
+        assert_eq!(hit_at(30.0, f32::NAN), DropZone::None);
+    }
+
     #[test]
     fn category_rows_map_to_their_ids_and_clip() {
         let groups = [group("g1", 60.0)];
@@ -262,7 +320,20 @@ mod tests {
     #[test]
     fn scrolled_rows_use_positive_downward_offset_and_preserve_gaps() {
         let categories = [category("c1"), category("c2"), category("c3")];
-        let hit = |y, scroll| hit_test_scrolled(20.0, y, 800.0, 600.0, &[], &categories, scroll);
+        let hit = |y, scroll| {
+            hit_test_scrolled(
+                20.0,
+                y,
+                800.0,
+                600.0,
+                &[],
+                &categories,
+                ScrollOffsets {
+                    group_x: 0.0,
+                    category_y: scroll,
+                },
+            )
+        };
         assert_eq!(hit(94.0, 38.0), DropZone::Category("c2".into()), "one row");
         assert_eq!(hit(94.0, 19.0), DropZone::Category("c1".into()), "half row");
         assert_eq!(hit(111.0, 19.0), DropZone::None, "scrolled 2px gap");
@@ -280,7 +351,20 @@ mod tests {
     #[test]
     fn pill_margins_corners_scrollbar_and_bottom_gap_are_excluded() {
         let categories: Vec<_> = (0..30).map(|i| category(&format!("c{i}"))).collect();
-        let hit = |x, y, scroll| hit_test_scrolled(x, y, 800.0, 600.0, &[], &categories, scroll);
+        let hit = |x, y, scroll| {
+            hit_test_scrolled(
+                x,
+                y,
+                800.0,
+                600.0,
+                &[],
+                &categories,
+                ScrollOffsets {
+                    group_x: 0.0,
+                    category_y: scroll,
+                },
+            )
+        };
         for x in [0.0, 5.9, 140.0, 145.0, 146.0, 159.0] {
             assert_eq!(hit(x, 110.0, 38.0), DropZone::None, "x={x}");
         }

@@ -1121,8 +1121,10 @@ pub fn sample_library() -> Library {
     library.add_category(&apps, "便携应用", "app-category-2");
     library.add_category(&automation, "脚本", "automation-category-1");
     // P1-04: the sample library needs projects so the grid renders real model
-    // rows. The two files under C:\QuickNest Demo do not exist and exercise
-    // the "path invalid" badge; URI/command rows must never be flagged.
+    // rows. UI 体验修复（2026-11-07 第三批）：文件/文件夹示例改用真实存在的
+    // 系统位置——首次启动全部示例有效可启动，不再出现红色失效角标
+    //（badge 演示可由用户删除目标后自见）。URI/command rows must never be
+    // flagged.
     let demo_items = [
         (
             "应用示例",
@@ -1139,14 +1141,14 @@ pub fn sample_library() -> Library {
         (
             "文件示例",
             ItemKind::File,
-            "C:\\QuickNest Demo\\missing-file.txt",
-            "路径失效示例",
+            "C:\\Windows\\System32\\drivers\\etc\\hosts",
+            "系统文件示例",
         ),
         (
             "文件夹示例",
             ItemKind::Folder,
-            "C:\\QuickNest Demo\\missing-folder",
-            "路径失效示例",
+            "C:\\Windows\\System32",
+            "系统文件夹示例",
         ),
         ("链接示例", ItemKind::Uri, "https://example.com", "网址示例"),
         ("命令示例", ItemKind::Command, "", "自定义命令示例"),
@@ -1658,8 +1660,15 @@ mod tests {
             "notepad.exe exists on the test machine"
         );
         assert!(!rows[1].path_missing, "calc.exe exists on the test machine");
-        assert!(rows[2].path_missing, "the demo file path does not exist");
-        assert!(rows[3].path_missing, "the demo folder path does not exist");
+        // 第三批示例优化：文件/文件夹示例指向真实系统位置，全部有效。
+        assert!(
+            !rows[2].path_missing,
+            "the demo file now points at the real hosts file"
+        );
+        assert!(
+            !rows[3].path_missing,
+            "the demo folder now points at System32"
+        );
         assert!(!rows[4].path_missing, "URIs are never flagged");
         assert!(!rows[5].path_missing, "commands are never flagged");
     }

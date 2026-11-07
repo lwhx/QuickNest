@@ -76,6 +76,44 @@ export struct ThemeColors {
     warning: color,
 }
 
+// UI 体验修复（2026-11-07 第三批）：顶层组件（PillButton 等）共享的窗口
+// 上下文；主题由 Rust 侧 apply_theme 同步。
+export global UiContext {
+    in property <ThemeColors> theme;
+}
+
+// UI 体验修复（2026-11-07 第三批）：设置面板的统一选项按钮——固定高度、
+// hover/选中态，全应用内选项控件共用同一视觉规范。
+component PillButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+    in property <bool> enabled: true;
+    callback clicked();
+    height: 28px;
+    min-width: 56px;
+    border-radius: 6px;
+    background: !root.enabled
+        ? transparent
+        : (root.selected ? UiContext.theme.accent-soft : (pill-hit.has-hover ? UiContext.theme.title-hover : transparent));
+    border-width: 1px;
+    border-color: root.selected ? UiContext.theme.accent : UiContext.theme.border;
+    Text {
+        width: parent.width;
+        height: parent.height;
+        text: root.label;
+        font-size: 12px;
+        color: root.selected ? UiContext.theme.accent : UiContext.theme.muted;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    pill-hit := TouchArea {
+        enabled: root.enabled;
+        width: parent.width;
+        height: parent.height;
+        clicked => { root.clicked(); }
+    }
+}
+
 export component MainWindow inherits Window {
     title: "QuickNest";
     no-frame: true;
@@ -217,8 +255,15 @@ export component MainWindow inherits Window {
     in property <string> icon-size-preset: "medium";
     // 分类删除迁移目标：已排除被删分类，与 Rust 侧 id 列表按索引对应。
     in property <[string]> category-migrate-names;
-    // 底栏“视图”：切换图标三档（small/medium/large，controller 持久化）。
+    // 底栏"视图"：切换图标三档（small/medium/large，controller 持久化）。
     callback view-size-selected(string);
+    // UI 体验修复（2026-11-07 第三批）：分组栏横向滚动（拖放命中补偿），
+    // tabs 总内容宽度由 Rust 侧按 tab_width 汇总提供。
+    out property <float> group-scroll-offset: -group-tabs-scroll.content-x / 1px;
+    in property <float> group-tabs-content-width: 0;
+    callback settings-open-requested();
+    callback settings-panel-closed();
+    in-out property <bool> settings-panel-visible;
     // P1-17: external-drag feedback (baseline 5.6): the hovered group/category
     // id, a grid highlight flag and a status-bar hint.
     in property <string> drop-group-id;
@@ -471,7 +516,7 @@ export component MainWindow inherits Window {
     in property <string> status-prefix: "";
     // Read-only shared gate for background keyboard input and host OLE drops.
     // Search is modal too; add any future modal's visibility to this binding.
-    out property <bool> any-modal-open: root.search-visible || root.dialog-modal-open;
+    out property <bool> any-modal-open: root.search-visible || root.dialog-modal-open || root.settings-panel-visible;
     property <bool> dialog-modal-open: root.category-dialog-visible || root.category-delete-confirm-visible
         || root.group-dialog-visible || root.group-delete-confirm-visible
         || root.backup-dialog-visible || root.transfer-dialog-visible
@@ -520,103 +565,120 @@ export component MainWindow inherits Window {
                 background: root.theme.panel;
                 HorizontalLayout {
                     padding-left: 14px;
-                    padding-right: 14px;
+                    padding-right: 8px;
                     padding-top: 8px;
                     padding-bottom: 8px;
-                    spacing: 24px;
-                    for group[index] in root.groups: group-tab := Rectangle {
-                        width: group.tab-width * 1px;
-                        height: 24px;
-                        background: group.active
-                            ? root.theme.accent-soft
-                            : ((group.id == root.drop-group-id || group.id == root.drag-target-group-id)
-                                ? root.theme.accent-soft
-                                : transparent);
-                        border-radius: 6px;
-                        // P2-11: optional group accent (baseline 2.2).
-                        Rectangle {
-                            x: 4px;
-                            y: parent.height - 3px;
-                            width: parent.width - 8px;
-                            height: 3px;
-                            background: accent_color(group.accent);
-                            border-radius: 1px;
-                            visible: group.accent != "";
-                        }
-                        Text {
-                            x: 4px;
-                            text: group.name;
-                            color: group.active ? root.theme.text : root.theme.muted;
-                            font-weight: group.active ? 600 : 400;
-                            vertical-alignment: center;
-                        }
-                        // 点击切换分组；右键显示分组菜单（基线 2.2/3.5）。
-                        group-menu := ContextMenuArea {
-                            enabled: !root.any-modal-open;
-                            width: parent.width;
-                            height: parent.height;
-                            group-hit := TouchArea {
-                                enabled: !root.any-modal-open;
-                                width: parent.width;
-                                height: parent.height;
-                                clicked => { root.group-selected(group.id); }
-                                pointer-event(event) => {
-                                    if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
-                                        group-menu.show({ x: self.mouse-x, y: self.mouse-y });
+                    spacing: 8px;
+                    // UI 体验修复（2026-11-07 第三批）：分组过多时横向滚动；
+                    // 溢出下拉（▼）保留全部分组的快捷切换。拖放命中在
+                    // drop_layout 中以 group-scroll-offset 补偿。
+                    group-tabs-scroll := Flickable {
+                        width: parent.width - overflow-column.width - parent.spacing;
+                        height: parent.height;
+                        content-width: max(root.group-tabs-content-width * 1px, self.width);
+                        content-height: parent.height;
+                        HorizontalLayout {
+                            spacing: 24px;
+                            for group in root.groups: group-tab := Rectangle {
+                                width: group.tab-width * 1px;
+                                height: 24px;
+                                background: group.active
+                                    ? root.theme.accent-soft
+                                    : ((group.id == root.drop-group-id || group.id == root.drag-target-group-id)
+                                        ? root.theme.accent-soft
+                                        : transparent);
+                                border-radius: 6px;
+                                // P2-11: optional group accent (baseline 2.2).
+                                Rectangle {
+                                    x: 4px;
+                                    y: parent.height - 3px;
+                                    width: parent.width - 8px;
+                                    height: 3px;
+                                    background: accent_color(group.accent);
+                                    border-radius: 1px;
+                                    visible: group.accent != "";
+                                }
+                                Text {
+                                    x: 4px;
+                                    text: group.name;
+                                    color: group.active ? root.theme.text : root.theme.muted;
+                                    font-weight: group.active ? 600 : 400;
+                                    vertical-alignment: center;
+                                }
+                                // 点击切换分组；右键显示分组菜单（基线 2.2/3.5）。
+                                group-menu := ContextMenuArea {
+                                    enabled: !root.any-modal-open;
+                                    width: parent.width;
+                                    height: parent.height;
+                                    group-hit := TouchArea {
+                                        enabled: !root.any-modal-open;
+                                        width: parent.width;
+                                        height: parent.height;
+                                        clicked => { root.group-selected(group.id); }
+                                        pointer-event(event) => {
+                                            if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
+                                                group-menu.show({ x: self.mouse-x, y: self.mouse-y });
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
+                                        MenuItem { title: "重命名分组"; activated => { root.group-menu-rename(group.id); } }
+                                        MenuItem { title: "左移"; activated => { root.group-menu-left(group.id); } }
+                                        MenuItem { title: "右移"; activated => { root.group-menu-right(group.id); } }
+                                        MenuItem { title: "颜色：蓝色"; activated => { root.group-menu-color(group.id, "#2563eb"); } }
+                                        MenuItem { title: "颜色：绿色"; activated => { root.group-menu-color(group.id, "#16a34a"); } }
+                                        MenuItem { title: "颜色：橙色"; activated => { root.group-menu-color(group.id, "#ea580c"); } }
+                                        MenuItem { title: "颜色：紫色"; activated => { root.group-menu-color(group.id, "#7c3aed"); } }
+                                        MenuItem { title: "颜色：默认"; activated => { root.group-menu-color(group.id, ""); } }
+                                        MenuItem { title: "删除分组"; activated => { root.group-menu-delete(group.id); } }
                                     }
                                 }
                             }
-                            Menu {
-                                MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
-                                MenuItem { title: "重命名分组"; activated => { root.group-menu-rename(group.id); } }
-                                MenuItem { title: "左移"; activated => { root.group-menu-left(group.id); } }
-                                MenuItem { title: "右移"; activated => { root.group-menu-right(group.id); } }
-                                MenuItem { title: "颜色：蓝色"; activated => { root.group-menu-color(group.id, "#2563eb"); } }
-                                MenuItem { title: "颜色：绿色"; activated => { root.group-menu-color(group.id, "#16a34a"); } }
-                                MenuItem { title: "颜色：橙色"; activated => { root.group-menu-color(group.id, "#ea580c"); } }
-                                MenuItem { title: "颜色：紫色"; activated => { root.group-menu-color(group.id, "#7c3aed"); } }
-                                MenuItem { title: "颜色：默认"; activated => { root.group-menu-color(group.id, ""); } }
-                                MenuItem { title: "删除分组"; activated => { root.group-menu-delete(group.id); } }
-                            }
                         }
                     }
-                    Rectangle { horizontal-stretch: 1; background: transparent; }
-                    // UI 体验修复（2026-11-07）：▼ 改为真实的分组溢出下拉——
-                    // 旧实现点击却是“新建分组”，与注释承诺的入口不符。
-                    // 分组栏暂无横向滚动，此处提供全部分组的快捷切换。
-                    group-overflow := Rectangle {
+                    overflow-column := Rectangle {
                         width: 28px;
-                        height: 24px;
-                        border-radius: 6px;
-                        background: overflow-hit.has-hover ? root.theme.title-hover : transparent;
-                        Text {
-                            width: parent.width;
-                            height: parent.height;
-                            text: "▼";
-                            font-size: 12px;
-                            color: root.theme.subtle;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                        }
-                        overflow-menu := ContextMenuArea {
-                            enabled: !root.any-modal-open;
-                            width: parent.width;
-                            height: parent.height;
-                            overflow-hit := TouchArea {
+                        height: parent.height;
+                        background: transparent;
+                        // UI 体验修复（2026-11-07）：▼ 改为真实的分组溢出下拉——
+                        // 旧实现点击却是"新建分组"，与注释承诺的入口不符。
+                        // 分组栏已支持横向滚动，此处提供全部分组的快捷切换。
+                        group-overflow := Rectangle {
+                            width: 28px;
+                            height: 24px;
+                            y: (parent.height - self.height) / 2;
+                            border-radius: 6px;
+                            background: overflow-hit.has-hover ? root.theme.title-hover : transparent;
+                            Text {
+                                width: parent.width;
+                                height: parent.height;
+                                text: "▼";
+                                font-size: 12px;
+                                color: root.theme.subtle;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            overflow-menu := ContextMenuArea {
                                 enabled: !root.any-modal-open;
                                 width: parent.width;
                                 height: parent.height;
-                                clicked => { overflow-menu.show({ x: 0px, y: parent.height }); }
-                            }
-                            Menu {
-                                for group in root.groups: MenuItem {
-                                    title: group.name;
-                                    checkable: true;
-                                    checked: group.active;
-                                    activated => { root.group-selected(group.id); }
+                                overflow-hit := TouchArea {
+                                    enabled: !root.any-modal-open;
+                                    width: parent.width;
+                                    height: parent.height;
+                                    clicked => { overflow-menu.show({ x: 0px, y: parent.height }); }
                                 }
-                                MenuSeparator { }
-                                MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
+                                Menu {
+                                    for group in root.groups: MenuItem {
+                                        title: group.name;
+                                        checkable: true;
+                                        checked: group.active;
+                                        activated => { root.group-selected(group.id); }
+                                    }
+                                    MenuSeparator { }
+                                    MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
+                                }
                             }
                         }
                     }
@@ -887,11 +949,13 @@ export component MainWindow inherits Window {
                                             width: root.icon-px * 1px;
                                             height: root.icon-px * 1px;
                                             Image {
-                                                // 卡片规范 V1.0 §2: URL → 浏览器
-                                                // 图标，命令 → 终端图标。
+                                                // 卡片规范 V1.0 §2 + 第三批: 类型化
+                                                // 默认图标（浏览器/终端/文件夹/文件）。
                                                 source: item.artwork == "browser" ? @image-url("../assets/browser.svg")
                                                     : (item.artwork == "terminal" ? @image-url("../assets/terminal.svg")
-                                                    : @image-url("../assets/demo-app.svg"));
+                                                    : (item.artwork == "folder" ? @image-url("../assets/folder.svg")
+                                                    : (item.artwork == "file" ? @image-url("../assets/file.svg")
+                                                    : @image-url("../assets/demo-app.svg"))));
                                                 width: root.icon-inner-px * 1px;
                                                 height: root.icon-inner-px * 1px;
                                                 x: (parent.width - self.width) / 2;
@@ -1287,7 +1351,7 @@ export component MainWindow inherits Window {
                 }
             }
             title-pin := Rectangle {
-                // 固定宽度：12px 字号下“已固定”三字恰为 36px，切换不改变布局。
+                // 固定宽度：12px 字号下"已固定"三字恰为 36px，切换不改变布局。
                 width: 36px;
                 height: 32px;
                 border-radius: 6px;
@@ -1334,7 +1398,9 @@ export component MainWindow inherits Window {
                         enabled: !root.any-modal-open;
                         width: parent.width;
                         height: parent.height;
-                        clicked => { settings-menu.show({ x: 0px, y: parent.height }); }
+                        // UI 体验修复（2026-11-07 第三批）：左键打开应用内设置
+                        // 面板；右键保留原生快捷菜单（子菜单版）。
+                        clicked => { root.settings-open-requested(); }
                         pointer-event(event) => {
                             if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
                                 settings-menu.show({ x: 0px, y: parent.height });
@@ -2281,6 +2347,153 @@ export component MainWindow inherits Window {
                         enabled: !root.update-check-busy;
                         clicked => { root.update-install-confirmed(); }
                     }
+                }
+            }
+        }
+    }
+
+    // UI 体验修复（2026-11-07 第三批）：应用内设置面板——替代超长原生菜单的
+    // 根治方案。选项控件统一 PillButton；全部复用既有回调，写配置路径与
+    // 旧菜单完全一致。标题栏"设置"左键打开，右键保留原生快捷菜单。
+    if root.settings-panel-visible: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        background: #00000033;
+        // 模态屏障：吸收面板外点击。
+        TouchArea { width: parent.width; height: parent.height; }
+        Rectangle {
+            x: (parent.width - 560px) / 2;
+            y: (parent.height - 430px) / 2;
+            width: 560px;
+            height: 430px;
+            background: root.theme.panel;
+            border-radius: 10px;
+            TouchArea { width: parent.width; height: parent.height; }
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text { text: "设置"; font-size: 16px; font-weight: 600; color: root.theme.text; vertical-alignment: center; }
+                    Rectangle { horizontal-stretch: 1; }
+                    Rectangle {
+                        width: 28px;
+                        height: 24px;
+                        border-radius: 6px;
+                        background: panel-close-hit.has-hover ? root.theme.title-hover : transparent;
+                        panel-close-hit := TouchArea {
+                            width: parent.width;
+                            height: parent.height;
+                            clicked => { root.settings-panel-closed(); }
+                        }
+                        Text {
+                            width: parent.width;
+                            height: parent.height;
+                            text: "×";
+                            font-size: 16px;
+                            color: root.theme.muted;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                ScrollView {
+                    vertical-stretch: 1;
+                    VerticalLayout {
+                        spacing: 8px;
+                        Text { text: "外观"; font-size: 12px; color: root.theme.subtle; }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "主题"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "浅色"; selected: root.theme-mode == "light"; clicked => { root.theme-menu-selected("light"); } }
+                            PillButton { label: "深色"; selected: root.theme-mode == "dark"; clicked => { root.theme-menu-selected("dark"); } }
+                            PillButton { label: "跟随系统"; selected: root.theme-mode == "system"; clicked => { root.theme-menu-selected("system"); } }
+                        }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "强调色"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "蓝色"; selected: root.accent-value == "#2563eb"; clicked => { root.accent-menu-selected("#2563eb"); } }
+                            PillButton { label: "绿色"; selected: root.accent-value == "#16a34a"; clicked => { root.accent-menu-selected("#16a34a"); } }
+                            PillButton { label: "橙色"; selected: root.accent-value == "#ea580c"; clicked => { root.accent-menu-selected("#ea580c"); } }
+                            PillButton { label: "紫色"; selected: root.accent-value == "#7c3aed"; clicked => { root.accent-menu-selected("#7c3aed"); } }
+                        }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "透明度"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "100%"; selected: root.opacity-value == "1.00"; clicked => { root.opacity-menu-selected("1.0"); } }
+                            PillButton { label: "95%"; selected: root.opacity-value == "0.95"; clicked => { root.opacity-menu-selected("0.95"); } }
+                            PillButton { label: "85%"; selected: root.opacity-value == "0.85"; clicked => { root.opacity-menu-selected("0.85"); } }
+                            PillButton { label: "70%"; selected: root.opacity-value == "0.70"; clicked => { root.opacity-menu-selected("0.7"); } }
+                            PillButton { label: "50%"; selected: root.opacity-value == "0.50"; clicked => { root.opacity-menu-selected("0.5"); } }
+                        }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "圆角"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "开"; selected: root.corners-on; clicked => { root.corners-menu-selected("on"); } }
+                            PillButton { label: "关"; selected: !root.corners-on; clicked => { root.corners-menu-selected("off"); } }
+                            Rectangle { width: 12px; }
+                            Text { text: "背景"; width: 40px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "纯色"; selected: root.backdrop-value == "none"; clicked => { root.backdrop-menu-selected("none"); } }
+                            PillButton { label: "Mica"; selected: root.backdrop-value == "mica"; clicked => { root.backdrop-menu-selected("mica"); } }
+                            PillButton { label: "Acrylic"; selected: root.backdrop-value == "acrylic"; clicked => { root.backdrop-menu-selected("acrylic"); } }
+                        }
+                        Rectangle { height: 1px; background: root.theme.border; }
+                        Text { text: "网格"; font-size: 12px; color: root.theme.subtle; }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "图标大小"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "小"; selected: root.icon-size-preset == "small"; clicked => { root.view-size-selected("small"); } }
+                            PillButton { label: "中"; selected: root.icon-size-preset == "medium"; clicked => { root.view-size-selected("medium"); } }
+                            PillButton { label: "大"; selected: root.icon-size-preset == "large"; clicked => { root.view-size-selected("large"); } }
+                            Rectangle { width: 12px; }
+                            Text { text: "排序"; width: 40px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            PillButton { label: "手动"; selected: root.sort-mode-value == "manual"; clicked => { root.sort-mode-selected("manual"); } }
+                            PillButton { label: "最近"; selected: root.sort-mode-value == "recent"; clicked => { root.sort-mode-selected("recent"); } }
+                            PillButton { label: "高频"; selected: root.sort-mode-value == "frequent"; clicked => { root.sort-mode-selected("frequent"); } }
+                            PillButton { label: "收藏"; selected: root.sort-mode-value == "favorite"; clicked => { root.sort-mode-selected("favorite"); } }
+                        }
+                        Rectangle { height: 1px; background: root.theme.border; }
+                        Text { text: "集成与更新"; font-size: 12px; color: root.theme.subtle; }
+                        HorizontalLayout {
+                            spacing: 10px;
+                            CheckBox {
+                                text: "Everything 搜索集成";
+                                checked: root.everything-enabled;
+                                toggled => { root.everything-toggle-requested(); }
+                            }
+                            Rectangle { horizontal-stretch: 1; }
+                            CheckBox {
+                                text: "自动检查更新";
+                                checked: root.update-check-enabled;
+                                toggled => { root.update-check-toggle-requested(); }
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: 10px;
+                            Button {
+                                text: root.update-check-busy ? "正在检查更新…" : "检查更新";
+                                enabled: !root.update-check-busy;
+                                clicked => { root.update-check-requested(); }
+                            }
+                            Rectangle { horizontal-stretch: 1; }
+                            Button { text: "历史备份恢复…"; clicked => { root.backup-menu-opened(); } }
+                            Button { text: "配置导入导出…"; clicked => { root.transfer-menu-opened(); } }
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Text {
+                        text: root.update-confirm-status != "" ? root.update-confirm-status : root.validation-status;
+                        color: root.theme.subtle;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                    }
+                    Button { text: "关闭"; clicked => { root.settings-panel-closed(); } }
                 }
             }
         }

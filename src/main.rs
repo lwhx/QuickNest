@@ -62,7 +62,7 @@ fn apply_theme(
             appearance_backdrop,
         );
     }
-    ui.set_theme(ThemeColors {
+    let theme_colors = ThemeColors {
         window: color(palette.window),
         panel: color(palette.panel),
         sidebar: color(palette.sidebar),
@@ -82,7 +82,10 @@ fn apply_theme(
         alt_row: color(palette.alt_row),
         danger: color(palette.danger),
         warning: color(palette.warning),
-    });
+    };
+    ui.set_theme(theme_colors.clone());
+    // 第三批：顶层组件（PillButton）经全局上下文读取同一主题。
+    ui.global::<UiContext>().set_theme(theme_colors);
     // P2-13 (baseline 16.2): window opacity + DWM rounded corners are
     // refreshed last so both values land on the shown window.
     #[cfg(windows)]
@@ -1016,6 +1019,15 @@ fn refresh_ui(
     );
     ui.set_sort_mode_value(settings_snapshot.sort_mode.clone().into());
     ui.set_icon_size_preset(icon_size.key().into());
+    // 第三批：分组栏横向滚动的 tabs 总内容宽度（drop_layout 命中补偿用）。
+    let group_tabs_width: f32 = controller
+        .borrow()
+        .group_rows()
+        .iter()
+        .map(|row| row.tab_width)
+        .sum::<f32>();
+    let group_tabs_spacing = controller.borrow().group_rows().len().saturating_sub(1) as f32 * 24.0;
+    ui.set_group_tabs_content_width(group_tabs_width + group_tabs_spacing);
     ui.set_active_item_id("".into());
     // P1-12: save failures are surfaced instead of being ignored;
     // a clear error restores the default status text.
@@ -2061,15 +2073,39 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             });
         }
+        // UI 体验修复（2026-11-07 第三批）：应用内设置面板的打开/关闭。
+        // 打开前 refresh 一次，保证面板选项读到当前快照。
+        {
+            let weak = ui.as_weak();
+            let controller = Rc::clone(&controller);
+            ui.on_settings_open_requested(move || {
+                refresh_ui(&controller, &weak);
+                if let Some(ui) = weak.upgrade() {
+                    ui.set_settings_panel_visible(true);
+                }
+            });
+        }
+        {
+            let weak = ui.as_weak();
+            let controller = Rc::clone(&controller);
+            ui.on_settings_panel_closed(move || {
+                refresh_ui(&controller, &weak);
+            });
+        }
+
         {
             let weak = ui.as_weak();
             let machine = Rc::clone(&focus_machine);
             let pending = Rc::clone(&pending_command_confirm);
+            let controller = Rc::clone(&controller);
             ui.on_escape_pressed(move || {
                 let Some(ui) = weak.upgrade() else {
                     return;
                 };
-                if ui.get_command_confirm_visible() {
+                if ui.get_settings_panel_visible() {
+                    ui.set_settings_panel_visible(false);
+                    refresh_ui(&controller, &weak);
+                } else if ui.get_command_confirm_visible() {
                     pending.borrow_mut().take();
                     ui.set_command_confirm_visible(false);
                 } else if ui.get_update_confirm_visible() {
@@ -2363,7 +2399,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                             size.height,
                             &groups,
                             &categories,
-                            ui.get_category_scroll_offset(),
+                            quicknest::drop_layout::ScrollOffsets {
+                                group_x: ui.get_group_scroll_offset(),
+                                category_y: ui.get_category_scroll_offset(),
+                            },
                         );
                         let active_category = controller.borrow().active_category_id();
                         let active_group = controller.borrow().active_group_id();
@@ -3543,7 +3582,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     size.height,
                     &groups,
                     &categories,
-                    ui.get_category_scroll_offset(),
+                    quicknest::drop_layout::ScrollOffsets {
+                        group_x: ui.get_group_scroll_offset(),
+                        category_y: ui.get_category_scroll_offset(),
+                    },
                 )
             }
 
