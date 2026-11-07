@@ -54,7 +54,7 @@ runasoriginaluser 使用安装器可取得的原始上下文；asInvoker 继承�
 | installer/output/QuickNest-1.2.0-setup.exe | 7530655 | aef57ca3168ac2d20a4f7035e41e7a5ffc4bc9b581ea5ad2f09de06b166c082e |
 | installer/output/QuickNest-1.2.0-portable.zip | 7933645 | c72061cf719b438290e675bc625b27cad1d3f2537f6c9a59e96d6aa752dec41c |
 
-本轮只构建和本地核验，没有安装、卸载、发布、提交或推送。
+本轮没有执行安装、卸载或对外发布安装包。源码已推送到 <https://github.com/lwhx/QuickNest>；上面两个产物已作为 **草稿 Release（标签 `v1.2.0`，未发布）** 上传，附件经下载回比对与本地产物字节一致。草稿对公众不可见（匿名访问发布页返回 404），`v1.2.0` 标签在手动发布时才会创建。
 
 ## 仍待验收
 
