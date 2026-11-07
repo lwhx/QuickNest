@@ -532,6 +532,7 @@ export component MainWindow inherits Window {
             if (root.item-press-active || root.item-drag-active) {
                 root.cancel-item-drag();
             }
+            modal-scope.focus();
         } else {
             focus-scope.focus();
         }
@@ -1502,6 +1503,23 @@ export component MainWindow inherits Window {
         }
     }
 
+    // UI 体验修复（2026-11-07）：模态键盘入口——模态打开时主 FocusScope
+    // 被禁用、卡片无焦点，Esc 此前无任何接收路径（全部对话框的 Esc 关闭
+    // 实际失效）。0 尺寸 FocusScope 持有焦点即可收键；enabled 随模态门，
+    // Esc 统一交给 escape-pressed 的顺序关闭链（Rust 端逐个模态处理）。
+    modal-scope := FocusScope {
+        x: 0px;
+        y: 0px;
+        width: 0px;
+        height: 0px;
+        enabled: root.any-modal-open;
+        focus-on-tab-navigation: false;
+        key-pressed(event) => {
+            if (event.text == "\u{1b}") { root.escape-pressed(); accept }
+            else { reject }
+        }
+    }
+
     // P2-01: search center (baseline 2.6/13). Covers the content below the
     // title bar; clicking the dim backdrop closes it. Kept instantiated so the
     // LineEdit keeps its edit pipeline across open/close cycles.
@@ -2364,10 +2382,10 @@ export component MainWindow inherits Window {
         // 模态屏障：吸收面板外点击。
         TouchArea { width: parent.width; height: parent.height; }
         Rectangle {
-            x: (parent.width - 560px) / 2;
-            y: (parent.height - 430px) / 2;
-            width: 560px;
-            height: 430px;
+            x: (parent.width - 640px) / 2;
+            y: (parent.height - 460px) / 2;
+            width: 640px;
+            height: 460px;
             background: root.theme.panel;
             border-radius: 10px;
             TouchArea { width: parent.width; height: parent.height; }
@@ -2433,8 +2451,10 @@ export component MainWindow inherits Window {
                             Text { text: "圆角"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
                             PillButton { label: "开"; selected: root.corners-on; clicked => { root.corners-menu-selected("on"); } }
                             PillButton { label: "关"; selected: !root.corners-on; clicked => { root.corners-menu-selected("off"); } }
-                            Rectangle { width: 12px; }
-                            Text { text: "背景"; width: 40px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                        }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "背景"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
                             PillButton { label: "纯色"; selected: root.backdrop-value == "none"; clicked => { root.backdrop-menu-selected("none"); } }
                             PillButton { label: "Mica"; selected: root.backdrop-value == "mica"; clicked => { root.backdrop-menu-selected("mica"); } }
                             PillButton { label: "Acrylic"; selected: root.backdrop-value == "acrylic"; clicked => { root.backdrop-menu-selected("acrylic"); } }
@@ -2447,8 +2467,10 @@ export component MainWindow inherits Window {
                             PillButton { label: "小"; selected: root.icon-size-preset == "small"; clicked => { root.view-size-selected("small"); } }
                             PillButton { label: "中"; selected: root.icon-size-preset == "medium"; clicked => { root.view-size-selected("medium"); } }
                             PillButton { label: "大"; selected: root.icon-size-preset == "large"; clicked => { root.view-size-selected("large"); } }
-                            Rectangle { width: 12px; }
-                            Text { text: "排序"; width: 40px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                        }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "排序"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
                             PillButton { label: "手动"; selected: root.sort-mode-value == "manual"; clicked => { root.sort-mode-selected("manual"); } }
                             PillButton { label: "最近"; selected: root.sort-mode-value == "recent"; clicked => { root.sort-mode-selected("recent"); } }
                             PillButton { label: "高频"; selected: root.sort-mode-value == "frequent"; clicked => { root.sort-mode-selected("frequent"); } }
