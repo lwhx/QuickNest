@@ -102,6 +102,9 @@ pub struct Palette {
     /// UI 优化: the selected/hit-target pill on a category row (a clearly
     /// visible accent blend, unlike the very faint accent_soft).
     pub sidebar_active: Rgb,
+    /// UI 体验修复（2026-11-07 标题栏规范）: hover background for the
+    /// fixed-size title bar / status bar action buttons.
+    pub title_hover: Rgb,
     pub alt_row: Rgb,
     pub danger: Rgb,
     pub warning: Rgb,
@@ -162,6 +165,7 @@ pub fn palette(dark: bool, accent: &str) -> Palette {
             card_pressed: blend(accent, panel, 0.22),
             sidebar_hover: blend(accent, panel, 0.16),
             sidebar_active: blend(accent, panel, 0.32),
+            title_hover: blend(accent, panel, 0.16),
             alt_row: Rgb(22, 29, 39),
             danger: Rgb(248, 113, 113),
             warning: Rgb(251, 191, 36),
@@ -184,6 +188,7 @@ pub fn palette(dark: bool, accent: &str) -> Palette {
             card_pressed: Rgb(238, 243, 255),
             sidebar_hover: blend(accent, panel, 0.08),
             sidebar_active: blend(accent, panel, 0.16),
+            title_hover: blend(accent, panel, 0.08),
             alt_row: Rgb(247, 249, 252),
             danger: Rgb(185, 28, 28),
             warning: Rgb(180, 83, 9),

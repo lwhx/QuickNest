@@ -319,6 +319,14 @@ impl LibraryController {
         IconSize::from_settings(&self.library.settings.icon_size)
     }
 
+    /// UI 体验修复（2026-11-07 底栏“视图”）：切换图标三档并持久化；
+    /// 非法值按 IconSize 规则归一化后存储。
+    pub fn set_icon_size(&mut self, preset: &str) {
+        let previous = self.library.clone();
+        self.library.settings.icon_size = IconSize::from_settings(preset).key().to_string();
+        let _ = self.persist_change(previous);
+    }
+
     /// Searches registered items (P2-01, baseline 13.1/13.2). The default
     /// scope is the active group; `all_groups` widens it to the whole library.
     /// Results are ordered by match score, then by name.
@@ -1576,6 +1584,9 @@ mod tests {
         // The user chooses migration into the third category.
         let target = controller.category_rows()[2].id.clone();
         assert!(controller.migrate_category_items_into(&source, &target));
+        // UI 体验修复（2026-11-07）：迁移到自己必须无效且不改动数据——
+        // 迁移下拉已在 UI 层排除被删分类，此处锁定模型守卫。
+        assert!(!controller.migrate_category_items_into(&source, &source));
         assert!(
             !controller
                 .category_rows()
@@ -1703,6 +1714,19 @@ mod tests {
         assert_eq!(controller.icon_size(), IconSize::Medium);
         controller.library_mut().settings.icon_size = "large".to_string();
         assert_eq!(controller.icon_size(), IconSize::Large);
+    }
+
+    #[test]
+    fn set_icon_size_normalizes_and_persists() {
+        // UI 体验修复（2026-11-07 底栏“视图”）：非法值归一化为 medium，
+        // 合法值（含大小写/空白）持久化到配置。
+        let mut controller = controller();
+        controller.set_icon_size(" LARGE ");
+        assert_eq!(controller.icon_size(), IconSize::Large);
+        assert_eq!(controller.library().settings.icon_size, "large");
+        controller.set_icon_size("bogus");
+        assert_eq!(controller.icon_size(), IconSize::Medium);
+        assert_eq!(controller.library().settings.icon_size, "medium");
     }
 
     #[test]

@@ -3,8 +3,9 @@
 - 开发基线：QuickNest V1.2 正式开发基线。
 - 工程版本：**1.2.0**；0.1.0 仅为 P0 原型历史版本。
 - 更新日期：2026-11-07。
-- 当前阶段：本轮修复、本地构建及产物核验完成；**P4 完整发布尚未验收通过**。
-- 当前状态入口：[本轮修复与验证记录](AUDIT_FIXES_2026-11-07.md)。最终冻结源码门禁已通过：fmt、check all-targets、strict clippy；串行 cargo test --all-targets 为 lib 272 passed / 0 failed / 3 ignored、main 4 passed、integration 14 passed；doc 3 passed。更新器等定向专项与 full lib 存在重叠，不另累计。Release 构建和两种包打包核验已通过，本轮完整哈希见修复记录，不沿用旧哈希。
+- 当前阶段：UI 体验修复完成（2026-11-07 第二批）；**P4 完整发布尚未验收通过**。
+- 当前状态入口：[本轮修复与验证记录](AUDIT_FIXES_2026-11-07.md)、[UI 体验修复记录](UI_FIXES_2026-11-07.md)。UI 修复后门禁：fmt、strict clippy 通过；串行 all-targets 为 lib 272 passed / 0 failed / 3 ignored、main 4 passed、integration 14 passed；doc 3 passed。热键单项测试因当前有运行中的 QuickNest 实例占用全局热键未跑（见 UI 修复记录），关闭实例后复跑。
+- UI 修复范围：设置菜单弹出坐标、分类删除目标与迁移选择、分组栏 ▼ 溢出下拉、标题栏按钮统一规范（36×32/4px/固定宽）、底栏视图/排序/添加接入、设置菜单子菜单化+checkable、组合列表高亮、状态栏截断。三个活体验收脚本（p2-12-theme-headless、verify-p2-14-backdrop、verify-p3-0567-sorting）的菜单断言过时，待桌面测试阶段重录。
 - 最新验证：full lib **272 passed / 0 failed / 3 ignored**（panic helper 由父测调用、CMD native probe 由父测调用两次、signed_fixture 由独立脚本显式执行通过）；**51 个脚本 safe preflight + fixtures 通过**；**updater 11 + 签名 fixture 1 + transport 4 通过**；**PS 5.1 临时 HTTPS manifest / 404 / 降级 redirect 验证通过**。这些集合重叠，不能相加；preflight 不等同桌面回归。
 - 发布前置条件仍包括：Win10 实测、完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点及本轮 UI 的隔离桌面/DPI 回归。当前不宣称全矩阵验收。
 

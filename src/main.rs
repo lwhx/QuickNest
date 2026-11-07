@@ -78,6 +78,7 @@ fn apply_theme(
         card_pressed: color(palette.card_pressed),
         sidebar_hover: color(palette.sidebar_hover),
         sidebar_active: color(palette.sidebar_active),
+        title_hover: color(palette.title_hover),
         alt_row: color(palette.alt_row),
         danger: color(palette.danger),
         warning: color(palette.warning),
@@ -997,6 +998,24 @@ fn refresh_ui(
     ui.set_cell_width(cell_width);
     ui.set_cell_height(cell_height);
     ui.set_icon_px(icon_size.icon_px());
+    // UI 体验修复（2026-11-07）：设置菜单 checkable 与底栏“视图”的状态快照。
+    // 各设置回调最终都会调用 refresh_ui，因此在这里统一同步。
+    let settings_snapshot = controller.borrow().library().settings.clone();
+    ui.set_theme_mode(
+        quicknest::theme::ThemeMode::parse(&settings_snapshot.theme)
+            .as_str()
+            .into(),
+    );
+    ui.set_accent_value(quicknest::theme::normalize_accent(&settings_snapshot.accent_color).into());
+    ui.set_opacity_value(format!("{:.2}", settings_snapshot.opacity).into());
+    ui.set_corners_on(settings_snapshot.rounded_corners);
+    ui.set_backdrop_value(
+        quicknest::theme::Backdrop::parse(&settings_snapshot.backdrop)
+            .as_str()
+            .into(),
+    );
+    ui.set_sort_mode_value(settings_snapshot.sort_mode.clone().into());
+    ui.set_icon_size_preset(icon_size.key().into());
     ui.set_active_item_id("".into());
     // P1-12: save failures are surfaced instead of being ignored;
     // a clear error restores the default status text.
@@ -3256,9 +3275,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
             });
+            // UI 体验修复（2026-11-07）：删除确认对话框的迁移目标按索引对应
+            // 这些 id；列表在打开时排除被删分类本身。
+            let category_migrate_ids: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
             {
                 let controller = Rc::clone(&controller);
                 let weak = weak.clone();
+                let dialog_target_for_delete = Rc::clone(&dialog_target);
+                let migrate_ids = Rc::clone(&category_migrate_ids);
                 ui.on_category_menu_delete(move |category_id: slint::SharedString| {
                     let id = category_id.to_string();
                     controller
@@ -3266,7 +3290,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .select_category(category_id.as_ref());
                     if let Err(item_count) = controller.borrow_mut().delete_category(&id) {
                         // Baseline 2.3: confirm — migrate or drop.
+                        // 旧实现从不写入 dialog_target，“删除项目”按钮会作用在
+                        // 过期目标上（或静默无效）。
+                        *dialog_target_for_delete.borrow_mut() = Some(id.clone());
+                        let rows = controller.borrow().category_rows();
+                        let mut names: Vec<slint::SharedString> = Vec::new();
+                        let mut ids: Vec<String> = Vec::new();
+                        for row in rows {
+                            if row.id != id {
+                                names.push(row.name.clone().into());
+                                ids.push(row.id.clone());
+                            }
+                        }
+                        *migrate_ids.borrow_mut() = ids;
                         if let Some(ui) = weak.upgrade() {
+                            ui.set_category_migrate_names(ModelRc::new(VecModel::from(
+                                names,
+                            )));
                             ui.set_category_delete_confirm_visible(true);
                             ui.set_category_delete_confirm_text(
                                 format!(
@@ -3380,14 +3420,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let controller = Rc::clone(&controller);
                 let weak = weak.clone();
                 let dialog_target = Rc::clone(&dialog_target);
-                ui.on_category_delete_confirm_migrate(move |target_name: slint::SharedString| {
+                let migrate_ids = Rc::clone(&category_migrate_ids);
+                ui.on_category_delete_confirm_migrate(move |index: i32| {
                     let source = dialog_target.borrow().clone();
-                    let target = controller
-                        .borrow()
-                        .category_rows()
-                        .iter()
-                        .find(|row| row.name == target_name.as_str())
-                        .map(|row| row.id.clone());
+                    let ids = migrate_ids.borrow();
+                    let target = usize::try_from(index)
+                        .ok()
+                        .and_then(|position| ids.get(position).cloned());
+                    drop(ids);
                     if let (Some(source), Some(target)) = (source, target) {
                         controller
                             .borrow_mut()
@@ -4025,6 +4065,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                 };
                 ui.set_sort_mode_title(format!("排序：{label}").into());
                 ui.set_validation_status(format!("排序模式：{label}").into());
+            });
+        }
+        // UI 体验修复（2026-11-07）：底栏“视图”切换图标三档。
+        {
+            let weak = ui.as_weak();
+            let controller = Rc::clone(&controller);
+            ui.on_view_size_selected(move |preset: slint::SharedString| {
+                let Some(ui) = weak.upgrade() else {
+                    return;
+                };
+                controller.borrow_mut().set_icon_size(preset.as_ref());
+                refresh_ui(&controller, &weak);
+                let label = match controller.borrow().icon_size() {
+                    quicknest::library_model::IconSize::Small => "小",
+                    quicknest::library_model::IconSize::Large => "大",
+                    quicknest::library_model::IconSize::Medium => "中",
+                };
+                ui.set_validation_status(format!("图标：{label}").into());
             });
         }
         // P3-09 (baseline 22 Everything 可选集成): settings-menu toggle.

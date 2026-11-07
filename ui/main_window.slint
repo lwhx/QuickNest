@@ -69,6 +69,8 @@ export struct ThemeColors {
     // UI 优化（2026-11-06 侧边栏样式）: category row hover/selected pills.
     sidebar-hover: color,
     sidebar-active: color,
+    // UI 体验修复（2026-11-07 标题栏规范）: action-button hover background.
+    title-hover: color,
     alt-row: color,
     danger: color,
     warning: color,
@@ -205,6 +207,18 @@ export component MainWindow inherits Window {
     in property <[CategoryView]> categories;
     in property <string> group-status: "";
     in property <string> validation-status: "基础工程 · 仅演示图标，不启动项目";
+    // UI 体验修复（2026-11-07）：菜单与底栏的 checkable 状态快照（refresh_ui 同步）。
+    in property <string> theme-mode: "system";
+    in property <string> accent-value: "";
+    in property <string> opacity-value: "1.00";
+    in property <bool> corners-on: true;
+    in property <string> backdrop-value: "none";
+    in property <string> sort-mode-value: "manual";
+    in property <string> icon-size-preset: "medium";
+    // 分类删除迁移目标：已排除被删分类，与 Rust 侧 id 列表按索引对应。
+    in property <[string]> category-migrate-names;
+    // 底栏“视图”：切换图标三档（small/medium/large，controller 持久化）。
+    callback view-size-selected(string);
     // P1-17: external-drag feedback (baseline 5.6): the hovered group/category
     // id, a grid highlight flag and a status-bar hint.
     in property <string> drop-group-id;
@@ -389,7 +403,7 @@ export component MainWindow inherits Window {
     in property <bool> category-delete-confirm-visible;
     in property <string> category-delete-confirm-text;
     callback category-delete-confirm-delete(); // drop the items
-    callback category-delete-confirm-migrate(string); // target category id
+    callback category-delete-confirm-migrate(int); // migrate target index (ids live in Rust)
     callback category-delete-confirm-cancel();
     // P1-03: native context-menu actions (ContextMenuArea + Menu).
     callback category-menu-rename(string);
@@ -567,15 +581,43 @@ export component MainWindow inherits Window {
                         }
                     }
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    Text {
-                        text: "▼";
-                        color: root.theme.subtle;
-                        vertical-alignment: center;
-                        TouchArea {
-                            enabled: !root.any-modal-open;
-                            width: parent.width + 12px;
+                    // UI 体验修复（2026-11-07）：▼ 改为真实的分组溢出下拉——
+                    // 旧实现点击却是“新建分组”，与注释承诺的入口不符。
+                    // 分组栏暂无横向滚动，此处提供全部分组的快捷切换。
+                    group-overflow := Rectangle {
+                        width: 28px;
+                        height: 24px;
+                        border-radius: 6px;
+                        background: overflow-hit.has-hover ? root.theme.title-hover : transparent;
+                        Text {
+                            width: parent.width;
                             height: parent.height;
-                            clicked => { root.group-create-requested(); }
+                            text: "▼";
+                            font-size: 12px;
+                            color: root.theme.subtle;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                        overflow-menu := ContextMenuArea {
+                            enabled: !root.any-modal-open;
+                            width: parent.width;
+                            height: parent.height;
+                            overflow-hit := TouchArea {
+                                enabled: !root.any-modal-open;
+                                width: parent.width;
+                                height: parent.height;
+                                clicked => { overflow-menu.show({ x: 0px, y: parent.height }); }
+                            }
+                            Menu {
+                                for group in root.groups: MenuItem {
+                                    title: group.name;
+                                    checkable: true;
+                                    checked: group.active;
+                                    activated => { root.group-selected(group.id); }
+                                }
+                                MenuSeparator { }
+                                MenuItem { title: "新建分组"; activated => { root.group-create-requested(); } }
+                            }
                         }
                     }
                 }
@@ -1059,14 +1101,20 @@ export component MainWindow inherits Window {
         }
 
         // 状态栏（基线 2.1 底部：计数 · 本地配置 | 视图 排序 添加）。
+        // UI 体验修复（2026-11-07）：视图/排序/添加 接入真实菜单与回调；
+        // 长状态文本省略号截断；入口统一 36×24 hover 命中区。
         status-bar := Rectangle {
             height: 32px;
             background: root.theme.panel;
             HorizontalLayout {
                 padding-left: 14px;
-            padding-right: 14px;
-                spacing: 12px;
+                padding-right: 8px;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                spacing: 4px;
                 Text {
+                    horizontal-stretch: 1;
+                    overflow: elide;
                     text: root.drop-hint != ""
                         ? root.drop-hint
                         : (root.item-drag-hint != ""
@@ -1076,22 +1124,119 @@ export component MainWindow inherits Window {
                     font-size: 12px;
                     vertical-alignment: center;
                 }
-                Rectangle { horizontal-stretch: 1; background: transparent; }
-                Text { text: validation-status; color: root.theme.subtle; font-size: 12px; vertical-alignment: center; }
-                Text { text: "视图"; color: root.theme.muted; font-size: 12px; vertical-alignment: center; }
-                Text { text: "排序"; color: root.theme.muted; font-size: 12px; vertical-alignment: center; }
-                Text { text: "添加"; color: root.theme.muted; font-size: 12px; vertical-alignment: center; }
-                // P1-13: manual backup entry (baseline 15.7).
-                backup-entry := Text {
-                    text: "备份";
-                    color: root.theme.muted;
+                Text {
+                    max-width: 260px;
+                    overflow: elide;
+                    text: validation-status;
+                    color: root.theme.subtle;
                     font-size: 12px;
                     vertical-alignment: center;
-                    TouchArea {
+                }
+                view-entry := Rectangle {
+                    width: 36px;
+                    height: 24px;
+                    border-radius: 4px;
+                    background: view-hit.has-hover ? root.theme.title-hover : transparent;
+                    Text {
+                        width: parent.width;
+                        height: parent.height;
+                        text: "视图";
+                        font-size: 12px;
+                        color: root.theme.muted;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    // muda 菜单从锚点向下展开：底栏入口用宿主顶部作锚点。
+                    view-menu := ContextMenuArea {
+                        enabled: !root.any-modal-open;
+                        width: parent.width;
+                        height: parent.height;
+                        view-hit := TouchArea {
+                            enabled: !root.any-modal-open;
+                            width: parent.width;
+                            height: parent.height;
+                            clicked => { view-menu.show({ x: 0px, y: 0px }); }
+                        }
+                        Menu {
+                            MenuItem { title: "图标：小"; checkable: true; checked: root.icon-size-preset == "small"; activated => { root.view-size-selected("small"); } }
+                            MenuItem { title: "图标：中"; checkable: true; checked: root.icon-size-preset == "medium"; activated => { root.view-size-selected("medium"); } }
+                            MenuItem { title: "图标：大"; checkable: true; checked: root.icon-size-preset == "large"; activated => { root.view-size-selected("large"); } }
+                        }
+                    }
+                }
+                sort-entry := Rectangle {
+                    width: 36px;
+                    height: 24px;
+                    border-radius: 4px;
+                    background: sort-hit.has-hover ? root.theme.title-hover : transparent;
+                    Text {
+                        width: parent.width;
+                        height: parent.height;
+                        text: "排序";
+                        font-size: 12px;
+                        color: root.theme.muted;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    sort-menu := ContextMenuArea {
+                        enabled: !root.any-modal-open;
+                        width: parent.width;
+                        height: parent.height;
+                        sort-hit := TouchArea {
+                            enabled: !root.any-modal-open;
+                            width: parent.width;
+                            height: parent.height;
+                            clicked => { sort-menu.show({ x: 0px, y: 0px }); }
+                        }
+                        Menu {
+                            MenuItem { title: "手动"; checkable: true; checked: root.sort-mode-value == "manual"; activated => { root.sort-mode-selected("manual"); } }
+                            MenuItem { title: "最近使用"; checkable: true; checked: root.sort-mode-value == "recent"; activated => { root.sort-mode-selected("recent"); } }
+                            MenuItem { title: "高频"; checkable: true; checked: root.sort-mode-value == "frequent"; activated => { root.sort-mode-selected("frequent"); } }
+                            MenuItem { title: "收藏置顶"; checkable: true; checked: root.sort-mode-value == "favorite"; activated => { root.sort-mode-selected("favorite"); } }
+                        }
+                    }
+                }
+                add-entry := Rectangle {
+                    width: 36px;
+                    height: 24px;
+                    border-radius: 4px;
+                    background: add-hit.has-hover ? root.theme.title-hover : transparent;
+                    add-hit := TouchArea {
+                        enabled: !root.any-modal-open;
+                        width: parent.width;
+                        height: parent.height;
+                        clicked => { root.grid-add-requested(); }
+                    }
+                    Text {
+                        width: parent.width;
+                        height: parent.height;
+                        text: "添加";
+                        font-size: 12px;
+                        color: root.theme.muted;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+                // P1-13: manual backup entry (baseline 15.7)。
+                backup-entry := Rectangle {
+                    width: 36px;
+                    height: 24px;
+                    border-radius: 4px;
+                    background: backup-hit.has-hover ? root.theme.title-hover : transparent;
+                    backup-hit := TouchArea {
                         enabled: !root.any-modal-open;
                         width: parent.width;
                         height: parent.height;
                         clicked => { root.backup-requested(); }
+                    }
+                    Text {
+                        width: parent.width;
+                        height: parent.height;
+                        text: "备份";
+                        font-size: 12px;
+                        color: root.theme.muted;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
                     }
                 }
             }
@@ -1113,45 +1258,74 @@ export component MainWindow inherits Window {
             padding-right: 8px;
             padding-top: 6px;
             padding-bottom: 6px;
-            spacing: 8px;
+            // UI 体验修复（2026-11-07 标题栏规范）：统一 36×32 命中区、4px 间距、
+            // 固定按钮宽度（状态文字变化不影响布局）、垂直居中、hover 背景。
+            spacing: 4px;
             Image { source: @image-url("../assets/demo-app.svg"); width: 26px; height: 26px; }
             Text { text: "QuickNest"; font-size: 16px; font-weight: 700; color: root.theme.text; vertical-alignment: center; }
             // 标题栏空白区拖动窗口（基线 2.5：标题栏可拖动窗口）。
             WindowMoveArea { horizontal-stretch: 1; }
-            title-search := Text {
-                text: "搜索";
-                color: root.theme.muted;
-                vertical-alignment: center;
-                TouchArea {
+            title-search := Rectangle {
+                width: 36px;
+                height: 32px;
+                border-radius: 6px;
+                background: search-hit.has-hover ? root.theme.title-hover : transparent;
+                search-hit := TouchArea {
                     enabled: !root.any-modal-open;
-                    width: parent.width + 12px;
+                    width: parent.width;
                     height: parent.height;
-                    x: -6px;
                     clicked => { root.search-requested(); }
                 }
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "搜索";
+                    font-size: 12px;
+                    color: root.theme.muted;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
             }
-            title-pin := Text {
-                text: root.pin-toggled ? "已固定" : "固定";
-                color: root.pin-toggled ? root.theme.warning : root.theme.muted;
-                vertical-alignment: center;
-                // P1-01 对照实验：验证标题栏鼠标事件确实到达 Slint 元素
-                //（点击后文字变化，截图可判定）。
-                pin-state := TouchArea {
+            title-pin := Rectangle {
+                // 固定宽度：12px 字号下“已固定”三字恰为 36px，切换不改变布局。
+                width: 36px;
+                height: 32px;
+                border-radius: 6px;
+                background: pin-hit.has-hover ? root.theme.title-hover : transparent;
+                pin-hit := TouchArea {
                     enabled: !root.any-modal-open;
+                    width: parent.width;
+                    height: parent.height;
                     clicked => { root.title-pin-toggled(); }
+                }
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: root.pin-toggled ? "已固定" : "固定";
+                    font-size: 12px;
+                    color: root.pin-toggled ? root.theme.warning : root.theme.muted;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
                 }
             }
             title-settings := Rectangle {
-                width: 44px;
-                height: 24px;
-                background: transparent;
+                width: 36px;
+                height: 32px;
+                border-radius: 6px;
+                background: settings-hit.has-hover ? root.theme.title-hover : transparent;
                 Text {
+                    width: parent.width;
+                    height: parent.height;
                     text: "设置";
+                    font-size: 12px;
                     color: root.theme.muted;
                     horizontal-alignment: center;
                     vertical-alignment: center;
                 }
                 // P2-12: left/right click opens the theme + accent menu.
+                // UI 体验修复（2026-11-07）：ContextMenuArea.show() 的坐标相对于
+                // 该元素自身——旧代码传入 title-settings.x / title-bar.height
+                // 造成双重偏移（菜单飞到窗口右侧）。菜单锚定在按钮下沿。
                 settings-menu := ContextMenuArea {
                     enabled: !root.any-modal-open;
                     width: parent.width;
@@ -1160,38 +1334,57 @@ export component MainWindow inherits Window {
                         enabled: !root.any-modal-open;
                         width: parent.width;
                         height: parent.height;
-                        clicked => { settings-menu.show({ x: title-settings.x, y: title-bar.height }); }
+                        clicked => { settings-menu.show({ x: 0px, y: parent.height }); }
                         pointer-event(event) => {
                             if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
-                                settings-menu.show({ x: title-settings.x, y: title-bar.height });
+                                settings-menu.show({ x: 0px, y: parent.height });
                             }
                         }
                     }
                     Menu {
-                        MenuItem { title: "浅色"; activated => { root.theme-menu-selected("light"); } }
-                        MenuItem { title: "深色"; activated => { root.theme-menu-selected("dark"); } }
-                        MenuItem { title: "跟随系统"; activated => { root.theme-menu-selected("system"); } }
-                        MenuItem { title: "强调色：蓝色"; activated => { root.accent-menu-selected("#2563eb"); } }
-                        MenuItem { title: "强调色：绿色"; activated => { root.accent-menu-selected("#16a34a"); } }
-                        MenuItem { title: "强调色：橙色"; activated => { root.accent-menu-selected("#ea580c"); } }
-                        MenuItem { title: "强调色：紫色"; activated => { root.accent-menu-selected("#7c3aed"); } }
-                        MenuItem { title: "透明度：100%"; activated => { root.opacity-menu-selected("1.0"); } }
-                        MenuItem { title: "透明度：95%"; activated => { root.opacity-menu-selected("0.95"); } }
-                        MenuItem { title: "透明度：85%"; activated => { root.opacity-menu-selected("0.85"); } }
-                        MenuItem { title: "透明度：70%"; activated => { root.opacity-menu-selected("0.7"); } }
-                        MenuItem { title: "透明度：50%"; activated => { root.opacity-menu-selected("0.5"); } }
-                        MenuItem { title: "圆角：开"; activated => { root.corners-menu-selected("on"); } }
-                        MenuItem { title: "圆角：关"; activated => { root.corners-menu-selected("off"); } }
-                        MenuItem { title: "背景：纯色"; activated => { root.backdrop-menu-selected("none"); } }
-                        MenuItem { title: "背景：Mica"; activated => { root.backdrop-menu-selected("mica"); } }
-                        MenuItem { title: "背景：Acrylic"; activated => { root.backdrop-menu-selected("acrylic"); } }
+                        Menu {
+                            title: "主题";
+                            MenuItem { title: "浅色"; checkable: true; checked: root.theme-mode == "light"; activated => { root.theme-menu-selected("light"); } }
+                            MenuItem { title: "深色"; checkable: true; checked: root.theme-mode == "dark"; activated => { root.theme-menu-selected("dark"); } }
+                            MenuItem { title: "跟随系统"; checkable: true; checked: root.theme-mode == "system"; activated => { root.theme-menu-selected("system"); } }
+                        }
+                        Menu {
+                            title: "强调色";
+                            MenuItem { title: "蓝色"; checkable: true; checked: root.accent-value == "#2563eb"; activated => { root.accent-menu-selected("#2563eb"); } }
+                            MenuItem { title: "绿色"; checkable: true; checked: root.accent-value == "#16a34a"; activated => { root.accent-menu-selected("#16a34a"); } }
+                            MenuItem { title: "橙色"; checkable: true; checked: root.accent-value == "#ea580c"; activated => { root.accent-menu-selected("#ea580c"); } }
+                            MenuItem { title: "紫色"; checkable: true; checked: root.accent-value == "#7c3aed"; activated => { root.accent-menu-selected("#7c3aed"); } }
+                        }
+                        Menu {
+                            title: "透明度";
+                            MenuItem { title: "100%"; checkable: true; checked: root.opacity-value == "1.00"; activated => { root.opacity-menu-selected("1.0"); } }
+                            MenuItem { title: "95%"; checkable: true; checked: root.opacity-value == "0.95"; activated => { root.opacity-menu-selected("0.95"); } }
+                            MenuItem { title: "85%"; checkable: true; checked: root.opacity-value == "0.85"; activated => { root.opacity-menu-selected("0.85"); } }
+                            MenuItem { title: "70%"; checkable: true; checked: root.opacity-value == "0.70"; activated => { root.opacity-menu-selected("0.7"); } }
+                            MenuItem { title: "50%"; checkable: true; checked: root.opacity-value == "0.50"; activated => { root.opacity-menu-selected("0.5"); } }
+                        }
+                        Menu {
+                            title: "圆角与背景";
+                            MenuItem { title: "圆角：开"; checkable: true; checked: root.corners-on; activated => { root.corners-menu-selected("on"); } }
+                            MenuItem { title: "圆角：关"; checkable: true; checked: !root.corners-on; activated => { root.corners-menu-selected("off"); } }
+                            MenuSeparator { }
+                            MenuItem { title: "背景：纯色"; checkable: true; checked: root.backdrop-value == "none"; activated => { root.backdrop-menu-selected("none"); } }
+                            MenuItem { title: "背景：Mica"; checkable: true; checked: root.backdrop-value == "mica"; activated => { root.backdrop-menu-selected("mica"); } }
+                            MenuItem { title: "背景：Acrylic"; checkable: true; checked: root.backdrop-value == "acrylic"; activated => { root.backdrop-menu-selected("acrylic"); } }
+                        }
+                        MenuSeparator { }
+                        Menu {
+                            title: "排序";
+                            MenuItem { title: "手动"; checkable: true; checked: root.sort-mode-value == "manual"; activated => { root.sort-mode-selected("manual"); } }
+                            MenuItem { title: "最近使用"; checkable: true; checked: root.sort-mode-value == "recent"; activated => { root.sort-mode-selected("recent"); } }
+                            MenuItem { title: "高频"; checkable: true; checked: root.sort-mode-value == "frequent"; activated => { root.sort-mode-selected("frequent"); } }
+                            MenuItem { title: "收藏置顶"; checkable: true; checked: root.sort-mode-value == "favorite"; activated => { root.sort-mode-selected("favorite"); } }
+                        }
+                        MenuSeparator { }
+                        MenuItem { title: root.everything-enabled ? "Everything 搜索：开" : "Everything 搜索：关"; activated => { root.everything-toggle-requested(); } }
                         MenuItem { title: "历史备份恢复…"; activated => { root.backup-menu-opened(); } }
                         MenuItem { title: "配置导入导出…"; activated => { root.transfer-menu-opened(); } }
-                        MenuItem { title: "排序：手动"; activated => { root.sort-mode-selected("manual"); } }
-                        MenuItem { title: "排序：最近使用"; activated => { root.sort-mode-selected("recent"); } }
-                        MenuItem { title: "排序：高频"; activated => { root.sort-mode-selected("frequent"); } }
-                        MenuItem { title: "排序：收藏置顶"; activated => { root.sort-mode-selected("favorite"); } }
-                        MenuItem { title: root.everything-enabled ? "Everything 搜索：开" : "Everything 搜索：关"; activated => { root.everything-toggle-requested(); } }
+                        MenuSeparator { }
                         MenuItem {
                             title: root.update-check-busy ? "正在检查更新…" : "检查更新";
                             enabled: !root.update-check-busy;
@@ -1201,17 +1394,25 @@ export component MainWindow inherits Window {
                     }
                 }
             }
-            title-close := Text {
-                text: "×";
-                font-size: 20px;
-                color: root.theme.muted;
-                vertical-alignment: center;
-                TouchArea {
+            title-close := Rectangle {
+                width: 36px;
+                height: 32px;
+                border-radius: 6px;
+                background: close-hit.has-hover ? root.theme.title-hover : transparent;
+                close-hit := TouchArea {
                     enabled: !root.any-modal-open;
-                    width: parent.width + 16px;
+                    width: parent.width;
                     height: parent.height;
-                    x: -8px;
                     clicked => { root.hide-requested(); }
+                }
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "×";
+                    font-size: 18px;
+                    color: root.theme.muted;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
                 }
             }
         }
@@ -1452,14 +1653,14 @@ export component MainWindow inherits Window {
                     spacing: 10px;
                     Rectangle { horizontal-stretch: 1; background: transparent; }
                     Button { text: "取消"; clicked => { root.category-delete-confirm-cancel(); } }
-                    Button { text: "迁移项目并删除"; clicked => { root.category-delete-confirm-migrate(root.category-names[category-delete-target.current-index]); } }
+                    Button { text: "迁移项目并删除"; enabled: root.category-migrate-names.length > 0; clicked => { root.category-delete-confirm-migrate(category-delete-target.current-index); } }
                     Button { text: "删除项目"; clicked => { root.category-delete-confirm-delete(); } }
                 }
                 HorizontalLayout {
                     spacing: 8px;
                     Text { text: "迁移目标："; color: root.theme.muted; vertical-alignment: center; }
                     category-delete-target := ComboBox {
-                        model: root.category-names;
+                        model: root.category-migrate-names;
                         width: 180px;
                     }
                 }
@@ -1692,15 +1893,18 @@ export component MainWindow inherits Window {
                             for label[index] in root.combination-dialog-items: Rectangle {
                                 height: 32px;
                                 width: parent.width;
-                                background: transparent;
+                                // UI 体验修复（2026-11-07）：选中行高亮 + hover 反馈。
+                                background: index == root.combination-dialog-selected-index
+                                    ? root.theme.accent-soft
+                                    : (row-hit.has-hover ? root.theme.title-hover : transparent);
                                 border-radius: 4px;
                                 Text {
                                     x: 10px;
                                     vertical-alignment: center;
                                     text: label;
-                                    color: root.theme.text;
+                                    color: index == root.combination-dialog-selected-index ? root.theme.accent : root.theme.text;
                                 }
-                                TouchArea {
+                                row-hit := TouchArea {
                                     clicked => {
                                         root.combination-dialog-selected = label;
                                         root.combination-dialog-selected-index = index;
