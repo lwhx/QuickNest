@@ -6,7 +6,9 @@
 //! `slint::Image`s, so extraction and encoding never block the UI (baseline
 //! 5.4/12.1). On-disk hash caching is P1-11.
 
-use std::sync::mpsc::{Receiver, Sender, channel};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::mpsc::{Receiver, SyncSender, TryRecvError, TrySendError, sync_channel};
 
 use windows::Win32::Foundation::SIZE;
 use windows::Win32::Graphics::Gdi::{
@@ -148,56 +150,148 @@ pub struct IconPixels {
 #[derive(Debug)]
 pub struct IconResult {
     pub key: String,
-    /// None means extraction failed; the UI keeps its default icon.
+    /// Identifies the accepted request, even if the UI has since changed grids.
+    pub generation: u64,
+    /// None means extraction failed; cancelled queued work produces no result.
     pub pixels: Option<IconPixels>,
 }
 
-/// Background icon extraction worker. Requests are (cache key, icon source);
-/// the worker owns one STA for the lifetime of the thread.
+/// Both queues are bounded independently; the worker can hold one more icon
+/// while a full result queue applies backpressure on the worker thread only.
+pub const REQUEST_QUEUE_CAPACITY: usize = 32;
+pub const RESULT_QUEUE_CAPACITY: usize = 32;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RequestStatus {
+    Accepted,
+    Full,
+    Disconnected,
+}
+
+#[derive(Debug)]
+struct IconRequest {
+    key: String,
+    source: String,
+    generation: u64,
+}
+
+/// A single STA worker. Sending, polling, cancelling queued work and dropping
+/// this handle never wait for a Shell call or for a queue to have space.
 pub struct IconService {
-    requests: Sender<(String, String)>,
+    requests: SyncSender<IconRequest>,
     results: Receiver<IconResult>,
+    generation: Arc<AtomicU64>,
+    stopped: Arc<AtomicBool>,
     _worker: std::thread::JoinHandle<()>,
 }
 
 impl IconService {
     pub fn start(cache_dir: std::path::PathBuf) -> Self {
-        let (request_tx, request_rx) = channel::<(String, String)>();
-        let (result_tx, result_rx) = channel::<IconResult>();
+        Self::spawn(move |requests, results, generation, stopped| {
+            // Shell COM calls need one apartment for this worker's lifetime.
+            let initialized = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED).is_ok() };
+            run_worker(requests, results, &generation, &stopped, |source| {
+                load_or_extract(&cache_dir, source, ICON_SIZE)
+            });
+            if initialized {
+                unsafe { CoUninitialize() };
+            }
+        })
+    }
+
+    fn spawn(
+        worker: impl FnOnce(
+            Receiver<IconRequest>,
+            SyncSender<IconResult>,
+            Arc<AtomicU64>,
+            Arc<AtomicBool>,
+        ) + Send
+        + 'static,
+    ) -> Self {
+        let (request_tx, request_rx) = sync_channel(REQUEST_QUEUE_CAPACITY);
+        let (result_tx, result_rx) = sync_channel(RESULT_QUEUE_CAPACITY);
+        let generation = Arc::new(AtomicU64::new(0));
+        let stopped = Arc::new(AtomicBool::new(false));
+        let worker_generation = Arc::clone(&generation);
+        let worker_stopped = Arc::clone(&stopped);
         let worker = std::thread::Builder::new()
             .name("quicknest-icons".into())
-            .spawn(move || {
-                // Shell COM calls need an apartment on this worker thread.
-                let initialized = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED).is_ok() };
-                while let Ok((key, source)) = request_rx.recv() {
-                    // Baseline 12.2/12.3: reuse the on-disk snapshot when the
-                    // key still matches, otherwise extract and cache it.
-                    let pixels = load_or_extract(&cache_dir, &source, ICON_SIZE);
-                    if result_tx.send(IconResult { key, pixels }).is_err() {
-                        break;
-                    }
-                }
-                if initialized {
-                    unsafe { CoUninitialize() };
-                }
-            })
+            .spawn(move || worker(request_rx, result_tx, worker_generation, worker_stopped))
             .expect("icon worker thread");
         Self {
             requests: request_tx,
             results: result_rx,
+            generation,
+            stopped,
             _worker: worker,
         }
     }
 
-    /// Queues an extraction request; duplicate in-flight keys are the caller's
-    /// responsibility (the UI keeps a pending set).
-    pub fn request(&self, key: &str, source: &str) {
-        let _ = self.requests.send((key.to_string(), source.to_string()));
+    /// Non-blocking admission. Only Accepted requests belong in the caller's
+    /// pending set; Full requests can be tried again on a later UI tick.
+    pub fn request(&self, key: &str, source: &str) -> RequestStatus {
+        match self.requests.try_send(IconRequest {
+            key: key.to_owned(),
+            source: source.to_owned(),
+            generation: self.generation.load(Ordering::Acquire),
+        }) {
+            Ok(()) => RequestStatus::Accepted,
+            Err(TrySendError::Full(_)) => RequestStatus::Full,
+            Err(TrySendError::Disconnected(_)) => RequestStatus::Disconnected,
+        }
     }
 
-    /// Non-blocking result poll for the UI timer.
+    /// Skips obsolete work that has not entered native extraction. The caller
+    /// clears its old pending set. A native call already running is allowed to
+    /// finish and its result retains its original generation.
+    pub fn advance_generation(&self) -> u64 {
+        self.generation.fetch_add(1, Ordering::AcqRel) + 1
+    }
+
+    /// Distinguishes an idle queue from a worker that has exited.
+    pub fn poll(&self) -> Result<IconResult, TryRecvError> {
+        self.results.try_recv()
+    }
+
+    /// Compatibility helper for callers that do not need disconnect handling.
     pub fn try_recv(&self) -> Option<IconResult> {
-        self.results.try_recv().ok()
+        self.poll().ok()
+    }
+}
+
+impl Drop for IconService {
+    fn drop(&mut self) {
+        self.stopped.store(true, Ordering::Release);
+        // Dropping the receivers releases result backpressure. JoinHandle's
+        // drop detaches: an uninterruptible native call must not block shutdown.
+    }
+}
+
+fn run_worker(
+    requests: Receiver<IconRequest>,
+    results: SyncSender<IconResult>,
+    generation: &AtomicU64,
+    stopped: &AtomicBool,
+    mut extract: impl FnMut(&str) -> Option<IconPixels>,
+) {
+    while let Ok(request) = requests.recv() {
+        if stopped.load(Ordering::Acquire) {
+            break;
+        }
+        if request.generation != generation.load(Ordering::Acquire) {
+            continue;
+        }
+        let pixels = extract(&request.source);
+        if results
+            .send(IconResult {
+                key: request.key,
+                generation: request.generation,
+                pixels,
+            })
+            .is_err()
+        {
+            break;
+        }
     }
 }
 
@@ -402,6 +496,165 @@ mod tests {
         std::fs::write(cache_file(&dir, "bad"), b"nope").expect("write bad");
         assert_eq!(read_cache(&dir, "bad"), None);
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn queue_admission_reports_capacity_and_disconnect_without_waiting() {
+        let (release_tx, release_rx) = sync_channel::<()>(1);
+        let (done_tx, done_rx) = sync_channel(1);
+        let service = IconService::spawn(move |_requests, _results, _, _| {
+            let _ = release_rx.recv();
+            let _ = done_tx.send(());
+        });
+        for index in 0..REQUEST_QUEUE_CAPACITY {
+            assert_eq!(
+                service.request(&index.to_string(), "fixture"),
+                RequestStatus::Accepted
+            );
+        }
+        assert_eq!(service.request("overflow", "fixture"), RequestStatus::Full);
+        release_tx.send(()).unwrap();
+        done_rx
+            .recv_timeout(std::time::Duration::from_secs(2))
+            .unwrap();
+        // The done signal can precede parameter drops by a few instructions.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        loop {
+            if service.request("closed", "fixture") == RequestStatus::Disconnected {
+                break;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "worker did not disconnect"
+            );
+            std::thread::yield_now();
+        }
+    }
+
+    #[test]
+    fn obsolete_queued_requests_are_cancelled_without_failure_results() {
+        let (request_tx, request_rx) = sync_channel(3);
+        let (result_tx, result_rx) = sync_channel(3);
+        for (source, generation) in [("old-a", 0), ("old-b", 0), ("current", 1)] {
+            request_tx
+                .send(IconRequest {
+                    key: source.into(),
+                    source: source.into(),
+                    generation,
+                })
+                .unwrap();
+        }
+        drop(request_tx);
+        let mut extracted = Vec::new();
+        run_worker(
+            request_rx,
+            result_tx,
+            &AtomicU64::new(1),
+            &AtomicBool::new(false),
+            |source| {
+                extracted.push(source.to_owned());
+                None
+            },
+        );
+        assert_eq!(extracted, ["current"]);
+        let result = result_rx.try_recv().unwrap();
+        assert_eq!(result.key, "current");
+        assert_eq!(result.generation, 1);
+        assert!(
+            result.pixels.is_none(),
+            "only actual extraction failures report None"
+        );
+        assert!(result_rx.try_recv().is_err());
+    }
+
+    #[test]
+    fn result_queue_backpressure_bounds_work_until_ui_polls() {
+        let (request_tx, request_rx) = sync_channel(3);
+        let (result_tx, result_rx) = sync_channel(1);
+        let (extracted_tx, extracted_rx) = sync_channel(3);
+        for source in ["first", "second", "third"] {
+            request_tx
+                .send(IconRequest {
+                    key: source.into(),
+                    source: source.into(),
+                    generation: 0,
+                })
+                .unwrap();
+        }
+        drop(request_tx);
+        let worker = std::thread::spawn(move || {
+            run_worker(
+                request_rx,
+                result_tx,
+                &AtomicU64::new(0),
+                &AtomicBool::new(false),
+                |source| {
+                    extracted_tx.send(source.to_owned()).unwrap();
+                    None
+                },
+            );
+        });
+        let timeout = std::time::Duration::from_secs(2);
+        assert_eq!(extracted_rx.recv_timeout(timeout).unwrap(), "first");
+        assert_eq!(extracted_rx.recv_timeout(timeout).unwrap(), "second");
+        assert!(
+            extracted_rx
+                .recv_timeout(std::time::Duration::from_millis(30))
+                .is_err()
+        );
+        assert_eq!(result_rx.recv_timeout(timeout).unwrap().key, "first");
+        assert_eq!(extracted_rx.recv_timeout(timeout).unwrap(), "third");
+        assert_eq!(result_rx.recv_timeout(timeout).unwrap().key, "second");
+        assert_eq!(result_rx.recv_timeout(timeout).unwrap().key, "third");
+        worker.join().unwrap();
+    }
+
+    #[test]
+    fn dropping_service_does_not_wait_for_native_work_or_extract_queued_work() {
+        let (started_tx, started_rx) = sync_channel(1);
+        let (release_tx, release_rx) = sync_channel::<()>(1);
+        let (finished_tx, finished_rx) = sync_channel(1);
+        let service = IconService::spawn(move |requests, results, generation, stopped| {
+            let mut calls = 0;
+            run_worker(requests, results, &generation, &stopped, |_| {
+                calls += 1;
+                started_tx.send(()).unwrap();
+                release_rx.recv().unwrap();
+                None
+            });
+            finished_tx.send(calls).unwrap();
+        });
+        assert_eq!(
+            service.request("running", "fixture"),
+            RequestStatus::Accepted
+        );
+        started_rx
+            .recv_timeout(std::time::Duration::from_secs(2))
+            .unwrap();
+        assert_eq!(
+            service.request("queued", "fixture"),
+            RequestStatus::Accepted
+        );
+        let (dropped_tx, dropped_rx) = sync_channel(1);
+        let dropper = std::thread::spawn(move || {
+            drop(service);
+            dropped_tx.send(()).unwrap();
+        });
+        dropped_rx
+            .recv_timeout(std::time::Duration::from_secs(2))
+            .expect("drop must not join the worker");
+        assert!(
+            finished_rx.try_recv().is_err(),
+            "running native work is not forcibly stopped"
+        );
+        release_tx.send(()).unwrap();
+        assert_eq!(
+            finished_rx
+                .recv_timeout(std::time::Duration::from_secs(2))
+                .unwrap(),
+            1
+        );
+        dropper.join().unwrap();
     }
 
     #[test]

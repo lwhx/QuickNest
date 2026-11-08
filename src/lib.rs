@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+pub mod build_info;
 pub mod card_ui;
 pub mod config_transfer;
 pub mod crash_log;

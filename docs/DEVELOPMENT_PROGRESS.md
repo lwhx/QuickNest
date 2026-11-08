@@ -1,17 +1,23 @@
 # QuickNest 开发进度
 
 - 开发基线：QuickNest V1.2 正式开发基线。
-- 工程版本：**1.2.0**；0.1.0 仅为 P0 原型历史版本。
+- 工程版本：**1.2.1**；1.2.0 为已公开历史版本，0.1.0 仅为 P0 原型历史版本。
 - 更新日期：2026-11-08。
-- 当前阶段：后续审核五项问题修复完成；**P4 完整发布尚未验收通过**。
-- 当前状态入口：[后续审核修复记录](AUDIT_FOLLOWUP_2026-11-08.md)，此前 12 项修复见 [上一轮记录](AUDIT_REPAIRS_2026-11-07.md)。旧测试数和截图结论不能认证本轮源码。
-- 本轮修复：组合启动失败数量/项目名称、跨分类全局批量选择、恢复及覆盖导入后的固定/主题/失焦策略同步、组合删除持久化失败反馈，以及 auto_hide_on_blur 开关；热区按当前配置生效，快捷键改变时提示重启。
-- 最新验证：格式、全目标编译、严格 Clippy、Release 构建通过；安全测试集合为 lib 291 passed / 0 failed / 3 ignored / 1 filtered、main 12 passed、集成 16 passed、doc 3 passed。旧剪贴板用例及共享 Shell 的两项集成测试未执行，不计为通过。脚本全入口预检的历史 91 项仅为静态分类与隔离契约，不是桌面验收数量。
-- 发布前置条件仍包括：Win10 实测、完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点及本轮 UI 的隔离桌面/DPI 回归。当前不宣称全矩阵验收。
+- 当前阶段：**1.2.1 本地优化候选，七项实施完成，统一验证、性能对照与本地交付校验已通过；P4 完整发布尚未验收通过**。
+- 当前状态入口：[1.2.1 优化记录](OPTIMIZATIONS_1.2.1.md)。此前 [五项修复](AUDIT_FOLLOWUP_2026-11-08.md)、[审核修复](AUDIT_REPAIRS_2026-11-07.md) 与 [历史发布构建](AUDIT_FIXES_2026-11-07.md) 的测试数和哈希只属于对应构建。
+- 本轮范围：无变化选择零写入、LaunchRecord 批量事务及有界 BLAKE3 备份校验缓存；manual 快速路径与 first-rank map；图标 set_row_data 增量、32 有界非阻塞队列/current model generation/失败冷却；PreparedQuery 借用拼音 cache；PillButton/设置入口键盘与 a11y；正式 modal_ui 共用注册及 NameDialog/滚动 editor；Cargo 单版本 1.2.1 与来源指纹内嵌、共享 staging、本地产物独立核验。
+- 统一验证：fmt/check/clippy 退出码 0；安全集合 lib 324（3 ignored）、bin 29、ui_layout 8、icon_queue 13、其余集成 12、doc 3，0 失败；预检 96 入口、产物校验 39 项反例。明细与日志见 [验证记录](test-results/2026-11-08-optimizations-1.2.1/VALIDATION.md)。
+- 前后性能：同一工具与输入成对实测——重复选择新增备份 3→0（零写入）、5000 项记录并保存 149.1→68.8 ms、10000 行手动构建 438.6→5.2 ms、10000 项冷空查询 74.2→3.5 ms。完整口径见 [性能对照](test-results/2026-11-08-optimizations-1.2.1/PERFORMANCE.md)。
+- 本地交付：`installer/output/release-1.2.1-7ac1990619d44342bc857cdc984763f2`；EXE/setup/ZIP 大小与 SHA-256、来源及构建指纹、独立校验与早期入口探针见 [优化记录](OPTIMIZATIONS_1.2.1.md)。setup 仅编译，未安装或解包。
+- 发布前置条件仍包括：Win10 实测、完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点及本轮 UI 的隔离桌面/DPI/多显示器回归。当前不宣称全矩阵验收。
 
-## 本轮修复范围
+## 本轮范围与证据约束
 
-统一 data root 与 instance namespace；sandbox 安全；组合 ID 映射及备份 schema/BOM/事务回滚；args/CRT 与 CMD 拒绝无法安全表达输入；编辑 AUMID/MSI/确认语义；延时仅实际成功计 usage 并支持取消；deadline IPC/ACK；结构恢复与 crash 隔离；drag scroll reset、modal、focus、tooltip；typed update worker、显式确认、startup/toggle。更新仅支持 raw，setup/portablezip 在下载前拒绝；生产路径拒绝已披露测试密钥。详情、结果边界与待补项统一见 [本轮记录](AUDIT_FIXES_2026-11-07.md)，隔离用法见 [TEST_HARNESS.md](TEST_HARNESS.md)。
+七项优化保留既有排序、schema/BOM、最近 10 份有效备份、保存失败事务回滚和产品交互语义，详见 [优化记录](OPTIMIZATIONS_1.2.1.md)。测试安全集合、隔离与设施排障统一见 [TEST_HARNESS.md](TEST_HARNESS.md)。
+
+本地构建默认禁用更新 key，记录实际冻结输入；dirty 工作树允许被准确标识，base HEAD 只是基准。来源指纹证明本地过程一致，不等于第三方签名或跨机器可复现构建。EXE 与 ZIP 内部验证和 setup 冻结输入/编译证据分别记账；setup 尚未安装、未独立解包，不填实机验收通过。更新仍仅支持 raw，setup/portablezip 在下载前拒绝；生产路径拒绝已披露测试密钥。
+
+已公开 v1.2.0 的附件、历史记录与哈希不变；原发布说明完整归档于 [releases/1.2.0.md](releases/1.2.0.md)。
 
 ## 历史逐任务记录（仅供追溯）
 

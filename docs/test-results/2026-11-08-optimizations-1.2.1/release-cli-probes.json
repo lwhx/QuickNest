@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "version": "1.2.1",
+  "executable": "E:\\Programs\\ZCODE\\01\\QuickNest\\installer\\output\\release-1.2.1-7ac1990619d44342bc857cdc984763f2\\staging\\quicknest.exe",
+  "source_fingerprint": "e79865610ac646e2cc893b4d039a4cbdcb28047a898d978c348545bc2806e610",
+  "build_fingerprint": "35b45410fb803a4be53b26fc121129389381f335eadd6fed972d40ee41725487",
+  "invalid_relative_data_root": true,
+  "initialized_files": 0,
+  "passed": 9,
+  "observations": [
+    {
+      "name": "build-info-before-data-initialization",
+      "args": [
+        "--quicknest-build-info"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"schema_version\":1,\"version\":\"1.2.1\",\"provenance\":\"recorded\",\"source_fingerprint\":\"e79865610ac646e2cc893b4d039a4cbdcb28047a898d978c348545bc2806e610\",\"build_fingerprint\":\"35b45410fb803a4be53b26fc121129389381f335eadd6fed972d40ee41725487\",\"base_head\":\"7b7c3133b239c3c7115f6f63c9e6cf45ddbb8be7\",\"dirty\":true,\"target\":\"x86_64-pc-windows-msvc\",\"profile\":\"release\",\"rustc\":\"rustc 1.96.0 (ac68faa20 2026-05-25)\\nbinary: rustc\\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\\ncommit-date: 2026-05-25\\nhost: x86_64-pc-windows-msvc\\nrelease: 1.96.0\\nLLVM version: 22.1.2\",\"cargo\":\"cargo 1.96.0 (30a34c682 2026-05-25)\\nrelease: 1.96.0\\ncommit-hash: 30a34c6821b57de0aaec83a901aca39f88f6778c\\ncommit-date: 2026-05-25\\nhost: x86_64-pc-windows-msvc\\nlibgit2: 1.9.2 (sys:0.20.4 vendored)\\nlibcurl: 8.19.0-DEV (sys:0.4.87+curl-8.19.0 vendored ssl:Schannel)\\nos: Windows 10.0.26200 (Windows 11 Professional) [64-bit]\",\"update_key\":{\"status\":\"disabled\",\"blob_sha256\":null}}",
+      "stderr": ""
+    },
+    {
+      "name": "health-before-data-initialization",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.1",
+        "5fdc7a6445ea985565f2fb8c2b9416d6"
+      ],
+      "exit_code": 0,
+      "stdout": "QuickNestHealth\t1.2.1\t5fdc7a6445ea985565f2fb8c2b9416d6",
+      "stderr": ""
+    },
+    {
+      "name": "build-info-extra-argument",
+      "args": [
+        "--quicknest-build-info",
+        "extra"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"Usage: quicknest --quicknest-build-info\""
+    },
+    {
+      "name": "build-info-duplicate-switch",
+      "args": [
+        "--quicknest-build-info",
+        "--quicknest-build-info"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"Usage: quicknest --quicknest-build-info\""
+    },
+    {
+      "name": "health-missing-arguments",
+      "args": [
+        "--quicknest-update-health"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-wrong-version",
+      "args": [
+        "--quicknest-update-health",
+        "0.0.0",
+        "5fdc7a6445ea985565f2fb8c2b9416d6"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-short-nonce",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.1",
+        "abc"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-nonhex-nonce",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.1",
+        "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-extra-argument",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.1",
+        "5fdc7a6445ea985565f2fb8c2b9416d6",
+        "extra"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    }
+  ]
+}

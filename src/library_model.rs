@@ -7,6 +7,8 @@
 //! data plus the operations the UI drives; persistence goes through the
 //! atomic save chain (P0-13 `config_save`).
 
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 /// Item kinds from baseline 3.1 (serialized as `item_type`).
@@ -921,66 +923,79 @@ pub struct UsageSnapshot {
     pub favorite: bool,
 }
 
-/// P3-05/P3-06/P3-07: the sort rank of one item within the grid.
-type UsageRank = (usize, String, i64, u64, bool);
+/// Manual position plus the usage fields that actually affect sorting.
+/// Names remain in public UsageSnapshot for compatibility, but need no clone.
+type UsageRank = (usize, i64, u64, bool);
 
 /// P3-05/P3-06/P3-07 (baseline 22): sorts item ids by the active grid order.
-/// Favorites come first (ties keep the manual order), then by most recent
-/// use, then by highest launch count; everything else keeps the manual order.
-/// Returns the ids in display order.
+/// Usage ties follow the first snapshot's manual position; duplicate and
+/// missing ids retain stable input order when their ranks are equal.
+/// Manual and unknown modes return the input order without building ranks.
 pub fn sort_item_ids_by_mode(ids: &[String], items: &[UsageSnapshot], mode: &str) -> Vec<String> {
-    let rank = |id: &str| -> UsageRank {
-        items
-            .iter()
-            .enumerate()
-            .find(|(_, snapshot)| snapshot.id == id)
-            .map(|(index, snapshot)| {
-                (
-                    index,
-                    snapshot.name.clone(),
-                    snapshot.last_used,
-                    snapshot.launch_count,
-                    snapshot.favorite,
-                )
-            })
-            .unwrap_or((usize::MAX, String::new(), 0, 0, false))
-    };
-    let mut sorted: Vec<(String, UsageRank)> =
-        ids.iter().map(|id| (id.clone(), rank(id))).collect();
-    match mode {
-        // Favorites to the top (by name), then the manual order.
-        "favorite" => {
-            sorted.sort_by(|left, right| {
-                right
-                    .1
-                    .4
-                    .cmp(&left.1.4)
-                    .then_with(|| left.1.0.cmp(&right.1.0))
-            });
-        }
-        // Most recent first (missing last_used sorts last, by manual order).
-        "recent" => {
-            sorted.sort_by(|left, right| {
-                right
-                    .1
-                    .2
-                    .cmp(&left.1.2)
-                    .then_with(|| left.1.0.cmp(&right.1.0))
-            });
-        }
-        // Highest launch count first (ties keep the manual order).
-        "frequent" => {
-            sorted.sort_by(|left, right| {
-                right
-                    .1
-                    .3
-                    .cmp(&left.1.3)
-                    .then_with(|| left.1.0.cmp(&right.1.0))
-            });
-        }
-        _ => {}
+    sort_ids_by_usage(
+        ids.iter().map(String::as_str),
+        items.iter().map(|item| {
+            (
+                item.id.as_str(),
+                item.last_used,
+                item.launch_count,
+                item.favorite,
+            )
+        }),
+        mode,
+    )
+}
+
+/// Controller path: borrow usage directly from stored items instead of
+/// allocating public snapshots and copying names only to discard them.
+pub(crate) fn sort_category_item_ids_by_mode(items: &[Item], mode: &str) -> Vec<String> {
+    sort_ids_by_usage(
+        items.iter().map(|item| item.id.as_str()),
+        items.iter().map(|item| {
+            (
+                item.id.as_str(),
+                item.last_used,
+                item.launch_count,
+                item.favorite,
+            )
+        }),
+        mode,
+    )
+}
+
+fn sort_ids_by_usage<'a>(
+    ids: impl Iterator<Item = &'a str>,
+    usage: impl Iterator<Item = (&'a str, i64, u64, bool)>,
+    mode: &str,
+) -> Vec<String> {
+    if !matches!(mode, "favorite" | "recent" | "frequent") {
+        return ids.map(str::to_string).collect();
     }
-    sorted.into_iter().map(|(id, _)| id).collect()
+    let mut ranks: HashMap<&str, UsageRank> = HashMap::new();
+    for (index, (id, last_used, launch_count, favorite)) in usage.enumerate() {
+        // Imported duplicate ids keep the same first-match semantics as find.
+        ranks
+            .entry(id)
+            .or_insert((index, last_used, launch_count, favorite));
+    }
+    let mut sorted: Vec<(&str, UsageRank)> = ids
+        .map(|id| {
+            (
+                id,
+                ranks.get(id).copied().unwrap_or((usize::MAX, 0, 0, false)),
+            )
+        })
+        .collect();
+    sorted.sort_by(|left, right| {
+        let primary = match mode {
+            "favorite" => right.1.3.cmp(&left.1.3),
+            "recent" => right.1.1.cmp(&left.1.1),
+            "frequent" => right.1.2.cmp(&left.1.2),
+            _ => unreachable!("manual modes returned before building ranks"),
+        };
+        primary.then_with(|| left.1.0.cmp(&right.1.0))
+    });
+    sorted.into_iter().map(|(id, _)| id.to_string()).collect()
 }
 
 impl Default for Library {
@@ -2678,6 +2693,106 @@ mod sort_mode_tests {
     fn manual_and_unknown_keep_the_input_order() {
         assert_eq!(sort_item_ids_by_mode(&ids(), &items(), "manual"), ids());
         assert_eq!(sort_item_ids_by_mode(&ids(), &items(), "nonsense"), ids());
+    }
+
+    #[test]
+    fn sorting_preserves_first_duplicate_ranks_ties_and_missing_id_order() {
+        let mut usage = items();
+        usage[0].last_used = 10;
+        usage[0].launch_count = 1;
+        usage[1].last_used = 10;
+        usage[1].launch_count = 1;
+        usage[1].favorite = true;
+        usage[2].last_used = 0;
+        usage[2].launch_count = 0;
+        usage[2].favorite = false;
+        usage.push(UsageSnapshot {
+            id: "a".into(),
+            name: "A later duplicate must not win".into(),
+            last_used: i64::MAX,
+            launch_count: u64::MAX,
+            favorite: true,
+        });
+        let ids = ["missing-z", "c", "b", "a", "a", "missing-a", "c"].map(str::to_string);
+        for mode in ["recent", "frequent"] {
+            assert_eq!(
+                sort_item_ids_by_mode(&ids, &usage, mode),
+                ["a", "a", "b", "c", "c", "missing-z", "missing-a"],
+                "{mode}: ties use the first snapshot's position, not name or input order"
+            );
+        }
+        assert_eq!(
+            sort_item_ids_by_mode(&ids, &usage, "favorite"),
+            ["b", "a", "a", "c", "c", "missing-z", "missing-a"]
+        );
+        for mode in ["manual", "unknown"] {
+            assert_eq!(sort_item_ids_by_mode(&ids, &usage, mode), ids);
+        }
+    }
+
+    #[test]
+    fn manual_and_unknown_do_not_consume_usage_and_missing_ids_stay_stable() {
+        let ids = ["b", "a", "b", "missing"].map(str::to_string);
+        for mode in ["manual", "unknown"] {
+            let unused = std::iter::from_fn(|| -> Option<(&str, i64, u64, bool)> {
+                panic!("manual sorting must not read usage statistics")
+            });
+            assert_eq!(
+                sort_ids_by_usage(ids.iter().map(String::as_str), unused, mode),
+                ids
+            );
+        }
+        for mode in ["recent", "frequent", "favorite"] {
+            assert_eq!(sort_item_ids_by_mode(&ids, &[], mode), ids);
+            assert!(sort_item_ids_by_mode(&[], &items(), mode).is_empty());
+        }
+    }
+
+    #[test]
+    fn rank_map_matches_the_linear_reference_on_deterministic_duplicate_fixtures() {
+        for seed in 0..32 {
+            let usage: Vec<UsageSnapshot> = (0..17)
+                .map(|index| UsageSnapshot {
+                    id: format!("id-{}", (index * 7 + seed) % 9),
+                    name: format!("name-{}", 17 - index),
+                    last_used: ((index * 3 + seed) % 5) as i64 - 2,
+                    launch_count: ((index + seed) % 3) as u64,
+                    favorite: (index + seed) % 2 == 0,
+                })
+                .collect();
+            let ids: Vec<String> = (0..23)
+                .map(|index| format!("id-{}", (index * 5 + seed) % 12))
+                .collect();
+            for mode in ["recent", "frequent", "favorite"] {
+                let mut expected = ids.clone();
+                let rank = |id: &str| {
+                    usage
+                        .iter()
+                        .enumerate()
+                        .find(|(_, item)| item.id == id)
+                        .map(|(index, item)| {
+                            (index, item.last_used, item.launch_count, item.favorite)
+                        })
+                        .unwrap_or((usize::MAX, 0, 0, false))
+                };
+                expected.sort_by(|left, right| {
+                    let left = rank(left);
+                    let right = rank(right);
+                    let primary = match mode {
+                        "recent" => right.1.cmp(&left.1),
+                        "frequent" => right.2.cmp(&left.2),
+                        "favorite" => right.3.cmp(&left.3),
+                        _ => unreachable!(),
+                    };
+                    primary.then_with(|| left.0.cmp(&right.0))
+                });
+                assert_eq!(
+                    sort_item_ids_by_mode(&ids, &usage, mode),
+                    expected,
+                    "seed={seed} {mode}"
+                );
+            }
+        }
     }
 
     // P3-05/P3-06/P3-07: the sort mode normalizes and round-trips.

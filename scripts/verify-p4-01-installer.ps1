@@ -9,6 +9,7 @@
 # 权限模型：安装器 PrivilegesRequired=lowest（逐用户，HKCU + LocalAppData，
 # 不需要管理员）。若本控制台不是 Medium 令牌，则通过计划任务（交互用户令牌，
 # 与资源管理器同级）中转启动，确保"免提权安装"在普通权限下真实成立。
+param([string]$ReleaseDirectory = '')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -30,7 +31,10 @@ $results = $script:QnCaseRoot
 [void][IO.Directory]::CreateDirectory($results)
 $report = Join-Path $results 'p4-01-installer.tsv'
 if (Test-Path $report) { Remove-QnSandboxItem $report -Force }
-$setupPath = Join-Path $root 'installer\output\QuickNest-1.2.0-setup.exe'
+. (Join-Path $root 'scripts/release-metadata.ps1')
+$packageVersion = Get-QnCargoVersion $root
+$packageDirectory = if ($ReleaseDirectory) { (Read-QnReleaseContext $root $ReleaseDirectory -ProbeExecutable).directory } else { Join-Path $root 'installer/output' }
+$setupPath = Join-Path $packageDirectory ('QuickNest-' + $packageVersion + '-setup.exe')
 $installDir = Join-Path $env:LOCALAPPDATA 'Programs\QuickNest'
 $appId = '{8F6A2E52-3B4C-4E9A-9F1D-8C2E51B04A7D}_is1'
 $arpKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\' + $appId
@@ -124,9 +128,9 @@ try {
     Assert-True ($runValue.Contains($appExe)) ('run value data mismatch: ' + $runValue)
     $arp = Get-ItemProperty -LiteralPath $arpKey -ErrorAction SilentlyContinue
     Assert-True ($null -ne $arp) 'ARP uninstall entry missing'
-    Assert-True ($arp.DisplayVersion -eq '1.2.0') ('ARP DisplayVersion: ' + $arp.DisplayVersion)
+    Assert-True ($arp.DisplayVersion -eq $packageVersion) ('ARP DisplayVersion: ' + $arp.DisplayVersion)
     Assert-True ($arp.UninstallString -like '*unins000.exe*') 'ARP UninstallString unexpected'
-    Record 'verify_registry' ('autostart Run key + ARP entry (version 1.2.0) present')
+    Record 'verify_registry' ('autostart Run key + ARP entry (version ' + $packageVersion + ') present')
 
     # f) 启动已安装应用（与用户双击等效），验证"安装后普通权限启动"。
     #    环境限制：本机为内建管理员（EnableLUA=1 + ConsentPrompt=0 静默提权），

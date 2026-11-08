@@ -1,0 +1,6 @@
+Source frozen: e79865610ac646e2cc893b4d039a4cbdcb28047a898d978c348545bc2806e610; base HEAD=7b7c3133b239c3c7115f6f63c9e6cf45ddbb8be7; dirty=True
+Portable archive verified: E:\Programs\ZCODE\01\QuickNest\installer\output\release-1.2.1-7ac1990619d44342bc857cdc984763f2\QuickNest-1.2.1-portable.zip
+Verified source -> embedded EXE -> portable ZIP and setup compiler evidence: E:\Programs\ZCODE\01\QuickNest\installer\output\release-1.2.1-7ac1990619d44342bc857cdc984763f2
+version=1.2.1; source=e79865610ac646e2cc893b4d039a4cbdcb28047a898d978c348545bc2806e610; build=35b45410fb803a4be53b26fc121129389381f335eadd6fed972d40ee41725487
+ZIP entries/duplicates/marker/byte hashes verified. Setup was compiled only; unpacking, installation and desktop acceptance are not claimed.
+Local release completed: E:\Programs\ZCODE\01\QuickNest\installer\output\release-1.2.1-7ac1990619d44342bc857cdc984763f2

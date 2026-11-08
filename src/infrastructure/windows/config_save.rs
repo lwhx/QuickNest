@@ -8,11 +8,12 @@
 //! a time (baseline 15.7): a save attempted while the write lock is held
 //! (including recovery) is rejected with [`SaveError::Busy`].
 
+use std::collections::{HashMap, VecDeque};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use windows_sys::Win32::Foundation::GetLastError;
@@ -453,6 +454,47 @@ pub fn recover_latest_backup(target: &Path) -> Result<RecoveryReport, SaveError>
     }
 }
 
+/// Maintenance only: cache validity by the bytes actually read, never by file
+/// name, length or mtime. FIFO eviction bounds memory even across many configs.
+const BACKUP_VALIDATION_CACHE_CAPACITY: usize = 64;
+
+#[derive(Default)]
+struct BackupValidationCache {
+    entries: HashMap<blake3::Hash, bool>,
+    insertion_order: VecDeque<blake3::Hash>,
+    #[cfg(test)]
+    validations: usize,
+}
+
+impl BackupValidationCache {
+    fn is_valid(&mut self, content: &[u8]) -> bool {
+        let fingerprint = blake3::hash(content);
+        if let Some(&valid) = self.entries.get(&fingerprint) {
+            return valid;
+        }
+        #[cfg(test)]
+        {
+            self.validations += 1;
+        }
+        let valid = std::str::from_utf8(content)
+            .ok()
+            .is_some_and(|content| parse_supported_library(content).is_some());
+        if self.entries.len() == BACKUP_VALIDATION_CACHE_CAPACITY
+            && let Some(oldest) = self.insertion_order.pop_front()
+        {
+            self.entries.remove(&oldest);
+        }
+        self.entries.insert(fingerprint, valid);
+        self.insertion_order.push_back(fingerprint);
+        valid
+    }
+}
+
+fn backup_validation_cache() -> &'static Mutex<BackupValidationCache> {
+    static CACHE: OnceLock<Mutex<BackupValidationCache>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(BackupValidationCache::default()))
+}
+
 /// Keeps at most `keep` valid backups for `target` (baseline 15.7: default 10),
 /// deleting invalid and older entries. Timestamps in the names sort
 /// lexicographically, so newest-first ordering is a name sort. Returns the
@@ -488,11 +530,17 @@ fn prune_backups_locked(target: &Path, keep: usize) -> usize {
     backups.sort_unstable_by(|left, right| right.file_name().cmp(&left.file_name()));
     let mut kept = 0_usize;
     let mut removed = 0_usize;
+    let mut cache = backup_validation_cache()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
     for backup in backups {
-        let valid = fs::read_to_string(&backup)
-            .ok()
-            .is_some_and(|content| parse_supported_library(&content).is_some());
-        if valid && kept < keep {
+        // Once retention is full, even a valid older backup must be deleted;
+        // reading or deserializing it cannot affect that decision.
+        if kept < keep
+            && fs::read(&backup)
+                .ok()
+                .is_some_and(|content| cache.is_valid(&content))
+        {
             kept += 1;
             continue;
         }
@@ -1148,6 +1196,179 @@ mod tests {
             .filter_map(|entry| entry.file_name().to_str().map(str::to_string))
             .filter(|name| name.starts_with("config.backup.") && name.ends_with(".json"))
             .collect()
+    }
+
+    fn reset_validation_cache() {
+        *backup_validation_cache()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner()) = BackupValidationCache::default();
+    }
+
+    fn validation_count() -> usize {
+        backup_validation_cache()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner())
+            .validations
+    }
+
+    #[test]
+    fn backup_validation_cache_is_bounded_and_hits_do_not_deserialize() {
+        let mut cache = BackupValidationCache::default();
+        for index in 0..BACKUP_VALIDATION_CACHE_CAPACITY + 3 {
+            let content = format!("{{\"schema_version\":2,\"groups\":[],\"tag\":{index}}}");
+            assert!(cache.is_valid(content.as_bytes()));
+            assert!(cache.is_valid(content.as_bytes()));
+            assert_eq!(cache.validations, index + 1);
+            assert!(cache.entries.len() <= BACKUP_VALIDATION_CACHE_CAPACITY);
+            assert_eq!(cache.entries.len(), cache.insertion_order.len());
+        }
+        assert_eq!(cache.entries.len(), BACKUP_VALIDATION_CACHE_CAPACITY);
+        let oldest = b"{\"schema_version\":2,\"groups\":[],\"tag\":0}";
+        assert!(!cache.entries.contains_key(&blake3::hash(oldest)));
+        let before = cache.validations;
+        assert!(cache.is_valid(oldest));
+        assert_eq!(
+            cache.validations,
+            before + 1,
+            "evicted bytes are revalidated"
+        );
+        assert!(!cache.is_valid(b"\xff"));
+        let before = cache.validations;
+        assert!(!cache.is_valid(b"\xff"));
+        assert_eq!(cache.validations, before, "invalid bytes are cached too");
+        assert_eq!(cache.entries.len(), BACKUP_VALIDATION_CACHE_CAPACITY);
+    }
+
+    #[test]
+    fn repeated_pruning_shares_content_validity_across_backup_names() {
+        let _serialization = test_guard();
+        reset_validation_cache();
+        let directory = temp_dir("prune-content-hits");
+        let target = directory.join("config.json");
+        let good = b"{\"schema_version\":2,\"groups\":[]}";
+        for index in 0..12 {
+            fs::write(
+                directory.join(format!("config.backup.{index:03}.json")),
+                good,
+            )
+            .unwrap();
+        }
+        assert_eq!(prune_backups(&target, 10), 2);
+        assert_eq!(validation_count(), 1);
+        assert_eq!(prune_backups(&target, 10), 0);
+        assert_eq!(validation_count(), 1);
+        assert_eq!(backup_names(&directory).len(), 10);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn pruning_stops_validation_after_retention_is_full_and_zero_keeps_nothing() {
+        let _serialization = test_guard();
+        reset_validation_cache();
+        let directory = temp_dir("prune-retention-fast-path");
+        let target = directory.join("config.json");
+        for index in 0..12 {
+            let content = format!("{{\"schema_version\":2,\"groups\":[],\"tag\":{index}}}");
+            fs::write(
+                directory.join(format!("config.backup.{index:03}.json")),
+                content,
+            )
+            .unwrap();
+        }
+        assert_eq!(prune_backups(&target, 10), 2);
+        assert_eq!(
+            validation_count(),
+            10,
+            "overflow backups are not deserialized"
+        );
+        assert_eq!(backup_names(&directory).len(), 10);
+        assert_eq!(prune_backups(&target, 0), 10);
+        assert_eq!(validation_count(), 10, "keep=0 validates no content");
+        assert!(backup_names(&directory).is_empty());
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn pruning_rechecks_same_name_length_and_mtime_after_corruption_and_repair() {
+        let _serialization = test_guard();
+        reset_validation_cache();
+        let directory = temp_dir("prune-changed-bytes");
+        let target = directory.join("config.json");
+        let backup = directory.join("config.backup.001.json");
+        let good = b"{\"schema_version\":2,\"groups\":[]}";
+        let bad = b"{\"schema_version\":3,\"groups\":[]}";
+        assert_eq!(good.len(), bad.len());
+        fs::write(&backup, good).unwrap();
+        let modified = fs::metadata(&backup).unwrap().modified().unwrap();
+        assert_eq!(prune_backups(&target, 1), 0);
+        assert_eq!(validation_count(), 1);
+        let write_same_metadata = |content: &[u8]| {
+            fs::write(&backup, content).unwrap();
+            let file = OpenOptions::new().write(true).open(&backup).unwrap();
+            file.set_times(fs::FileTimes::new().set_modified(modified))
+                .unwrap();
+            let metadata = fs::metadata(&backup).unwrap();
+            assert_eq!(metadata.len(), good.len() as u64);
+            assert_eq!(metadata.modified().unwrap(), modified);
+        };
+        write_same_metadata(bad);
+        // A real delete-sharing denial leaves the invalid file available for
+        // repair, while prune still observes and caches its changed bytes.
+        let lock = DeleteLock::acquire(&backup);
+        assert_eq!(prune_backups(&target, 1), 0);
+        assert_eq!(validation_count(), 2);
+        assert_eq!(prune_backups(&target, 1), 0);
+        assert_eq!(validation_count(), 2);
+        drop(lock);
+        write_same_metadata(good);
+        assert_eq!(prune_backups(&target, 1), 0);
+        assert_eq!(
+            validation_count(),
+            2,
+            "repaired original bytes can reuse validity"
+        );
+        assert_eq!(list_backups(&target).len(), 1);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn recovery_and_manual_restore_validate_independently_of_maintenance_cache() {
+        let _serialization = test_guard();
+        reset_validation_cache();
+        let directory = temp_dir("restore-full-validation");
+        let target = directory.join("config.json");
+        let backup = directory.join("config.backup.001.json");
+        let invalid = b"{\"schema_version\":2,\"groups\":[{}]}";
+        fs::write(&target, "broken").unwrap();
+        fs::write(&backup, invalid).unwrap();
+        // Even a forged maintenance hit cannot authorize a restore.
+        backup_validation_cache()
+            .lock()
+            .unwrap()
+            .entries
+            .insert(blake3::hash(invalid), true);
+        assert!(matches!(
+            restore_backup(&target, &backup),
+            Err(SaveError::InvalidBackup)
+        ));
+        assert_eq!(recover_latest_backup(&target).unwrap().restored_from, None);
+        assert_eq!(read_config(&target), "broken");
+        let good = b"{\"schema_version\":2,\"groups\":[]}";
+        fs::write(&backup, good).unwrap();
+        backup_validation_cache()
+            .lock()
+            .unwrap()
+            .entries
+            .insert(blake3::hash(good), false);
+        assert_eq!(
+            recover_latest_backup(&target).unwrap().restored_from,
+            Some(backup.clone())
+        );
+        assert_eq!(fs::read(&target).unwrap(), good);
+        assert!(restore_backup(&target, &backup).is_ok());
+        assert_eq!(fs::read(&target).unwrap(), good);
+        reset_validation_cache();
+        fs::remove_dir_all(directory).unwrap();
     }
 
     #[test]

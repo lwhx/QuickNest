@@ -1,0 +1,39 @@
+PASS refusal: version mismatch
+PASS refusal: source fingerprint mismatch
+PASS refusal: build fingerprint mismatch
+PASS refusal: base HEAD mismatch
+PASS refusal: dirty declaration mismatch
+PASS refusal: unrecorded manual executable
+PASS refusal: wrong target
+PASS refusal: debug executable
+PASS refusal: same-version old executable with internally consistent older provenance
+PASS refusal: different compiled key at the same version
+PASS refusal: disclosed fixture public key
+PASS refusal: private blob header refused
+PASS refusal: source manifest byte hash changed under frozen fingerprint
+PASS refusal: duplicate source manifest paths
+PASS refusal: frozen source input changed
+PASS refusal: sibling path containment
+PASS refusal: parent traversal
+PASS refusal: output parent equals repository root
+PASS refusal: output parent equals root with trailing separator
+PASS refusal: output parent inside source tree
+PASS refusal: output parent prefix sibling of allowed output
+PASS refusal: same-version old EXE bytes in ZIP
+PASS refusal: ZIP document tampering
+PASS refusal: nonempty portable marker
+PASS refusal: duplicate ZIP entries
+PASS refusal: duplicate ZIP replacing a required entry at exact entry count
+PASS refusal: extra/noncanonical ZIP entry extra.txt
+PASS refusal: extra/noncanonical ZIP entry sub/README.md
+PASS refusal: extra/noncanonical ZIP entry ../README.md
+PASS refusal: extra/noncanonical ZIP entry readme.md
+PASS refusal: extra/noncanonical ZIP entry sub\README.md
+PASS refusal: missing marker
+PASS refusal: package byte tampering outside ZIP entries
+PASS refusal: setup output hash tampering (without executing setup)
+PASS refusal: staging replacement while shared read locks are held
+PASS refusal: writable staging input
+PASS refusal: staging input changed after packaging
+Release fixtures passed: 37 negative cases; version=1.2.1; no application/installer/desktop was run
+Fixture artifacts: C:\Users\Administrator\AppData\Local\Temp\QuickNest-release-fixtures\run-ae05257970a74bd4a8536a508f7bdf25

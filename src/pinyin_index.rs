@@ -87,39 +87,45 @@ fn build_variants(syllables: &[Vec<String>], first_letter: bool) -> Vec<String> 
 /// fuzzy score (700) and above the path score (600), per P2-02 ordering.
 pub fn pinyin_score(query: &str, index: &PinyinIndex) -> Option<u32> {
     let query = query.trim().to_lowercase();
-    if query.is_empty() || !query.chars().all(|c| c.is_ascii_alphanumeric()) {
+    if !is_pinyin_query(&query) {
         return None;
     }
-    if index.full.iter().any(|variant| variant == &query) {
+    pinyin_score_prepared(&query, index)
+}
+
+pub(crate) fn is_pinyin_query(query: &str) -> bool {
+    !query.is_empty() && query.bytes().all(|byte| byte.is_ascii_alphanumeric())
+}
+
+/// The caller already trimmed, lowercased and checked eligibility once for
+/// this search. Borrow the cached index and query without further allocation.
+pub(crate) fn pinyin_score_prepared(query: &str, index: &PinyinIndex) -> Option<u32> {
+    if index.full.iter().any(|variant| variant == query) {
         return Some(690);
     }
-    if index.initials.iter().any(|variant| variant == &query) {
+    if index.initials.iter().any(|variant| variant == query) {
         return Some(685);
     }
-    if index.full.iter().any(|variant| variant.starts_with(&query)) {
+    if index.full.iter().any(|variant| variant.starts_with(query)) {
         return Some(680);
     }
     if index
         .initials
         .iter()
-        .any(|variant| variant.starts_with(&query))
+        .any(|variant| variant.starts_with(query))
     {
         return Some(675);
     }
-    if index.full.iter().any(|variant| variant.contains(&query)) {
+    if index.full.iter().any(|variant| variant.contains(query)) {
         return Some(670);
     }
-    if index
-        .initials
-        .iter()
-        .any(|variant| variant.contains(&query))
-    {
+    if index.initials.iter().any(|variant| variant.contains(query)) {
         return Some(665);
     }
     if index
         .full
         .iter()
-        .any(|variant| is_subsequence(&query, variant))
+        .any(|variant| is_subsequence(query, variant))
     {
         return Some(660);
     }
@@ -184,6 +190,38 @@ mod tests {
             None,
             "Chinese queries use name matching"
         );
+    }
+
+    #[test]
+    fn public_pinyin_wrapper_normalizes_once_and_rejects_ineligible_queries() {
+        let index = PinyinIndex::build("微信");
+        for (query, expected) in [
+            (" WEIXIN ", Some(690)),
+            ("\u{2003}WX\u{2003}", Some(685)),
+            ("", None),
+            ("  ", None),
+            ("微", None),
+            ("w x", None),
+            ("wx!", None),
+            ("İ", None),
+        ] {
+            assert_eq!(pinyin_score(query, &index), expected, "{query:?}");
+        }
+        assert_eq!(pinyin_score(" K ", &PinyinIndex::build("开")), Some(685));
+        assert_eq!(pinyin_score_prepared("weixin", &index), Some(690));
+        assert_eq!(pinyin_score_prepared("wx", &index), Some(685));
+    }
+
+    #[test]
+    fn polyphone_variant_cap_and_order_are_deterministic() {
+        let name = "乐乐乐乐乐乐乐乐乐乐乐乐";
+        let first = PinyinIndex::build(name);
+        let second = PinyinIndex::build(name);
+        assert_eq!(first, second);
+        assert_eq!(first.full.len(), MAX_VARIANTS);
+        assert!(first.initials.len() <= MAX_VARIANTS);
+        assert!(first.full.windows(2).all(|pair| pair[0] < pair[1]));
+        assert!(first.initials.windows(2).all(|pair| pair[0] < pair[1]));
     }
 
     #[test]

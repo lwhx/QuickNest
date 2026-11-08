@@ -1,0 +1,21 @@
+   Compiling quicknest v1.2.1 (E:\Programs\ZCODE\01\QuickNest)
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:123:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 123 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 38.86s
+     Running tests\ui_layout.rs (target\debug\deps\ui_layout-52196ae9bdce1530.exe)
+
+running 8 tests
+test group_scroll_viewport_fits_beside_the_fixed_overflow_button ... ok
+test item_editor_keeps_actions_in_window_and_scrolls_wrapped_errors_at_both_supported_sizes ... ok
+test modal_escape_bubbles_from_controls_and_title_buttons_keep_receiving_clicks ... ok
+test pill_buttons_expose_state_and_reject_disabled_pointer_keyboard_and_accessible_actions ... ok
+test search_escape_keeps_clear_then_dismiss_behavior_without_hiding_window ... ok
+test settings_title_and_options_are_keyboard_reachable_without_moving_pointer_hits ... ok
+test shared_name_dialogs_preserve_edits_on_error_and_reinitialize_after_cancel ... ok
+test switching_modals_keeps_escape_when_the_old_focused_control_is_removed ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s
+

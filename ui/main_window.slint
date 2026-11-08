@@ -82,13 +82,57 @@ export global UiContext {
     in property <ThemeColors> theme;
 }
 
-// UI 体验修复（2026-11-07 第三批）：设置面板的统一选项按钮——固定高度、
-// hover/选中态，全应用内选项控件共用同一视觉规范。
-component PillButton inherits Rectangle {
+// Keyboard-only focus target: zero geometry preserves the existing pointer
+// hit areas, including the title bar's WindowMoveArea. Unhandled keys bubble.
+component ButtonKeyboardScope inherits FocusScope {
+    in property <bool> interactive: true;
+    callback activated();
+    property <string> held-key;
+    width: 0px;
+    height: 0px;
+    // Slint 1.18.1 ignores FocusOut on a disabled FocusScope. Gate input and
+    // Tab separately so clearing focus also clears its native has-focus state.
+    enabled: true;
+    focus-on-click: false;
+    focus-on-tab-navigation: root.interactive;
+    changed has-focus => { if (!self.has-focus) { root.held-key = ""; } }
+    changed interactive => {
+        if (!root.interactive) {
+            root.held-key = "";
+            self.clear-focus();
+        }
+    }
+    key-pressed(event) => {
+        if (root.interactive && (event.text == Key.Return || event.text == Key.Space)) {
+            if (root.held-key == "" && !event.repeat) { root.held-key = event.text; }
+            accept
+        } else { reject }
+    }
+    key-released(event) => {
+        if (root.interactive && (event.text == Key.Return || event.text == Key.Space)) {
+            if (root.held-key == event.text) {
+                root.held-key = "";
+                root.activated();
+            }
+            accept
+        } else { reject }
+    }
+}
+
+// Settings options share their pointer, keyboard and accessibility behavior.
+export component PillButton inherits Rectangle {
     in property <string> label;
     in property <bool> selected;
     in property <bool> enabled: true;
+    out property <bool> has-focus: pill-focus.has-focus;
     callback clicked();
+    forward-focus: pill-focus;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-checkable: true;
+    accessible-checked: root.selected;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
     height: 28px;
     min-width: 56px;
     border-radius: 6px;
@@ -105,12 +149,97 @@ component PillButton inherits Rectangle {
         color: root.selected ? UiContext.theme.accent : UiContext.theme.muted;
         horizontal-alignment: center;
         vertical-alignment: center;
+        accessible-role: none;
+    }
+    pill-focus := ButtonKeyboardScope {
+        interactive: root.enabled;
+        activated => { root.clicked(); }
+    }
+    focus-ring := Rectangle {
+        x: 2px;
+        y: 2px;
+        width: parent.width - 4px;
+        height: parent.height - 4px;
+        border-radius: 4px;
+        border-width: 2px;
+        border-color: UiContext.theme.accent;
+        visible: root.has-focus && root.enabled;
+        accessible-role: none;
     }
     pill-hit := TouchArea {
         enabled: root.enabled;
         width: parent.width;
         height: parent.height;
-        clicked => { root.clicked(); }
+        clicked => {
+            if (root.enabled) {
+                pill-focus.focus();
+                root.clicked();
+            }
+        }
+    }
+}
+
+// Presentation only: the host owns validation and the business IDs. A fresh
+// instance copies the initial text once; validation errors never reset edits.
+component NameDialog inherits Rectangle {
+    in property <ThemeColors> theme;
+    in property <string> dialog-id;
+    in property <string> title;
+    in property <string> initial;
+    in property <string> error;
+    in property <string> placeholder;
+    callback confirmed(string);
+    callback cancelled();
+    background: #00000033;
+    TouchArea { width: parent.width; height: parent.height; }
+    panel := Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        width: 320px;
+        height: max(160px, dialog-layout.preferred-height);
+        background: root.theme.panel;
+        border-radius: 10px;
+        accessible-role: groupbox;
+        accessible-id: root.dialog-id;
+        accessible-label: root.title;
+        TouchArea { width: parent.width; height: parent.height; }
+        dialog-layout := VerticalLayout {
+            padding: 16px;
+            spacing: 10px;
+            Text { text: root.title; font-weight: 600; color: root.theme.text; }
+            name-input := LineEdit {
+                placeholder-text: root.placeholder;
+                accessible-id: root.dialog-id + "-input";
+                accessible-label: root.placeholder;
+            }
+            Text {
+                text: root.error;
+                color: root.theme.danger;
+                font-size: 12px;
+                min-height: 14px;
+                wrap: word-wrap;
+                accessible-id: root.dialog-id + "-error";
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                Rectangle { horizontal-stretch: 1; background: transparent; }
+                Button {
+                    text: "取消";
+                    accessible-id: root.dialog-id + "-cancel";
+                    clicked => { root.cancelled(); }
+                }
+                Button {
+                    text: "确定";
+                    primary: true;
+                    accessible-id: root.dialog-id + "-confirm";
+                    clicked => { root.confirmed(name-input.text); }
+                }
+            }
+        }
+        init => {
+            name-input.text = root.initial;
+            name-input.focus();
+        }
     }
 }
 
@@ -1390,6 +1519,28 @@ export component MainWindow inherits Window {
                 height: 32px;
                 border-radius: 6px;
                 background: settings-hit.has-hover ? root.theme.title-hover : transparent;
+                forward-focus: settings-focus;
+                accessible-role: button;
+                accessible-label: "设置";
+                accessible-enabled: !root.any-modal-open;
+                accessible-action-default => {
+                    if (!root.any-modal-open) { root.settings-open-requested(); }
+                }
+                settings-focus := ButtonKeyboardScope {
+                    interactive: !root.any-modal-open;
+                    activated => { root.settings-open-requested(); }
+                }
+                settings-focus-ring := Rectangle {
+                    x: 2px;
+                    y: 2px;
+                    width: parent.width - 4px;
+                    height: parent.height - 4px;
+                    border-radius: 4px;
+                    border-width: 2px;
+                    border-color: root.theme.accent;
+                    visible: settings-focus.has-focus && !root.any-modal-open;
+                    accessible-role: none;
+                }
                 Text {
                     width: parent.width;
                     height: parent.height;
@@ -1413,7 +1564,10 @@ export component MainWindow inherits Window {
                         height: parent.height;
                         // UI 体验修复（2026-11-07 第三批）：左键打开应用内设置
                         // 面板；右键保留原生快捷菜单（子菜单版）。
-                        clicked => { root.settings-open-requested(); }
+                        clicked => {
+                            settings-focus.focus();
+                            root.settings-open-requested();
+                        }
                         pointer-event(event) => {
                             if event.kind == PointerEventKind.up && event.button == PointerEventButton.right {
                                 settings-menu.show({ x: 0px, y: parent.height });
@@ -1664,41 +1818,18 @@ export component MainWindow inherits Window {
     }
 
 
-    // P1-03: category create/rename dialog (modal overlay).
-    if root.category-dialog-visible: Rectangle {
-        x: 0px;
-        y: 0px;
+    // P1-03: category create/rename, keeping the host's existing interface.
+    if root.category-dialog-visible: NameDialog {
         width: parent.width;
         height: parent.height;
-        background: #00000033;
-                // 模态屏障：吸收对话框外的点击（P4 审核）。
-                TouchArea { width: parent.width; height: parent.height; }
-        Rectangle {
-            x: (parent.width - 320px) / 2;
-            y: (parent.height - 140px) / 2;
-            width: 320px;
-            height: 140px;
-            background: root.theme.panel;
-            border-radius: 10px;
-            TouchArea { width: parent.width; height: parent.height; }
-            VerticalLayout {
-                padding: 16px;
-                spacing: 10px;
-                Text { text: root.category-dialog-title; font-weight: 600; color: root.theme.text; }
-                category-dialog-input := LineEdit {
-                    text: root.category-dialog-initial;
-                    placeholder-text: "分类名称";
-                }
-                Text { text: root.category-dialog-error; color: root.theme.danger; font-size: 12px; height: 14px; }
-                HorizontalLayout {
-                    spacing: 10px;
-                    Rectangle { horizontal-stretch: 1; background: transparent; }
-                    Button { text: "取消"; clicked => { root.category-dialog-cancelled(); } }
-                    Button { text: "确定"; primary: true; clicked => { root.category-dialog-confirmed(category-dialog-input.text); } }
-                }
-            }
-            init => { category-dialog-input.focus(); }
-        }
+        theme: root.theme;
+        dialog-id: "category-dialog";
+        title: root.category-dialog-title;
+        initial: root.category-dialog-initial;
+        error: root.category-dialog-error;
+        placeholder: "分类名称";
+        confirmed(text) => { root.category-dialog-confirmed(text); }
+        cancelled => { root.category-dialog-cancelled(); }
     }
 
     // P1-03: delete confirmation with the migrate choice (baseline 2.3).
@@ -1747,41 +1878,18 @@ export component MainWindow inherits Window {
         }
     }
 
-    // P2-11: group create/rename dialog (baseline 2.2).
-    if root.group-dialog-visible: Rectangle {
-        x: 0px;
-        y: 0px;
+    // P2-11: group create/rename shares the same presentation and edit lifetime.
+    if root.group-dialog-visible: NameDialog {
         width: parent.width;
         height: parent.height;
-        background: #00000033;
-                // 模态屏障：吸收对话框外的点击（P4 审核）。
-                TouchArea { width: parent.width; height: parent.height; }
-        Rectangle {
-            x: (parent.width - 320px) / 2;
-            y: (parent.height - 140px) / 2;
-            width: 320px;
-            height: 140px;
-            background: root.theme.panel;
-            border-radius: 10px;
-            TouchArea { width: parent.width; height: parent.height; }
-            VerticalLayout {
-                padding: 16px;
-                spacing: 10px;
-                Text { text: root.group-dialog-title; font-weight: 600; color: root.theme.text; }
-                group-dialog-input := LineEdit {
-                    text: root.group-dialog-initial;
-                    placeholder-text: "分组名称";
-                }
-                Text { text: root.group-dialog-error; color: root.theme.danger; font-size: 12px; height: 14px; }
-                HorizontalLayout {
-                    spacing: 10px;
-                    Rectangle { horizontal-stretch: 1; background: transparent; }
-                    Button { text: "取消"; clicked => { root.group-dialog-cancelled(); } }
-                    Button { text: "确定"; primary: true; clicked => { root.group-dialog-confirmed(group-dialog-input.text); } }
-                }
-            }
-            init => { group-dialog-input.focus(); }
-        }
+        theme: root.theme;
+        dialog-id: "group-dialog";
+        title: root.group-dialog-title;
+        initial: root.group-dialog-initial;
+        error: root.group-dialog-error;
+        placeholder: "分组名称";
+        confirmed(text) => { root.group-dialog-confirmed(text); }
+        cancelled => { root.group-dialog-cancelled(); }
     }
 
     // P2-16 (baseline 15.7/17.4): historical backups - list, back up now,
@@ -2172,79 +2280,99 @@ export component MainWindow inherits Window {
         }
     }
 
-    // P1-05: project editor (add + edit share the dialog, baseline 3.4).
+    // P1-05: the editor grows for command mode, within the window. Only the
+    // form scrolls; validation text cannot push Save/Cancel below the window.
     if root.item-dialog-visible: Rectangle {
-        x: 0px;
-        y: 0px;
         width: parent.width;
         height: parent.height;
         background: #00000033;
-                // 模态屏障：吸收对话框外的点击（P4 审核）。
-                TouchArea { width: parent.width; height: parent.height; }
-        Rectangle {
-            x: (parent.width - 470px) / 2;
-            y: (parent.height - 396px) / 2;
+        TouchArea { width: parent.width; height: parent.height; }
+        item-editor := Rectangle {
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
             width: 470px;
-            height: 396px;
+            height: min(parent.height - 32px, root.item-dialog-type-index == 5 ? 436px : 396px);
             background: root.theme.panel;
             border-radius: 10px;
+            accessible-role: groupbox;
+            accessible-label: root.item-dialog-title;
+            accessible-id: "item-editor";
             TouchArea { width: parent.width; height: parent.height; }
             VerticalLayout {
                 padding: 14px;
                 spacing: 6px;
                 Text { text: root.item-dialog-title; font-weight: 600; color: root.theme.text; }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "名称"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    item-name-input := LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-name; }
+                item-editor-scroll := ScrollView {
+                    min-height: 0px;
+                    vertical-stretch: 1;
+                    horizontal-scrollbar-policy: always-off;
+                    content-width: self.visible-width;
+                    VerticalLayout {
+                        padding-right: 14px;
+                        spacing: 6px;
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "名称"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            item-name-input := LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-name; accessible-label: "项目名称"; }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "类型"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            ComboBox { horizontal-stretch: 1; model: root.item-type-names; current-index <=> root.item-dialog-type-index; accessible-label: "项目类型"; }
+                            Text { text: "窗口"; width: 32px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            ComboBox { width: 116px; model: root.window-state-names; current-index <=> root.item-dialog-window-index; accessible-label: "窗口状态"; }
+                        }
+                        if root.item-dialog-type-index == 5: HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "执行模式"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            ComboBox { horizontal-stretch: 1; model: root.exec-mode-names; current-index <=> root.item-dialog-exec-index; accessible-label: "执行模式"; }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "目标"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-target; placeholder-text: "路径或 URI"; accessible-label: "项目目标"; }
+                            Button { text: "浏览…"; width: 64px; clicked => { root.item-dialog-browse(); } }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "参数"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-args; accessible-label: "项目参数"; }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "工作目录"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-workdir; accessible-label: "工作目录"; }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "自定义图标"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-icon; placeholder-text: "可选，P1-10 起可自动提取"; accessible-label: "自定义图标"; }
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Text { text: "备注"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
+                            LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-note; accessible-label: "项目备注"; }
+                        }
+                        CheckBox { text: "以管理员身份运行"; checked <=> root.item-dialog-run-as-admin; }
+                        item-editor-error := Text {
+                            width: item-editor-scroll.visible-width - 14px;
+                            text: root.item-dialog-error;
+                            color: root.theme.danger;
+                            font-size: 12px;
+                            height: max(16px, self.preferred-height);
+                            wrap: word-wrap;
+                            accessible-id: "item-dialog-error";
+                        }
+                    }
                 }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "类型"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    ComboBox { horizontal-stretch: 1; model: root.item-type-names; current-index <=> root.item-dialog-type-index; }
-                    Text { text: "窗口"; width: 32px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    ComboBox { width: 116px; model: root.window-state-names; current-index <=> root.item-dialog-window-index; }
-                }
-                if root.item-dialog-type-index == 5: HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "执行模式"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    ComboBox { horizontal-stretch: 1; model: root.exec-mode-names; current-index <=> root.item-dialog-exec-index; }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "目标"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-target; placeholder-text: "路径或 URI"; }
-                    Button { text: "浏览…"; width: 64px; clicked => { root.item-dialog-browse(); } }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "参数"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-args; }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "工作目录"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-workdir; }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "自定义图标"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-icon; placeholder-text: "可选，P1-10 起可自动提取"; }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Text { text: "备注"; width: 62px; color: root.theme.secondary; font-size: 12px; vertical-alignment: center; }
-                    LineEdit { horizontal-stretch: 1; text <=> root.item-dialog-note; }
-                }
-                CheckBox { text: "以管理员身份运行"; checked <=> root.item-dialog-run-as-admin; }
-                Text { text: root.item-dialog-error; color: root.theme.danger; font-size: 12px; height: 16px; }
-                HorizontalLayout {
+                item-editor-actions := HorizontalLayout {
                     spacing: 10px;
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    Button { text: "取消"; clicked => { root.item-dialog-cancelled(); } }
-                    Button { text: "保存"; primary: true; clicked => { root.item-dialog-confirmed(); } }
+                    item-editor-cancel := Button { text: "取消"; clicked => { root.item-dialog-cancelled(); } }
+                    item-editor-save := Button { text: "保存"; primary: true; clicked => { root.item-dialog-confirmed(); } }
                 }
             }
+            init => { item-name-input.focus(); }
         }
     }
 
@@ -2414,7 +2542,12 @@ export component MainWindow inherits Window {
                         HorizontalLayout {
                             spacing: 6px;
                             Text { text: "主题"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
-                            PillButton { label: "浅色"; selected: root.theme-mode == "light"; clicked => { root.theme-menu-selected("light"); } }
+                            PillButton {
+                                label: "浅色";
+                                selected: root.theme-mode == "light";
+                                init => { self.focus(); }
+                                clicked => { root.theme-menu-selected("light"); }
+                            }
                             PillButton { label: "深色"; selected: root.theme-mode == "dark"; clicked => { root.theme-menu-selected("dark"); } }
                             PillButton { label: "跟随系统"; selected: root.theme-mode == "system"; clicked => { root.theme-menu-selected("system"); } }
                         }

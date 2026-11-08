@@ -1,32 +1,29 @@
-﻿#requires -Version 5.1
-# Builds the portable package (baseline 23 章 便携版 / P4-02):
-# installer/output/QuickNest-<ver>-portable.zip
-#
-# Contents: quicknest.exe + QuickNest.ico + README.md + QuickNest.portable
-# (empty marker). 解压即用：解压到任意目录、双击运行；标记文件开启便携模式
-# （数据目录 <exe 目录>\data）。
+#requires -Version 5.1
+param([Parameter(Mandatory=$true)][string]$ReleaseDirectory)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$exe = Join-Path $root 'target\release\quicknest.exe'
-$ico = Join-Path $root 'assets\QuickNest.ico'
-$readme = Join-Path $root 'README.md'
-$outDir = Join-Path $root 'installer\output'
-[void][IO.Directory]::CreateDirectory($outDir)
-$zip = Join-Path $outDir 'QuickNest-1.2.0-portable.zip'
-if (Test-Path -LiteralPath $zip) { Remove-Item $zip -Force }
-$stage = Join-Path $env:TEMP ('qn-portable-' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
-[void][IO.Directory]::CreateDirectory($stage)
+. (Join-Path $root 'scripts/release-metadata.ps1')
+$context = Read-QnReleaseContext $root $ReleaseDirectory -ProbeExecutable
+$version = Get-QnCargoVersion $root
+$zipPath = Assert-QnReleasePath (Join-Path $context.directory ('QuickNest-' + $version + '-portable.zip')) $context.directory
+if (Test-Path -LiteralPath $zipPath) { throw 'Portable output already exists; allocate a new release run' }
+$stageManifestHash = Get-QnReleaseHash (Join-Path $context.directory 'staging-manifest.json')
+$locks = Open-QnReleaseStageLocks $context.directory $context.stage
 try {
-    Copy-Item -LiteralPath $exe -Destination (Join-Path $stage 'quicknest.exe')
-    Copy-Item -LiteralPath $ico -Destination (Join-Path $stage 'QuickNest.ico')
-    Copy-Item -LiteralPath $readme -Destination (Join-Path $stage 'README.md')
-    # 便携标记：空文件，存在即开启便携模式。
-    [IO.File]::WriteAllText((Join-Path $stage 'QuickNest.portable'), '', [Text.Encoding]::ASCII)
-    Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
-    $f = Get-Item -LiteralPath $zip
-    Write-Host ('portable package: ' + $zip + ' (' + $f.Length + ' bytes)')
-    Write-Host ('sha256: ' + (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash)
-} finally {
-    Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
-}
+    Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+    $stream = [IO.File]::Open($zipPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+    try {
+        $archive = New-Object IO.Compression.ZipArchive($stream, [IO.Compression.ZipArchiveMode]::Create, $true)
+        try {
+            foreach ($record in $context.stage.files) {
+                [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, (Join-Path $context.staging_directory $record.path), $record.path, [IO.Compression.CompressionLevel]::Optimal)
+            }
+        } finally { $archive.Dispose() }
+    } finally { $stream.Dispose() }
+    [void](Assert-QnReleaseStage $context.directory $context.stage)
+    if ((Get-QnReleaseHash (Join-Path $context.directory 'staging-manifest.json')) -cne $stageManifestHash) { throw 'Staging manifest was replaced during portable packaging' }
+    [void](Assert-QnReleaseSourceUnchanged $root $context.source)
+    Assert-QnPortableArchive $zipPath $context.stage
+    Write-Host ('Portable archive verified: ' + $zipPath)
+} finally { foreach ($lock in $locks) { $lock.Dispose() } }

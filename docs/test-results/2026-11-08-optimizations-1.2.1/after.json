@@ -1,0 +1,87 @@
+{
+  "cold_search_samples": 3,
+  "hot_search_samples": 7,
+  "label": "after-1.2.1-working-tree",
+  "package_version": "1.2.1",
+  "persistence": [
+    {
+      "clone_ms": 0.0357,
+      "fixture_digest": "60cddf2d267883fd878f5d58155794ab3e2b34da1d1edd254f2b32c24a139b7f",
+      "fixture_digest_algorithm": "blake3",
+      "items": 100,
+      "json_bytes": 92899,
+      "new_backups_from_three_reselects": 0,
+      "prune_only_ms": 1.4111,
+      "record_and_save_ms": 7.889,
+      "reselect_current_ms": 0.0,
+      "serialize_ms": 0.1347
+    },
+    {
+      "clone_ms": 0.4462,
+      "fixture_digest": "fe72edcee5b4fc19c9a250b1d181a6607e9e132daf367993fff4b333482b58a9",
+      "fixture_digest_algorithm": "blake3",
+      "items": 1000,
+      "json_bytes": 921799,
+      "new_backups_from_three_reselects": 0,
+      "prune_only_ms": 3.089,
+      "record_and_save_ms": 18.578500000000002,
+      "reselect_current_ms": 0.0,
+      "serialize_ms": 1.0187
+    },
+    {
+      "clone_ms": 2.3739999999999997,
+      "fixture_digest": "b68fc23aa16b690ac725ff46de5ecc52292565a3a576ab7bedc9b31247512640",
+      "fixture_digest_algorithm": "blake3",
+      "items": 5000,
+      "json_bytes": 4617799,
+      "new_backups_from_three_reselects": 0,
+      "prune_only_ms": 25.9679,
+      "record_and_save_ms": 68.7576,
+      "reselect_current_ms": 0.00009999999999999999,
+      "serialize_ms": 6.2369
+    }
+  ],
+  "persistence_samples": 5,
+  "profile": "release",
+  "row_samples": 3,
+  "rows": [
+    {
+      "fixture_digest": "4a2f35a0beffc1fbd52dad23df7d9e8d8d9f48beceb4806080669dd6461133e5",
+      "items": 100,
+      "manual_item_rows_ms": 0.025599999999999998
+    },
+    {
+      "fixture_digest": "e644fa510579be35301a6f9f5297fe815fc77c2723c8ecc6f2770a40981894c5",
+      "items": 1000,
+      "manual_item_rows_ms": 0.3404
+    },
+    {
+      "fixture_digest": "dc75b5f49e128251c859d2e80e75ed0f5e3c7d8091a2b7e4098380f1c05b1718",
+      "items": 5000,
+      "manual_item_rows_ms": 1.7235
+    },
+    {
+      "fixture_digest": "439e0714ff2526c1593cc42a4500d933751fd0cac66f7590d09072dcbb11628f",
+      "items": 10000,
+      "manual_item_rows_ms": 5.1943
+    }
+  ],
+  "schema_version": 1,
+  "search": [
+    {
+      "cold_empty_ms": 0.3434,
+      "cold_pinyin_ms": 6.1142,
+      "fixture_digest": "4e73b79eb76def6ab76f1c6fd81369ec95a33443a8176d89797bd393feedddd0",
+      "hot_pinyin_ms": 0.6145999999999999,
+      "items": 1000
+    },
+    {
+      "cold_empty_ms": 3.4503,
+      "cold_pinyin_ms": 68.29499999999999,
+      "fixture_digest": "f8f432ca6f828ca4fd2525cc99914ffd95d64b465b144a1c616bd486a233b859",
+      "hot_pinyin_ms": 8.9624,
+      "items": 10000
+    }
+  ],
+  "started_unix_ms": 1794100909054
+}

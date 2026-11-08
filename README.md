@@ -1,12 +1,14 @@
 # QuickNest
 
-QuickNest 是依据 [V1.2 开发基线](QuickNest_V1.2_正式开发基线.md) 开发的 Windows 原生快捷启动器，工程版本 **1.2.0**。支持分组/分类与项目管理、EXE/LNK/文件/文件夹/URI/UWP/MSI 入口、搜索与拼音、热键与托盘、拖拽、批量/组合/延时启动、主题、备份及导入导出；提供逐用户安装与便携打包方式。
+QuickNest 是依据 [V1.2 开发基线](QuickNest_V1.2_正式开发基线.md) 开发的 Windows 原生快捷启动器，工程版本 **1.2.1**。支持分组/分类与项目管理、EXE/LNK/文件/文件夹/URI/UWP/MSI 入口、搜索与拼音、热键与托盘、拖拽、批量/组合/延时启动、主题、备份及导入导出；提供逐用户安装与便携打包方式。
 
-**当前状态：2026-11-08 后续审核确认的五项问题已修复，并通过统一安全回归与本地 Release 构建；P4 完整发布尚未通过，不宣称全矩阵验收。** 最新修复涵盖组合失败反馈、跨分类批量选择、恢复/导入后的运行状态同步、组合删除错误反馈和失焦隐藏开关。验证命令、实际结果及跳过项目见 [后续修复记录](docs/AUDIT_FOLLOWUP_2026-11-08.md)，此前 12 项修复见 [上一轮记录](docs/AUDIT_REPAIRS_2026-11-07.md)。
+**当前状态：2026-11-08，1.2.1 本地优化候选，七项优化已实现并通过本地安全回归；统一验证、性能对比与本地交付证据以优化记录为准。P4 完整发布尚未验收通过。** 本轮覆盖配置写入与备份校验、排序、图标增量更新、搜索、键盘与无障碍、正式模态对话框共用及来源可核对的本地构建。实施范围和结果入口见 [1.2.1 优化记录](docs/OPTIMIZATIONS_1.2.1.md)、[发布说明](RELEASE_NOTES.md) 与 [P4 验证记录](docs/P4_VALIDATION.md)。
 
-本轮只重建本地 `target/release/quicknest.exe`；已发布 v1.2.0 的安装包和便携包仍对应此前构建，其历史哈希见 [发布构建记录](docs/AUDIT_FIXES_2026-11-07.md)，不能用于认证本轮修复。完整发布仍待 Win10、安装完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点。更新仅支持 raw，setup/portablezip 在下载前拒绝；旧测试密钥已披露，不受生产信任。runasoriginaluser 和 asInvoker 不保证所有上下文都降到 Medium。
+已公开 **v1.2.0** 保留为历史发布，其附件和历史哈希不因本地优化而改变；原发布说明完整归档于 [1.2.0 历史记录](docs/releases/1.2.0.md)，历史构建证据见 [发布构建记录](docs/AUDIT_FIXES_2026-11-07.md)。此前 [五项后续修复](docs/AUDIT_FOLLOWUP_2026-11-08.md) 和 [审核修复](docs/AUDIT_REPAIRS_2026-11-07.md) 的结果只对应各自构建，不能认证 1.2.1。
 
-配置、图标、备份与崩溃日志使用统一数据根；安装版默认 %APPDATA%/QuickNest，便携版为程序目录下 data。详见 [发布说明](RELEASE_NOTES.md) 与 [测试隔离用法](docs/TEST_HARNESS.md)。
+完整发布仍待 Win10、安装完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点及当前 UI 的实机 DPI/多显示器回归。更新仅支持 raw，setup/portablezip 在下载前拒绝；旧测试密钥已披露，不受生产信任。runasoriginaluser 和 asInvoker 不保证所有上下文都降到 Medium。
+
+配置、图标、备份与崩溃日志使用统一数据根；安装版默认 %APPDATA%/QuickNest，便携版为程序目录下 data。测试入口与隔离要求见 [TEST_HARNESS.md](docs/TEST_HARNESS.md)。
 
 ## 构建环境
 
@@ -21,13 +23,28 @@ QuickNest 是依据 [V1.2 开发基线](QuickNest_V1.2_正式开发基线.md) �
 cargo fmt --all -- --check
 cargo check --locked --all-targets
 cargo clippy --locked --all-targets -- -D warnings
-cargo test --locked --all-targets
-cargo build --locked --release
 ```
+
+测试按 [TEST_HARNESS.md 的安全集合](docs/TEST_HARNESS.md#1-先运行安全-preflight) 串行执行，明确跳过旧剪贴板 round-trip，并将共享 Shell 集成测试留给既有隔离桌面入口。编译全目标不代表执行全目标测试。
+
+## 1.2.1 本地构建与产物核验
+
+在仓库根目录使用 PowerShell；依赖与 Inno Setup 编译器须已在本机就绪。
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-release.ps1
+# 将 <run> 替换为构建命令实际返回的独立目录。
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-release-artifacts.ps1 -ReleaseDirectory <run>
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-release-artifacts.ps1 -Fixture
+```
+
+默认构建禁用更新 key，产物分配到 `installer/output/release-1.2.1-<guid>/`。该目录是命名规则，实际目录、manifest 名称、大小与哈希由最终构建结果填入 [优化记录](docs/OPTIMIZATIONS_1.2.1.md)。构建入口冻结实际输入并将来源指纹内嵌 EXE，安装包和 ZIP 共用 staging；允许准确记录 dirty 工作树，base HEAD 仅为基准提交，不能代表未提交源码。
+
+独立核验覆盖本地 EXE、ZIP 内部字节与 setup 的冻结输入/编译证据；setup 尚未安装、未独立解包，不能据此宣称安装内容或实机验收通过。来源记录证明本地过程一致，不构成第三方签名或跨机器可复现构建证明。最终门禁及实际交付结果统一见 [优化记录](docs/OPTIMIZATIONS_1.2.1.md)。
 
 ## 历史操作与逐任务记录（已过时）
 
-以下内容保留各任务当时的操作、预期、结果及后续计划，仅用于追溯。旧命令、固定坐标、路径、测试密钥与版本结论不能直接用于当前验收；执行测试前须遵循 [隔离契约](docs/TEST_HARNESS.md)。本轮没有运行桌面回归，当前状态仅见 [本轮修复记录](docs/AUDIT_FIXES_2026-11-07.md)。
+以下内容保留各任务当时的操作、预期、结果及后续计划，仅用于追溯。旧命令、固定坐标、路径、测试密钥与版本结论不能直接用于当前验收；执行测试前须遵循 [隔离契约](docs/TEST_HARNESS.md)。当前状态与本轮结果只由 [1.2.1 优化记录](docs/OPTIMIZATIONS_1.2.1.md) 承载。
 
 ## 历史操作（已过时）：运行 P0-01 验证程序
 
@@ -60,7 +77,7 @@ powershell.exe -NoProfile -File .\scripts\validate-p0-01.ps1 `
 - `scripts/run-p0-01-medium-validation.ps1`：在当前高权限开发会话中，仅为测试子进程创建受限 Medium 令牌，不改系统策略；这不是产品降权实现。
 - `scripts/test-p0-01-buttons.ps1 -ResultsDir <结果目录>`：按已观察的 DPI 96 窗口按钮坐标派发窗口鼠标消息，验证隐藏/恢复和退出回调，记录加载模块与子进程。不是物理鼠标或 UI Automation 测试。
 
-P0-01 当时记录过动态 MSVC 依赖；这些属于旧构建。本轮最终 EXE 已检查普通及延迟导入表，无 VCRUNTIME/MSVCP/CONCRT 动态运行库依赖，仍依赖 Windows 系统 DLL；不代表 Win10 兼容性实测通过。
+P0-01 当时记录过动态 MSVC 依赖；这些属于旧构建。后续历史构建曾核对普通及延迟导入表，确认无 VCRUNTIME/MSVCP/CONCRT 动态运行库依赖，仍依赖 Windows 系统 DLL；该结果不代表 1.2.1 产物已核验，也不代表 Win10 兼容性实测通过。
 
 ## 历史操作（已过时）：运行 P0-02 HWND 生命周期验证
 
@@ -309,7 +326,7 @@ installer/output/QuickNest-1.2.0-portable.zip   便携版（解压即用）
 target/release/quicknest.exe                    裸程序
 ```
 
-以上三个路径的本轮产物已重建并核验。发布说明见 [RELEASE_NOTES.md](RELEASE_NOTES.md)；本轮门禁结果、构建证据和完整哈希见 [本轮修复记录](docs/AUDIT_FIXES_2026-11-07.md)。P4 仍有多项发布前置条件，不能按仅 Win10 遗留处理。
+以上路径记录 1.2.0 阶段的历史产物位置；历史重建与核验结论仅属于 [当时构建记录](docs/AUDIT_FIXES_2026-11-07.md)，不代表 1.2.1 本轮三件产物已重建。1.2.1 使用上文的独立 run 目录，最终门禁与实际交付证据见 [优化记录](docs/OPTIMIZATIONS_1.2.1.md)。P4 仍有多项发布前置条件，不能按仅 Win10 遗留处理。
 
 
 P0 阶段当时的顺序门禁与操作仅作历史追溯，见 [开发进度](docs/DEVELOPMENT_PROGRESS.md) 和 [P0 验证记录](docs/P0_VALIDATION.md)；不据此认证当前构建。

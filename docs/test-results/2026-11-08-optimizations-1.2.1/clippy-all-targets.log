@@ -1,0 +1,7 @@
+   Compiling quicknest v1.2.1 (E:\Programs\ZCODE\01\QuickNest)
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:123:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 123 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 45.60s

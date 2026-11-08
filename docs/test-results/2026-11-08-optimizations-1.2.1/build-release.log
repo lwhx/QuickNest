@@ -1,0 +1,8 @@
+Source frozen: bed4f8b38fdf4cc2af1221be96f431fd13ecfdad2801031080dd24301ed7cb41; base HEAD=7b7c3133b239c3c7115f6f63c9e6cf45ddbb8be7; dirty=True
+Where-Object : 在此对象上找不到属性“source”。请确认该属性存在。
+所在位置 E:\Programs\ZCODE\01\QuickNest\scripts\release-metadata.ps1:332 字符: 39
++ ... inal = @($source.files | Where-Object { $_.path -ceq $input.source })
++                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Where-Object], PropertyNotFoundException
+    + FullyQualifiedErrorId : PropertyNotFoundStrict,Microsoft.PowerShell.Commands.WhereObjectCommand
+ 

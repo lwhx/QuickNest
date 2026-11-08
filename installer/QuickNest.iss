@@ -5,10 +5,18 @@
 ;
 ; PrivilegesRequired=lowest → 逐用户安装（默认 %LOCALAPPDATA%\Programs\QuickNest，
 ; 全程不需要管理员权限，UAC 不弹窗）；卸载信息也写在 HKCU（基线 23 章卸载程序 +
-; "安装后普通权限启动"）。AppVersion 1.2.0 对齐基线《V1.2 正式开发基线》。
+; "安装后普通权限启动"）。版本与冻结输入由离线发布包装器传入。
 
+#ifndef MyAppVersion
+  #error "Use scripts/build-release.ps1: MyAppVersion is required from locked offline Cargo metadata"
+#endif
+#ifndef ReleaseStageDir
+  #error "Use scripts/build-release.ps1: ReleaseStageDir is required"
+#endif
+#ifndef ReleaseOutputDir
+  #error "Use scripts/build-release.ps1: ReleaseOutputDir is required"
+#endif
 #define MyAppName "QuickNest"
-#define MyAppVersion "1.2.0"
 #define MyAppPublisher "QuickNest"
 #define MyAppExeName "quicknest.exe"
 
@@ -21,9 +29,9 @@ DefaultDirName={localappdata}\Programs\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
-OutputDir=output
+OutputDir={#ReleaseOutputDir}
 OutputBaseFilename=QuickNest-{#MyAppVersion}-setup
-SetupIconFile=..\assets\QuickNest.ico
+SetupIconFile={#ReleaseStageDir}\QuickNest.ico
 UninstallDisplayName={#MyAppName} {#MyAppVersion}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2
@@ -44,9 +52,9 @@ Name: "autostart"; Description: "开机自动启动 QuickNest"; \
     GroupDescription: "其他选项："; Flags: unchecked
 
 [Files]
-Source: "..\target\release\quicknest.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\assets\QuickNest.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#ReleaseStageDir}\quicknest.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#ReleaseStageDir}\QuickNest.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#ReleaseStageDir}\README.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; \

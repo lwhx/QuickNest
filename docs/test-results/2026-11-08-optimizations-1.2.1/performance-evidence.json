@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "baseline_head": "7b7c3133b239c3c7115f6f63c9e6cf45ddbb8be7",
+  "datasets_match": true,
+  "dataset_digest_algorithm": "blake3",
+  "environment": {
+    "os": "Windows 11 x64, build 26200",
+    "target": "x86_64-pc-windows-msvc",
+    "profile": "release"
+  },
+  "scope": "Synthetic isolated warm-filesystem-cache measurements. Cold search means empty in-process pinyin cache. No GUI, network, real configuration or application launch.",
+  "samples": {
+    "clone": 15,
+    "serialize": 7,
+    "record_and_save": 5,
+    "prune": 5,
+    "reselect": 3,
+    "rows": 3,
+    "cold_search": 3,
+    "hot_search": 7
+  },
+  "statistic": "median; milliseconds",
+  "caveats": [
+    "No claim of UI end-to-end latency or cross-machine reproducibility.",
+    "Near-zero no-op timings are reported as zero writes, without speedup ratios."
+  ],
+  "files": [
+    {
+      "path": "before.json",
+      "bytes": 2652,
+      "sha256": "6c4497629b2ec17557d9c16527f04ee40dfa2af4926279fdb9e086f40e40bfda"
+    },
+    {
+      "path": "after.json",
+      "bytes": 2677,
+      "sha256": "e6b766bc500a332e0dd884cd264f3e277196076ef9da9f6fd4f82be21a2cc949"
+    },
+    {
+      "path": "comparison.json",
+      "bytes": 6425,
+      "sha256": "775a289bed8e60f4e30d8e87ae341993c9dc59c8886e8696a64654c4f9a9dd81"
+    }
+  ]
+}

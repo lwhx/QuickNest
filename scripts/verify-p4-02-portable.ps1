@@ -6,6 +6,7 @@
 # 到自身目录）→ 单击卡片启动（相对路径按根 A 解析）→ 关闭后把整个文件夹
 # 移动到根 B（同一隔离根的新目录）→ 重启验证数据随文件夹迁移 → 再单击启动
 # （相对路径按新根 B 解析，探针落在根 B）→ 全程 %APPDATA% 不受影响。
+param([string]$ReleaseDirectory = '')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -29,7 +30,10 @@ $results = $script:QnCaseRoot
 [void][IO.Directory]::CreateDirectory($results)
 $report = Join-Path $results 'p4-02-portable.tsv'
 if (Test-Path $report) { Remove-QnSandboxItem $report -Force }
-$zip = Join-Path $root 'installer\output\QuickNest-1.2.0-portable.zip'
+. (Join-Path $root 'scripts/release-metadata.ps1')
+$packageVersion = Get-QnCargoVersion $root
+$packageDirectory = if ($ReleaseDirectory) { (Read-QnReleaseContext $root $ReleaseDirectory -ProbeExecutable).directory } else { Join-Path $root 'installer/output' }
+$zip = Join-Path $packageDirectory ('QuickNest-' + $packageVersion + '-portable.zip')
 $rootA = Join-Path $results 'root-a'
 $rootB = Join-Path $results 'root-b'
 $roamingConfig = Join-Path $env:APPDATA 'QuickNest/config.json'

@@ -6,6 +6,7 @@
 # Source flags, installer artifacts and an asInvoker manifest are prerequisite
 # evidence only. This script does not drive that completion-page interaction or
 # establish its token provenance; acceptance therefore ends BLOCKED/nonzero.
+param([string]$ReleaseDirectory = '')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -21,7 +22,10 @@ $results = $script:QnCaseRoot
 $report = Join-Path $results 'p4-03-deelevate.tsv'
 if (Test-Path $report) { Remove-QnSandboxItem $report -Force }
 $issPath = Join-Path $root 'installer\QuickNest.iss'
-$setupPath = Join-Path $root 'installer\output\QuickNest-1.2.0-setup.exe'
+. (Join-Path $root 'scripts/release-metadata.ps1')
+$packageVersion = Get-QnCargoVersion $root
+$packageDirectory = if ($ReleaseDirectory) { (Read-QnReleaseContext $root $ReleaseDirectory -ProbeExecutable).directory } else { Join-Path $root 'installer/output' }
+$setupPath = Join-Path $packageDirectory ('QuickNest-' + $packageVersion + '-setup.exe')
 $installDir = Join-Path $env:LOCALAPPDATA 'Programs\QuickNest'
 $appExe = Join-Path $installDir 'quicknest.exe'
 $uninst = Join-Path $installDir 'unins000.exe'

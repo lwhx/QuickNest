@@ -1,0 +1,360 @@
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:22:
+ // Kept dependency-free so recording provenance never changes Cargo.lock.
+ fn sha256(bytes: &[u8]) -> String {
+     const K: [u32; 64] = [
+[31m-        0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+[0m[31m-        0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+[0m[31m-        0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+[0m[31m-        0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+[0m[31m-        0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+[0m[31m-        0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+[0m[31m-        0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+[0m[31m-        0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2,
+[0m[32m+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
+[0m[32m+        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
+[0m[32m+        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
+[0m[32m+        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+[0m[32m+        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
+[0m[32m+        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+[0m[32m+        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
+[0m[32m+        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+[0m[32m+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
+[0m[32m+        0xc67178f2,
+[0m     ];
+[31m-    let mut state = [0x6a09e667u32,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+[0m[32m+    let mut state = [
+[0m[32m+        0x6a09e667u32,
+[0m[32m+        0xbb67ae85,
+[0m[32m+        0x3c6ef372,
+[0m[32m+        0xa54ff53a,
+[0m[32m+        0x510e527f,
+[0m[32m+        0x9b05688c,
+[0m[32m+        0x1f83d9ab,
+[0m[32m+        0x5be0cd19,
+[0m[32m+    ];
+[0m     let mut padded = bytes.to_vec();
+     padded.push(0x80);
+[31m-    while padded.len() % 64 != 56 { padded.push(0); }
+[0m[32m+    while padded.len() % 64 != 56 {
+[0m[32m+        padded.push(0);
+[0m[32m+    }
+[0m     padded.extend_from_slice(&((bytes.len() as u64) * 8).to_be_bytes());
+     for block in padded.chunks_exact(64) {
+         let mut w = [0u32; 64];
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:42:
+             *word = u32::from_be_bytes(chunk.try_into().unwrap());
+         }
+         for i in 16..64 {
+[31m-            let a = w[i-15].rotate_right(7) ^ w[i-15].rotate_right(18) ^ (w[i-15] >> 3);
+[0m[31m-            let b = w[i-2].rotate_right(17) ^ w[i-2].rotate_right(19) ^ (w[i-2] >> 10);
+[0m[31m-            w[i] = w[i-16].wrapping_add(a).wrapping_add(w[i-7]).wrapping_add(b);
+[0m[32m+            let a = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
+[0m[32m+            let b = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
+[0m[32m+            w[i] = w[i - 16]
+[0m[32m+                .wrapping_add(a)
+[0m[32m+                .wrapping_add(w[i - 7])
+[0m[32m+                .wrapping_add(b);
+[0m         }
+[31m-        let [mut a,mut b,mut c,mut d,mut e,mut f,mut g,mut h] = state;
+[0m[32m+        let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = state;
+[0m         for i in 0..64 {
+             let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
+             let ch = (e & f) ^ (!e & g);
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:53:
+[31m-            let t1 = h.wrapping_add(s1).wrapping_add(ch).wrapping_add(K[i]).wrapping_add(w[i]);
+[0m[32m+            let t1 = h
+[0m[32m+                .wrapping_add(s1)
+[0m[32m+                .wrapping_add(ch)
+[0m[32m+                .wrapping_add(K[i])
+[0m[32m+                .wrapping_add(w[i]);
+[0m             let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
+             let maj = (a & b) ^ (a & c) ^ (b & c);
+             let t2 = s0.wrapping_add(maj);
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:57:
+[31m-            h=g; g=f; f=e; e=d.wrapping_add(t1); d=c; c=b; b=a; a=t1.wrapping_add(t2);
+[0m[32m+            h = g;
+[0m[32m+            g = f;
+[0m[32m+            f = e;
+[0m[32m+            e = d.wrapping_add(t1);
+[0m[32m+            d = c;
+[0m[32m+            c = b;
+[0m[32m+            b = a;
+[0m[32m+            a = t1.wrapping_add(t2);
+[0m         }
+[31m-        for (word, value) in state.iter_mut().zip([a,b,c,d,e,f,g,h]) { *word = word.wrapping_add(value); }
+[0m[32m+        for (word, value) in state.iter_mut().zip([a, b, c, d, e, f, g, h]) {
+[0m[32m+            *word = word.wrapping_add(value);
+[0m[32m+        }
+[0m     }
+     state.iter().map(|word| format!("{word:08x}")).collect()
+ }
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:64:
+ fn tool_version(variable: &str) -> String {
+     println!("cargo:rerun-if-env-changed={variable}");
+     let program = std::env::var_os(variable).expect("Cargo tool path is missing");
+[31m-    let result = std::process::Command::new(program).arg("-Vv").output().expect("Cannot query build tool version");
+[0m[32m+    let result = std::process::Command::new(program)
+[0m[32m+        .arg("-Vv")
+[0m[32m+        .output()
+[0m[32m+        .expect("Cannot query build tool version");
+[0m     assert!(result.status.success(), "Cannot query build tool version");
+[31m-    String::from_utf8(result.stdout).expect("Invalid tool version encoding").replace("\r\n", "\n").trim().to_owned()
+[0m[32m+    String::from_utf8(result.stdout)
+[0m[32m+        .expect("Invalid tool version encoding")
+[0m[32m+        .replace("\r\n", "\n")
+[0m[32m+        .trim()
+[0m[32m+        .to_owned()
+[0m }
+ 
+ fn write_build_info() {
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:73:
+     use std::fmt::Write;
+     let names = [
+[31m-        "QUICKNEST_BUILD_SOURCE_FINGERPRINT", "QUICKNEST_BUILD_BASE_HEAD",
+[0m[31m-        "QUICKNEST_BUILD_DIRTY", "QUICKNEST_BUILD_RUSTC_SHA256",
+[0m[31m-        "QUICKNEST_BUILD_CARGO_SHA256", "QUICKNEST_BUILD_FINGERPRINT",
+[0m[32m+        "QUICKNEST_BUILD_SOURCE_FINGERPRINT",
+[0m[32m+        "QUICKNEST_BUILD_BASE_HEAD",
+[0m[32m+        "QUICKNEST_BUILD_DIRTY",
+[0m[32m+        "QUICKNEST_BUILD_RUSTC_SHA256",
+[0m[32m+        "QUICKNEST_BUILD_CARGO_SHA256",
+[0m[32m+        "QUICKNEST_BUILD_FINGERPRINT",
+[0m     ];
+[31m-    for name in names { println!("cargo:rerun-if-env-changed={name}"); }
+[0m[32m+    for name in names {
+[0m[32m+        println!("cargo:rerun-if-env-changed={name}");
+[0m[32m+    }
+[0m     println!("cargo:rerun-if-env-changed=QUICKNEST_UPDATE_PUBLIC_KEY_HEX");
+     println!("cargo:rerun-if-changed=src/update_key.pub");
+     let key = std::env::var("QUICKNEST_UPDATE_PUBLIC_KEY_HEX").unwrap_or_default();
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:83:
+     let key = key.trim();
+[31m-    let key_bytes: Vec<u8> = if key.is_empty() { Vec::new() } else {
+[0m[31m-        assert!(key.len() == 144 && key.bytes().all(|b| b.is_ascii_hexdigit()), "Release public key must be a 72-byte BCrypt ECDSA P-256 PUBLIC blob");
+[0m[31m-        (0..key.len()).step_by(2).map(|i| u8::from_str_radix(&key[i..i+2], 16).unwrap()).collect()
+[0m[32m+    let key_bytes: Vec<u8> = if key.is_empty() {
+[0m[32m+        Vec::new()
+[0m[32m+    } else {
+[0m[32m+        assert!(
+[0m[32m+            key.len() == 144 && key.bytes().all(|b| b.is_ascii_hexdigit()),
+[0m[32m+            "Release public key must be a 72-byte BCrypt ECDSA P-256 PUBLIC blob"
+[0m[32m+        );
+[0m[32m+        (0..key.len())
+[0m[32m+            .step_by(2)
+[0m[32m+            .map(|i| u8::from_str_radix(&key[i..i + 2], 16).unwrap())
+[0m[32m+            .collect()
+[0m     };
+[31m-    let key_status = if key_bytes.is_empty() { "disabled" } else {
+[0m[31m-        assert!(&key_bytes[..8] == b"ECS1\x20\0\0\0", "Only an ECDSA P-256 public blob is accepted");
+[0m[31m-        assert!(!key.eq_ignore_ascii_case(include_str!("src/update_key.pub").trim()), "The disclosed fixture key cannot be used for a release");
+[0m[32m+    let key_status = if key_bytes.is_empty() {
+[0m[32m+        "disabled"
+[0m[32m+    } else {
+[0m[32m+        assert!(
+[0m[32m+            &key_bytes[..8] == b"ECS1\x20\0\0\0",
+[0m[32m+            "Only an ECDSA P-256 public blob is accepted"
+[0m[32m+        );
+[0m[32m+        assert!(
+[0m[32m+            !key.eq_ignore_ascii_case(include_str!("src/update_key.pub").trim()),
+[0m[32m+            "The disclosed fixture key cannot be used for a release"
+[0m[32m+        );
+[0m         "configured"
+     };
+[31m-    let key_hash = if key_bytes.is_empty() { None } else { Some(sha256(&key_bytes)) };
+[0m[32m+    let key_hash = if key_bytes.is_empty() {
+[0m[32m+        None
+[0m[32m+    } else {
+[0m[32m+        Some(sha256(&key_bytes))
+[0m[32m+    };
+[0m     let rustc = tool_version("RUSTC");
+     let cargo = tool_version("CARGO");
+     let target = std::env::var("TARGET").unwrap();
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:97:
+     let profile = std::env::var("PROFILE").unwrap();
+[31m-    let values: Vec<_> = names.iter().map(|name| std::env::var(name).ok().filter(|s| !s.is_empty())).collect();
+[0m[32m+    let values: Vec<_> = names
+[0m[32m+        .iter()
+[0m[32m+        .map(|name| std::env::var(name).ok().filter(|s| !s.is_empty()))
+[0m[32m+        .collect();
+[0m     let recorded = values.iter().any(Option::is_some);
+     let mut generated = String::new();
+[31m-    for (name, value) in [("BUILD_TARGET", &target), ("BUILD_PROFILE", &profile), ("BUILD_RUSTC", &rustc), ("BUILD_CARGO", &cargo)] {
+[0m[32m+    for (name, value) in [
+[0m[32m+        ("BUILD_TARGET", &target),
+[0m[32m+        ("BUILD_PROFILE", &profile),
+[0m[32m+        ("BUILD_RUSTC", &rustc),
+[0m[32m+        ("BUILD_CARGO", &cargo),
+[0m[32m+    ] {
+[0m         writeln!(generated, "const {name}: &str = {value:?};").unwrap();
+     }
+[31m-    writeln!(generated, "const BUILD_UPDATE_KEY_STATUS: &str = {key_status:?};").unwrap();
+[0m[31m-    writeln!(generated, "const BUILD_UPDATE_KEY_SHA256: Option<&str> = {:?};", key_hash.as_deref()).unwrap();
+[0m[32m+    writeln!(
+[0m[32m+        generated,
+[0m[32m+        "const BUILD_UPDATE_KEY_STATUS: &str = {key_status:?};"
+[0m[32m+    )
+[0m[32m+    .unwrap();
+[0m[32m+    writeln!(
+[0m[32m+        generated,
+[0m[32m+        "const BUILD_UPDATE_KEY_SHA256: Option<&str> = {:?};",
+[0m[32m+        key_hash.as_deref()
+[0m[32m+    )
+[0m[32m+    .unwrap();
+[0m     if recorded {
+[31m-        assert!(values.iter().all(Option::is_some), "Incomplete release provenance; use scripts/build-release.ps1");
+[0m[32m+        assert!(
+[0m[32m+            values.iter().all(Option::is_some),
+[0m[32m+            "Incomplete release provenance; use scripts/build-release.ps1"
+[0m[32m+        );
+[0m         let v: Vec<&str> = values.iter().map(|v| v.as_deref().unwrap()).collect();
+[31m-        let hex = |s: &str, len| s.len() == len && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b));
+[0m[31m-        assert!(hex(v[0], 64) && (hex(v[1], 40) || hex(v[1], 64)) && hex(v[3], 64) && hex(v[4], 64) && hex(v[5], 64), "Invalid release provenance fingerprints");
+[0m[31m-        assert!(matches!(v[2], "true" | "false"), "Invalid release dirty declaration");
+[0m[31m-        assert_eq!(v[3], sha256(rustc.as_bytes()), "Rust compiler changed after source freeze");
+[0m[31m-        assert_eq!(v[4], sha256(cargo.as_bytes()), "Cargo changed after source freeze");
+[0m[32m+        let hex = |s: &str, len| {
+[0m[32m+            s.len() == len
+[0m[32m+                && s.bytes()
+[0m[32m+                    .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+[0m[32m+        };
+[0m[32m+        assert!(
+[0m[32m+            hex(v[0], 64)
+[0m[32m+                && (hex(v[1], 40) || hex(v[1], 64))
+[0m[32m+                && hex(v[3], 64)
+[0m[32m+                && hex(v[4], 64)
+[0m[32m+                && hex(v[5], 64),
+[0m[32m+            "Invalid release provenance fingerprints"
+[0m[32m+        );
+[0m[32m+        assert!(
+[0m[32m+            matches!(v[2], "true" | "false"),
+[0m[32m+            "Invalid release dirty declaration"
+[0m[32m+        );
+[0m[32m+        assert_eq!(
+[0m[32m+            v[3],
+[0m[32m+            sha256(rustc.as_bytes()),
+[0m[32m+            "Rust compiler changed after source freeze"
+[0m[32m+        );
+[0m[32m+        assert_eq!(
+[0m[32m+            v[4],
+[0m[32m+            sha256(cargo.as_bytes()),
+[0m[32m+            "Cargo changed after source freeze"
+[0m[32m+        );
+[0m         let version = std::env::var("CARGO_PKG_VERSION").unwrap();
+[31m-        let recipe = format!("quicknest-build-v1\nversion\t{version}\nsource_fingerprint\t{}\nbase_head\t{}\ndirty\t{}\ntarget\t{target}\nprofile\t{profile}\nrustc\t{}\ncargo\t{}\nupdate_key_status\t{key_status}\nupdate_key_blob_sha256\t{}\n", v[0], v[1], v[2], v[3], v[4], key_hash.as_deref().unwrap_or(""));
+[0m[31m-        assert_eq!(v[5], sha256(recipe.as_bytes()), "Release build fingerprint differs from the frozen recipe");
+[0m[32m+        let recipe = format!(
+[0m[32m+            "quicknest-build-v1\nversion\t{version}\nsource_fingerprint\t{}\nbase_head\t{}\ndirty\t{}\ntarget\t{target}\nprofile\t{profile}\nrustc\t{}\ncargo\t{}\nupdate_key_status\t{key_status}\nupdate_key_blob_sha256\t{}\n",
+[0m[32m+            v[0],
+[0m[32m+            v[1],
+[0m[32m+            v[2],
+[0m[32m+            v[3],
+[0m[32m+            v[4],
+[0m[32m+            key_hash.as_deref().unwrap_or("")
+[0m[32m+        );
+[0m[32m+        assert_eq!(
+[0m[32m+            v[5],
+[0m[32m+            sha256(recipe.as_bytes()),
+[0m[32m+            "Release build fingerprint differs from the frozen recipe"
+[0m[32m+        );
+[0m         generated.push_str("const BUILD_PROVENANCE: &str = \"recorded\";\n");
+[31m-        for (name, value) in [("BUILD_SOURCE_FINGERPRINT", v[0]), ("BUILD_BASE_HEAD", v[1]), ("BUILD_FINGERPRINT", v[5])] {
+[0m[32m+        for (name, value) in [
+[0m[32m+            ("BUILD_SOURCE_FINGERPRINT", v[0]),
+[0m[32m+            ("BUILD_BASE_HEAD", v[1]),
+[0m[32m+            ("BUILD_FINGERPRINT", v[5]),
+[0m[32m+        ] {
+[0m             writeln!(generated, "const {name}: Option<&str> = Some({value:?});").unwrap();
+         }
+[31m-        writeln!(generated, "const BUILD_DIRTY: Option<bool> = Some({});", v[2]).unwrap();
+[0m[32m+        writeln!(
+[0m[32m+            generated,
+[0m[32m+            "const BUILD_DIRTY: Option<bool> = Some({});",
+[0m[32m+            v[2]
+[0m[32m+        )
+[0m[32m+        .unwrap();
+[0m     } else {
+         generated.push_str("const BUILD_PROVENANCE: &str = \"unrecorded\";\nconst BUILD_SOURCE_FINGERPRINT: Option<&str> = None;\nconst BUILD_BASE_HEAD: Option<&str> = None;\nconst BUILD_FINGERPRINT: Option<&str> = None;\nconst BUILD_DIRTY: Option<bool> = None;\n");
+     }
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\build.rs:125:
+[31m-    let path = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap()).join("quicknest_build_info.rs");
+[0m[32m+    let path = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap())
+[0m[32m+        .join("quicknest_build_info.rs");
+[0m     std::fs::write(path, generated).expect("Cannot write compiled build provenance");
+ }
+ 
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\src\build_info.rs:49:
+ /// Every invocation containing this switch is consumed, including malformed ones.
+ /// This path reads compiled constants and writes stdout; it never opens user data.
+ pub fn entry(args: &[String]) -> Option<Result<(), String>> {
+[31m-    if !args.iter().skip(1).any(|arg| arg == "--quicknest-build-info") {
+[0m[32m+    if !args
+[0m[32m+        .iter()
+[0m[32m+        .skip(1)
+[0m[32m+        .any(|arg| arg == "--quicknest-build-info")
+[0m[32m+    {
+[0m         return None;
+     }
+     Some((|| {
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\src\build_info.rs:70:
+     fn unrelated_protocols_are_left_to_their_existing_dispatcher() {
+         for args in [
+             vec!["quicknest".into()],
+[31m-            vec!["quicknest".into(), "--quicknest-update-health".into(), "1.2.1".into(), "nonce".into()],
+[0m[32m+            vec![
+[0m[32m+                "quicknest".into(),
+[0m[32m+                "--quicknest-update-health".into(),
+[0m[32m+                "1.2.1".into(),
+[0m[32m+                "nonce".into(),
+[0m[32m+            ],
+[0m         ] {
+             assert!(entry(&args).is_none());
+         }
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\src\build_info.rs:78:
+ 
+     #[test]
+     fn malformed_build_info_is_consumed_before_ui_startup() {
+[31m-        let args = ["quicknest".into(), "--quicknest-build-info".into(), "extra".into()];
+[0m[32m+        let args = [
+[0m[32m+            "quicknest".into(),
+[0m[32m+            "--quicknest-build-info".into(),
+[0m[32m+            "extra".into(),
+[0m[32m+        ];
+[0m         assert!(entry(&args).unwrap().is_err());
+     }
+ 
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\tests\ui_layout.rs:117:
+ 
+ fn tab_until(ui: &impl ComponentHandle, reached: impl FnMut() -> bool) {
+     // Visible elements bound traversal even as settings gain focus targets.
+[31m-    tab_with_bound(ui, ElementQuery::from_root(ui).find_all().len() + 1, reached);
+[0m[32m+    tab_with_bound(
+[0m[32m+        ui,
+[0m[32m+        ElementQuery::from_root(ui).find_all().len() + 1,
+[0m[32m+        reached,
+[0m[32m+    );
+[0m }
+ 
+ fn click(ui: &MainWindow, id: &str) {
+Diff in \\?\E:\Programs\ZCODE\01\QuickNest\tests\ui_layout.rs:146:
+     assert!(!ui.get_option_accessible_checked());
+     let focus_bound = ui.get_focus_target_count() as usize + 1;
+     let click_option = || {
+[31m-        let position = slint::LogicalPosition::new(ui.get_option_center_x(), ui.get_option_center_y());
+[0m[31m-        ui.window().dispatch_event(WindowEvent::PointerMoved { position });
+[0m[31m-        ui.window().dispatch_event(WindowEvent::PointerPressed { position, button: PointerEventButton::Left });
+[0m[31m-        ui.window().dispatch_event(WindowEvent::PointerReleased { position, button: PointerEventButton::Left });
+[0m[32m+        let position =
+[0m[32m+            slint::LogicalPosition::new(ui.get_option_center_x(), ui.get_option_center_y());
+[0m[32m+        ui.window()
+[0m[32m+            .dispatch_event(WindowEvent::PointerMoved { position });
+[0m[32m+        ui.window().dispatch_event(WindowEvent::PointerPressed {
+[0m[32m+            position,
+[0m[32m+            button: PointerEventButton::Left,
+[0m[32m+        });
+[0m[32m+        ui.window().dispatch_event(WindowEvent::PointerReleased {
+[0m[32m+            position,
+[0m[32m+            button: PointerEventButton::Left,
+[0m[32m+        });
+[0m     };
+ 
+     tab_with_bound(&ui, focus_bound, || ui.get_option_has_focus());

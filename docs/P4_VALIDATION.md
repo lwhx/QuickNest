@@ -1,12 +1,24 @@
 # QuickNest P4 验证记录
 
-## 当前状态（2026-11-07）
+## 当前状态（2026-11-08，1.2.1 本地优化候选）
 
-**P4 完整发布尚未验收通过。** 当前修复、实际验证与待补结果统一见 [AUDIT_FIXES_2026-11-07.md](AUDIT_FIXES_2026-11-07.md)。最终冻结源码门禁已通过：fmt、check all-targets、strict clippy；串行 cargo test --all-targets 为 lib 272 passed / 0 failed / 3 ignored、main 4 passed、integration 14 passed；doc 3 passed。更新器等定向专项与 full lib 存在重叠，不另累计。Release 构建及安装包/便携包打包核验已通过，完整哈希见修复记录，不继承旧构建。
+**七项优化已完成：统一源码门禁、安全回归、成对性能测量与本地来源构建/独立产物校验均通过；P4 完整发布尚未验收通过。** 当前范围和证据入口见 [OPTIMIZATIONS_1.2.1.md](OPTIMIZATIONS_1.2.1.md)。此前 [发布构建](AUDIT_FIXES_2026-11-07.md) 和 [后续五项修复](AUDIT_FOLLOWUP_2026-11-08.md) 的测试数、包大小、哈希与通过结论只属于对应构建，本轮不继承。
 
-最新已确认：full lib **272 passed / 0 failed / 3 ignored**（panic helper 由父测调用、CMD native probe 由父测调用两次、signed_fixture 由独立脚本显式执行通过）；**51 个脚本 safe preflight + fixtures 通过**；**updater 11 + 签名 fixture 1 + transport 4 通过**；**PS 5.1 临时 HTTPS manifest / 404 / 降级 redirect 验证通过**。结果集合重叠，不相加。preflight 不等于桌面回归，旧 48 脚本结果不能认证当前构建。
+### 1.2.1 最终证据（2026-11-08）
 
-P4 完整发布仍待 Win10、完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点及本轮 UI 的隔离桌面/DPI 回归。当前 updater 只支持 raw，setup / portablezip（ZIP）在下载前拒绝；已披露的旧测试密钥不受生产路径信任。runasoriginaluser 与 asInvoker 均不保证从所有高权限上下文降到 Medium。
+| 项目 | 当前记录 |
+| --- | --- |
+| 统一源码门禁与安全测试 | fmt/check/clippy 退出码 0；lib 324（3 ignored）、bin 29、ui_layout 8、icon_queue 13、其余集成 12、doc 3，0 失败；见 [验证记录](test-results/2026-11-08-optimizations-1.2.1/VALIDATION.md) |
+| 本地来源构建 | run `installer/output/release-1.2.1-7ac1990619d44342bc857cdc984763f2`；manifest 为 source/build/staging/setup-evidence/release-manifest.json 及 cargo/inno 日志；base HEAD `7b7c313…`、dirty=true、来源指纹 `e7986561…`、构建指纹 `35b45410…`、update_key `disabled`；EXE 内嵌信息经探针逐字段核对 |
+| 产物大小与哈希 | EXE 19,884,544 字节 `a0c21f5d…`、ZIP 8,232,528 字节 `c5e4d666…`、setup 7,679,667 字节 `5f45379a…`（完整值见 [优化记录](OPTIMIZATIONS_1.2.1.md)） |
+| 独立产物核验及 Fixture | `verify-release-artifacts.ps1 -ReleaseDirectory` 退出码 0；`-Fixture` 39 项拒绝反例 + 来源映射正例通过；早期入口 9 项 CLI 探针通过，非法数据根零初始化 |
+| setup 独立解包、安装和桌面验收 | 未执行；冻结输入及编译证据不能记为安装内容实机验收 |
+
+本地构建入口为 `scripts/build-release.ps1`，默认禁用更新 key，输出规则为 `installer/output/release-1.2.1-<guid>/`；实际目录由主线程补。独立验证使用 `scripts/verify-release-artifacts.ps1 -ReleaseDirectory <run>`，负向 fixture 使用同一入口的 `-Fixture`。命令和测试设施约束见 [TEST_HARNESS.md](TEST_HARNESS.md)。
+
+两种包装共用冻结 staging。EXE 内嵌来源、ZIP 内部文件/字节一致性和 setup 冻结输入/编译证据分别记录；setup 尚未安装、未独立解包。dirty 工作树可按真实指纹记录，base HEAD 仅是基准提交，不能冒称未提交源码来源。来源记录只证明本地过程一致，不构成第三方签名或跨机器可复现构建证明。
+
+P4 完整发布仍待 Win10、完成页真实 Medium 启动、两个不同生产版本真实退出换版、独立生产 key + HTTPS 端点及本轮 UI 的隔离桌面/DPI/多显示器回归。当前 updater 只支持 raw，setup / portablezip（ZIP）在下载前拒绝；已披露的旧测试密钥不受生产路径信任。runasoriginaluser 与 asInvoker 均不保证从所有高权限上下文降到 Medium。已公开 v1.2.0 的附件与历史哈希保持不变，原说明见 [历史归档](releases/1.2.0.md)。
 
 ## 历史记录适用范围
 

@@ -73,6 +73,14 @@ pub struct SearchRow {
     pub type_label: String,
 }
 
+/// A successful launch awaiting a usage-statistics commit. Transient only;
+/// this event is never part of the persisted library format.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LaunchRecord {
+    pub item_id: String,
+    pub now_ms: i64,
+}
+
 /// A delete request that needs the user's decision (baseline 2.2).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PendingDelete {
@@ -259,66 +267,49 @@ impl LibraryController {
 
     /// The items of the active category for the project grid (baseline 2.4).
     pub fn item_rows(&self) -> Vec<ItemRow> {
-        // P3-05/P3-06/P3-07: the grid order follows the active sort mode
-        // (manual keeps the stored order).
-        let mode = self.sort_mode();
-        let ordered_ids = {
-            let ids: Vec<String> = self
-                .library
-                .active_category()
-                .map(|category| category.items.iter().map(|item| item.id.clone()).collect())
-                .unwrap_or_default();
-            let usage: Vec<crate::library_model::UsageSnapshot> = self
-                .library
-                .active_category()
-                .map(|category| {
-                    category
-                        .items
-                        .iter()
-                        .map(|item| crate::library_model::UsageSnapshot {
-                            id: item.id.clone(),
-                            name: item.name.clone(),
-                            last_used: item.last_used,
-                            launch_count: item.launch_count,
-                            favorite: item.favorite,
-                        })
-                        .collect()
-                })
-                .unwrap_or_default();
-            crate::library_model::sort_item_ids_by_mode(&ids, &usage, mode)
+        let Some(category) = self.library.active_category() else {
+            return Vec::new();
         };
-        let mut rows: Vec<ItemRow> = self
-            .library
-            .active_category()
-            .map(|category| {
-                category
-                    .items
-                    .iter()
-                    .map(|item| ItemRow {
-                        id: item.id.clone(),
-                        name: item.name.clone(),
-                        path: item.launch.path.clone(),
-                        note: item.note.clone(),
-                        item_type: item.item_type.label().to_string(),
-                        path_missing: item.path_missing(),
-                        missing_reason: item.missing_reason(),
-                        artwork: item.default_artwork().to_string(),
-                        icon_source: item.icon_source(),
-                        favorite: item.favorite,
-                        launch_count: item.launch_count,
-                        last_used: item.last_used,
-                    })
-                    .collect()
+        let mut rows: Vec<ItemRow> = category
+            .items
+            .iter()
+            .map(|item| ItemRow {
+                id: item.id.clone(),
+                name: item.name.clone(),
+                path: item.launch.path.clone(),
+                note: item.note.clone(),
+                item_type: item.item_type.label().to_string(),
+                path_missing: item.path_missing(),
+                missing_reason: item.missing_reason(),
+                artwork: item.default_artwork().to_string(),
+                icon_source: item.icon_source(),
+                favorite: item.favorite,
+                launch_count: item.launch_count,
+                last_used: item.last_used,
             })
-            .unwrap_or_default();
-        // P3-05/P3-06/P3-07: reorder the rows by the active sort mode (the
-        // usage snapshot was taken before this borrow).
-        rows.sort_by_key(|row| {
-            ordered_ids
+            .collect();
+        let mode = self.sort_mode();
+        let ordered_ids = if mode == "manual" {
+            let mut seen = HashSet::with_capacity(category.items.len());
+            if category
+                .items
                 .iter()
-                .position(|id| id == &row.id)
-                .unwrap_or(usize::MAX)
-        });
+                .all(|item| seen.insert(item.id.as_str()))
+            {
+                return rows;
+            }
+            // Legacy JSON may contain interleaved duplicate ids. The previous
+            // row sorter grouped them by the first position even in manual
+            // mode; preserve that exceptional behavior without reading usage.
+            category.items.iter().map(|item| item.id.clone()).collect()
+        } else {
+            crate::library_model::sort_category_item_ids_by_mode(&category.items, mode)
+        };
+        let mut ranks = HashMap::with_capacity(ordered_ids.len());
+        for (rank, id) in ordered_ids.iter().enumerate() {
+            ranks.entry(id.as_str()).or_insert(rank);
+        }
+        rows.sort_by_key(|row| ranks.get(row.id.as_str()).copied().unwrap_or(usize::MAX));
         rows
     }
 
@@ -339,33 +330,35 @@ impl LibraryController {
     /// scope is the active group; `all_groups` widens it to the whole library.
     /// Results are ordered by match score, then by name.
     pub fn search_items(&self, query: &str, all_groups: bool) -> Vec<SearchRow> {
+        let query = crate::search::PreparedQuery::new(query);
         let active_group = self.library.active_group_id();
         let mut scored: Vec<(u32, SearchRow)> = Vec::new();
+        let mut cache = self.pinyin_cache.borrow_mut();
         for group in &self.library.groups {
             if !all_groups && active_group != Some(group.id.as_str()) {
                 continue;
             }
             for category in &group.categories {
                 for item in &category.items {
-                    // P2-02: build once per item name; a rename changes the
-                    // stored name and rebuilds the pinyin index.
-                    let index = {
-                        let mut cache = self.pinyin_cache.borrow_mut();
-                        match cache.get(&item.id) {
-                            Some((name, index)) if name == &item.name => index.clone(),
-                            _ => {
-                                let index = PinyinIndex::build(&item.name);
-                                cache.insert(item.id.clone(), (item.name.clone(), index.clone()));
-                                index
-                            }
+                    let direct = query.score(&item.name, &item.launch.path);
+                    let score = if query.needs_pinyin(direct) {
+                        // Build only when pinyin can affect this result; names
+                        // still invalidate cached indices after a rename.
+                        if cache
+                            .get(&item.id)
+                            .is_none_or(|(name, _)| name != &item.name)
+                        {
+                            cache.insert(
+                                item.id.clone(),
+                                (item.name.clone(), PinyinIndex::build(&item.name)),
+                            );
                         }
+                        let index = &cache.get(&item.id).expect("index inserted above").1;
+                        query.with_pinyin(direct, Some(index))
+                    } else {
+                        direct
                     };
-                    let Some(score) = crate::search::score_with_pinyin(
-                        query,
-                        &item.name,
-                        &item.launch.path,
-                        Some(&index),
-                    ) else {
+                    let Some(score) = score else {
                         continue;
                     };
                     let scope = if category.name.is_empty() {
@@ -395,24 +388,40 @@ impl LibraryController {
         scored.into_iter().map(|(_, row)| row).collect()
     }
 
-    /// Selects a group (baseline 2.2) and reports whether it changed.
+    /// Selects a valid group (baseline 2.2). An already stored selection
+    /// succeeds without a write; a display fallback still needs to be stored.
     pub fn select_group(&mut self, group_id: &str) -> bool {
-        let previous = self.library.clone();
-        let changed = self.library.select_group(group_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
+        if matches!(self.load_state, LoadState::SafeMode { .. })
+            || self.library.group(group_id).is_none()
+        {
+            return false;
         }
-        changed
+        if self.library.current_group_id.as_deref() == Some(group_id) {
+            return true;
+        }
+        let previous = self.library.clone();
+        self.library.select_group(group_id);
+        self.persist_change(previous).is_ok()
     }
 
-    /// Selects a category inside the active group.
+    /// Selects a category inside the active group, persisting display
+    /// fallbacks whose raw last-category field is missing or stale.
     pub fn select_category(&mut self, category_id: &str) -> bool {
-        let previous = self.library.clone();
-        let changed = self.library.select_category(category_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
+        if matches!(self.load_state, LoadState::SafeMode { .. }) {
+            return false;
         }
-        changed
+        let Some(group) = self.library.active_group() else {
+            return false;
+        };
+        if group.category(category_id).is_none() {
+            return false;
+        }
+        if group.last_category_id.as_deref() == Some(category_id) {
+            return true;
+        }
+        let previous = self.library.clone();
+        self.library.select_category(category_id);
+        self.persist_change(previous).is_ok()
     }
 
     /// Creates a group with a fresh UUID and makes it active.
@@ -890,17 +899,65 @@ impl LibraryController {
         self.batch_selection.borrow_mut().clear();
     }
 
-    /// P3-05/P3-06 (baseline 22): records a successful launch — last_used =
-    /// now (unix ms), launch_count += 1 — and persists.
+    /// Commits successful launch events as one transaction. Missing items
+    /// are ignored; repeated ids count every event and keep the last event's
+    /// timestamp. Duplicate stored ids resolve to the first global item.
+    /// Returns the number of events recorded, rolling back the entire batch
+    /// if persistence fails. Empty/all-missing batches never write.
+    pub fn record_launch_batch(&mut self, records: &[LaunchRecord]) -> Result<usize, String> {
+        if let LoadState::SafeMode { reason } = &self.load_state {
+            return Err(format!("安全模式：{reason}"));
+        }
+        if records.is_empty() {
+            return Ok(0);
+        }
+        let mut pending: HashMap<&str, (usize, i64)> = HashMap::new();
+        for record in records {
+            let entry = pending.entry(record.item_id.as_str()).or_insert((0, 0));
+            entry.0 += 1;
+            entry.1 = record.now_ms;
+        }
+        // Resolve all locations before cloning, both to avoid a clone for an
+        // all-missing batch and to retain find_item's first-duplicate semantics.
+        let mut changes = Vec::with_capacity(pending.len());
+        let mut recorded = 0;
+        for (group_index, group) in self.library.groups.iter().enumerate() {
+            for (category_index, category) in group.categories.iter().enumerate() {
+                for (item_index, item) in category.items.iter().enumerate() {
+                    if let Some((count, now_ms)) = pending.remove(item.id.as_str()) {
+                        changes.push((group_index, category_index, item_index, count, now_ms));
+                        recorded += count;
+                    }
+                }
+            }
+        }
+        if changes.is_empty() {
+            return Ok(0);
+        }
+        let previous = self.library.clone();
+        for (group_index, category_index, item_index, count, now_ms) in changes {
+            let item =
+                &mut self.library.groups[group_index].categories[category_index].items[item_index];
+            item.last_used = now_ms;
+            item.launch_count = item
+                .launch_count
+                .saturating_add(u64::try_from(count).unwrap_or(u64::MAX));
+        }
+        self.persist_change(previous)?;
+        Ok(recorded)
+    }
+
+    /// P3-05/P3-06 (baseline 22): records one successful launch using the
+    /// batch transaction, with the current time in unix milliseconds.
     pub fn record_launch(&mut self, item_id: &str) {
-        let now = std::time::SystemTime::now()
+        let now_ms = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|duration| duration.as_millis() as i64)
             .unwrap_or(0);
-        let previous = self.library.clone();
-        if self.library.record_launch(item_id, now) {
-            let _ = self.persist_change(previous);
-        }
+        let _ = self.record_launch_batch(&[LaunchRecord {
+            item_id: item_id.to_string(),
+            now_ms,
+        }]);
     }
 
     /// P3-05/P3-06/P3-07: the grid sort mode for the active panel.
@@ -1235,6 +1292,269 @@ mod tests {
         LibraryController::loaded(library, None, LoadState::Loaded)
     }
 
+    fn launch_record(item_id: &str, now_ms: i64) -> LaunchRecord {
+        LaunchRecord {
+            item_id: item_id.to_string(),
+            now_ms,
+        }
+    }
+
+    #[test]
+    fn repeated_valid_selections_do_not_write_or_clear_a_save_error() {
+        use std::os::windows::fs::OpenOptionsExt;
+
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let path = dir.join("config.json");
+        let mut controller = batch_selection_controller();
+        controller.config_path = Some(path.clone());
+        let original = serde_json::to_string(&controller.library).unwrap();
+        std::fs::write(&path, &original).unwrap();
+        *controller.save_error.borrow_mut() = Some("previous failure".into());
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&path)
+            .unwrap();
+        for _ in 0..3 {
+            assert!(controller.select_group("batch-group"));
+            assert!(controller.select_category("batch-a"));
+            assert!(!controller.select_group("missing"));
+            assert!(!controller.select_category("missing"));
+        }
+        assert_eq!(controller.save_error().as_deref(), Some("previous failure"));
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), original);
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
+        drop(lock);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn selections_repair_missing_or_stale_raw_fields_and_then_skip_writes() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        for stale in [None, Some("deleted".to_string())] {
+            let dir = temp_config_dir();
+            let path = dir.join("config.json");
+            let mut controller = batch_selection_controller();
+            controller.library.current_group_id = stale.clone();
+            controller.library.groups[0].last_category_id = stale;
+            controller.config_path = Some(path.clone());
+            std::fs::write(&path, serde_json::to_string(&controller.library).unwrap()).unwrap();
+            assert!(controller.select_group("batch-group"));
+            assert_eq!(controller.library.active_category().unwrap().id, "batch-a");
+            assert!(controller.select_category("batch-a"));
+            let stored: Library =
+                serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+            assert_eq!(stored.current_group_id.as_deref(), Some("batch-group"));
+            assert_eq!(
+                stored.groups[0].last_category_id.as_deref(),
+                Some("batch-a")
+            );
+            assert_eq!(controller.backup_entries().len(), 2);
+            assert!(controller.select_group("batch-group"));
+            assert!(controller.select_category("batch-a"));
+            assert_eq!(controller.backup_entries().len(), 2);
+            std::fs::remove_dir_all(dir).unwrap();
+        }
+    }
+
+    #[test]
+    fn selections_validate_ids_before_accepting_matching_raw_fields() {
+        let mut controller = batch_selection_controller();
+        controller.library.current_group_id = Some("deleted".into());
+        assert!(!controller.select_group("deleted"));
+        assert!(controller.select_group("batch-group"));
+        controller.library.groups[0].last_category_id = Some("deleted".into());
+        assert!(!controller.select_category("deleted"));
+        assert_eq!(controller.active_category_id().as_deref(), Some("batch-a"));
+        assert!(controller.select_category("batch-a"));
+    }
+
+    #[test]
+    fn safe_mode_refuses_repeated_selections_and_every_launch_batch() {
+        let mut controller = batch_selection_controller();
+        controller.load_state = LoadState::SafeMode {
+            reason: "keep original".into(),
+        };
+        *controller.save_error.borrow_mut() = Some("previous failure".into());
+        let before = controller.library.clone();
+        assert!(!controller.select_group("batch-group"));
+        assert!(!controller.select_category("batch-a"));
+        for records in [
+            vec![],
+            vec![launch_record("missing", 1)],
+            vec![launch_record("a1", 2)],
+        ] {
+            assert!(
+                controller
+                    .record_launch_batch(&records)
+                    .unwrap_err()
+                    .contains("安全模式")
+            );
+        }
+        controller.record_launch("a1");
+        assert_eq!(controller.library, before);
+        assert_eq!(controller.save_error().as_deref(), Some("previous failure"));
+    }
+
+    #[test]
+    fn launch_batch_counts_events_saturates_and_updates_only_the_first_global_duplicate() {
+        let mut controller = batch_selection_controller();
+        controller.library.find_item_mut("a1").unwrap().launch_count = 10;
+        controller.library.find_item_mut("a2").unwrap().launch_count = u64::MAX - 1;
+        assert!(controller.library.remove_item("a3"));
+        let duplicate = controller.library.find_item("a1").unwrap().clone();
+        controller.library.groups[0].categories[1]
+            .items
+            .push(duplicate.clone());
+        controller.library.add_group("Other", "other").unwrap();
+        controller
+            .library
+            .add_category("other", "Other", "other-category")
+            .unwrap();
+        assert!(controller.library.add_item(duplicate.clone()));
+        let records = [
+            launch_record("a1", 100),
+            launch_record("a2", 200),
+            launch_record("a3", 300),
+            launch_record("a1", 50),
+            launch_record("missing", 400),
+            launch_record("a2", -1),
+            launch_record("a1", 5),
+        ];
+        assert_eq!(controller.record_launch_batch(&records), Ok(5));
+        let first = controller.library.find_item("a1").unwrap();
+        assert_eq!((first.launch_count, first.last_used), (13, 5));
+        let saturated = controller.library.find_item("a2").unwrap();
+        assert_eq!(
+            (saturated.launch_count, saturated.last_used),
+            (u64::MAX, -1)
+        );
+        assert_eq!(
+            controller.library.groups[0].categories[1].items.last(),
+            Some(&duplicate)
+        );
+        assert_eq!(
+            controller.library.groups[1].categories[0].items[0],
+            duplicate
+        );
+    }
+
+    #[test]
+    fn launch_batch_writes_once_and_empty_or_deleted_events_leave_disk_untouched() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let path = dir.join("config.json");
+        let mut controller = batch_selection_controller();
+        controller.config_path = Some(path.clone());
+        let before = controller.library.clone();
+        let original = serde_json::to_string(&before).unwrap();
+        std::fs::write(&path, &original).unwrap();
+        *controller.save_error.borrow_mut() = Some("previous failure".into());
+        assert_eq!(controller.record_launch_batch(&[]), Ok(0));
+        assert_eq!(
+            controller.record_launch_batch(&[launch_record("deleted", 1)]),
+            Ok(0)
+        );
+        assert_eq!(controller.save_error().as_deref(), Some("previous failure"));
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
+        assert_eq!(
+            controller.record_launch_batch(&[
+                launch_record("a1", 100),
+                launch_record("b1", 200),
+                launch_record("a1", 300),
+                launch_record("deleted", 400),
+            ]),
+            Ok(3)
+        );
+        let backups = controller.backup_entries();
+        assert_eq!(backups.len(), 1, "the entire batch makes one backup");
+        assert_eq!(std::fs::read_to_string(&backups[0].path).unwrap(), original);
+        let stored: Library =
+            serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        assert_eq!(stored, controller.library);
+        assert_eq!(stored.find_item("a1").unwrap().launch_count, 2);
+        assert_eq!(stored.find_item("b1").unwrap().last_used, 200);
+        assert_eq!(controller.save_error(), None);
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 2);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn failed_launch_batch_rolls_back_every_item_and_preserves_the_live_file() {
+        use std::os::windows::fs::OpenOptionsExt;
+
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let path = dir.join("config.json");
+        let mut controller = batch_selection_controller();
+        controller.config_path = Some(path.clone());
+        let before = controller.library.clone();
+        let original = serde_json::to_string(&before).unwrap();
+        std::fs::write(&path, &original).unwrap();
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&path)
+            .unwrap();
+        assert!(
+            controller
+                .record_launch_batch(&[
+                    launch_record("a1", 10),
+                    launch_record("b1", 20),
+                    launch_record("a1", 30),
+                ])
+                .is_err()
+        );
+        assert_eq!(controller.library, before);
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), original);
+        assert!(controller.backup_entries().is_empty());
+        let error = controller.save_error();
+        assert!(error.is_some());
+        let entries = std::fs::read_dir(&dir).unwrap().count();
+        assert_eq!(controller.record_launch_batch(&[]), Ok(0));
+        assert_eq!(
+            controller.record_launch_batch(&[launch_record("missing", 1)]),
+            Ok(0)
+        );
+        assert_eq!(controller.save_error(), error);
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), entries);
+        drop(lock);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn launch_batch_commit_succeeds_even_if_backup_maintenance_cannot_delete_a_file() {
+        use std::os::windows::fs::OpenOptionsExt;
+
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let path = dir.join("config.json");
+        let invalid_backup = dir.join("config.backup.9999.json");
+        let mut controller = batch_selection_controller();
+        controller.config_path = Some(path.clone());
+        std::fs::write(&path, serde_json::to_string(&controller.library).unwrap()).unwrap();
+        std::fs::write(&invalid_backup, b"broken backup").unwrap();
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&invalid_backup)
+            .unwrap();
+        *controller.save_error.borrow_mut() = Some("previous failure".into());
+        assert_eq!(
+            controller.record_launch_batch(&[launch_record("a1", 123)]),
+            Ok(1)
+        );
+        assert!(invalid_backup.exists(), "maintenance deletion was denied");
+        let stored: Library =
+            serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        assert_eq!(stored, controller.library);
+        assert_eq!(stored.find_item("a1").unwrap().last_used, 123);
+        assert_eq!(controller.save_error(), None);
+        drop(lock);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
     #[test]
     fn ordered_batch_selection_preserves_items_across_category_and_group_switches() {
         let mut controller = batch_selection_controller();
@@ -1286,6 +1606,44 @@ mod tests {
             controller.batch_selection_ids(),
             ["a2", "a1", "b2", "b1", "c1"]
         );
+    }
+
+    #[test]
+    fn grid_sort_keeps_first_duplicate_usage_and_legacy_manual_grouping() {
+        let mut controller = batch_selection_controller();
+        let category = controller.library.active_category_mut().unwrap();
+        category.items.truncate(2);
+        category.items[0].name = "First Z".into();
+        category.items[0].last_used = 1;
+        category.items[0].launch_count = 1;
+        category.items[1].name = "Middle".into();
+        category.items[1].last_used = 2;
+        category.items[1].launch_count = 2;
+        category.items[1].favorite = true;
+        let mut duplicate = category.items[0].clone();
+        duplicate.name = "Duplicate A".into();
+        duplicate.last_used = i64::MAX;
+        duplicate.launch_count = u64::MAX;
+        duplicate.favorite = true;
+        category.items.push(duplicate);
+        for (mode, expected) in [
+            ("manual", ["First Z", "Duplicate A", "Middle"]),
+            ("unknown", ["First Z", "Duplicate A", "Middle"]),
+            ("recent", ["Middle", "First Z", "Duplicate A"]),
+            ("frequent", ["Middle", "First Z", "Duplicate A"]),
+            ("favorite", ["Middle", "First Z", "Duplicate A"]),
+        ] {
+            controller.library.settings.sort_mode = mode.into();
+            assert_eq!(
+                controller
+                    .item_rows()
+                    .iter()
+                    .map(|row| row.name.as_str())
+                    .collect::<Vec<_>>(),
+                expected,
+                "{mode}: stable order and first occurrence both matter"
+            );
+        }
     }
 
     #[test]
@@ -2203,6 +2561,163 @@ mod tests {
         let controller = LibraryController::load(Some(path));
         assert!(controller.backup_now().is_err());
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    fn single_search_controller(name: &str) -> LibraryController {
+        let mut library = Library::default();
+        library.add_group("Search", "search-group").unwrap();
+        library
+            .add_category("search-group", "Category", "search-category")
+            .unwrap();
+        assert!(library.add_item(Item::new(
+            "search-item",
+            name,
+            ItemKind::Uri,
+            "https://example.invalid/target",
+        )));
+        LibraryController::loaded(library, None, LoadState::Loaded)
+    }
+
+    #[test]
+    fn search_skips_pinyin_cache_for_empty_ineligible_and_direct_name_queries() {
+        let controller = single_search_controller("Photoshop");
+        for query in [
+            "",
+            "  ",
+            "PHOTOSHOP",
+            "photo",
+            "otos",
+            "phtp",
+            "微信",
+            "x-y",
+            "two words",
+            "İ",
+        ] {
+            let results = controller.search_items(query, false);
+            if ["", "  ", "PHOTOSHOP", "photo", "otos", "phtp"].contains(&query) {
+                assert_eq!(results.len(), 1, "{query:?}");
+            }
+            assert!(controller.pinyin_cache.borrow().is_empty(), "{query:?}");
+        }
+    }
+
+    #[test]
+    fn search_reuses_cached_pinyin_and_rebuilds_it_after_a_name_change() {
+        let mut controller = single_search_controller("微信");
+        assert_eq!(
+            controller.search_items(" WEIXIN ", false)[0].id,
+            "search-item"
+        );
+        let variant_buffer = controller.pinyin_cache.borrow()["search-item"]
+            .1
+            .full
+            .as_ptr();
+        assert_eq!(controller.search_items("wx", false)[0].id, "search-item");
+        assert_eq!(
+            controller.pinyin_cache.borrow()["search-item"]
+                .1
+                .full
+                .as_ptr(),
+            variant_buffer
+        );
+        let mut draft = controller.item_draft("search-item").unwrap();
+        draft.name = "音乐".into();
+        controller.update_item("search-item", draft).unwrap();
+        assert!(controller.search_items("weixin", false).is_empty());
+        assert_eq!(controller.pinyin_cache.borrow()["search-item"].0, "音乐");
+        assert_eq!(
+            controller.search_items("yinyue", false)[0].id,
+            "search-item"
+        );
+    }
+
+    #[test]
+    fn search_keeps_pinyin_above_path_below_direct_names_and_respects_scope() {
+        let mut controller = single_search_controller("微信");
+        controller
+            .library
+            .find_item_mut("search-item")
+            .unwrap()
+            .launch
+            .path = "https://example.invalid/weixin".into();
+        for (id, name, path) in [
+            ("direct", "Weixin Alpha", "https://example.invalid/direct"),
+            ("path", "Other", "https://example.invalid/weixin"),
+        ] {
+            assert!(
+                controller
+                    .library
+                    .add_item(Item::new(id, name, ItemKind::Uri, path))
+            );
+        }
+        controller
+            .library
+            .add_group("Other group", "other-group")
+            .unwrap();
+        controller
+            .library
+            .add_category("other-group", "Other category", "other-category")
+            .unwrap();
+        assert!(controller.library.add_item(Item::new(
+            "other-wechat",
+            "微信",
+            ItemKind::Uri,
+            "https://example.invalid/other",
+        )));
+        assert!(controller.select_group("search-group"));
+        let rows = controller.search_items(" WEIXIN ", false);
+        assert_eq!(
+            rows.iter().map(|row| row.id.as_str()).collect::<Vec<_>>(),
+            ["direct", "search-item", "path"]
+        );
+        assert!(rows.iter().all(|row| row.scope == "Search · Category"));
+        assert!(!controller.pinyin_cache.borrow().contains_key("direct"));
+        assert!(
+            !controller
+                .pinyin_cache
+                .borrow()
+                .contains_key("other-wechat")
+        );
+        let rows = controller.search_items("weixin", true);
+        assert_eq!(
+            rows.iter().map(|row| row.id.as_str()).collect::<Vec<_>>(),
+            ["direct", "search-item", "other-wechat", "path"]
+        );
+        assert_eq!(rows[2].scope, "Other group · Other category");
+    }
+
+    #[test]
+    fn import_and_restore_clear_previously_populated_pinyin_indices() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let path = dir.join("config.json");
+        let imported = dir.join("import.json");
+        let restore_source = dir.join("restore-source.json");
+        let mut controller = single_search_controller("微信");
+        controller.config_path = Some(path.clone());
+        let original = serde_json::to_string(&controller.library).unwrap();
+        std::fs::write(&path, &original).unwrap();
+        std::fs::write(&restore_source, &original).unwrap();
+        assert_eq!(controller.search_items("weixin", false).len(), 1);
+        assert_eq!(controller.pinyin_cache.borrow().len(), 1);
+        let mut replacement = controller.library.clone();
+        replacement.find_item_mut("search-item").unwrap().name = "音乐".into();
+        std::fs::write(&imported, serde_json::to_string(&replacement).unwrap()).unwrap();
+        controller
+            .import_from(&imported, crate::config_transfer::ImportMode::Overwrite)
+            .unwrap();
+        assert!(controller.pinyin_cache.borrow().is_empty());
+        assert!(controller.search_items("weixin", false).is_empty());
+        assert_eq!(controller.search_items("yinyue", false)[0].name, "音乐");
+        assert!(!controller.pinyin_cache.borrow().is_empty());
+        controller.restore_backup(&restore_source).unwrap();
+        assert!(controller.pinyin_cache.borrow().is_empty());
+        assert_eq!(
+            controller.search_items("weixin", false)[0].id,
+            "search-item"
+        );
+        assert!(controller.search_items("yinyue", false).is_empty());
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

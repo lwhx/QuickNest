@@ -11,6 +11,8 @@ use slint::{ComponentHandle, Model, ModelRc, Timer, TimerMode, VecModel};
 slint::include_modules!();
 
 mod appearance_ui;
+mod icon_ui;
+mod modal_ui;
 
 #[cfg(test)]
 mod ui_regression_tests;
@@ -182,96 +184,6 @@ fn create_window() -> Result<MainWindow, slint::PlatformError> {
 /// validation modules that run their own event loop on the main thread.
 pub fn ui_window(ui: &MainWindow) -> &slint::Window {
     ui.window()
-}
-
-/// P1-10: UI-side icon state. A worker thread extracts icons; this struct
-/// caches the resulting `slint::Image`s and deduplicates pending requests.
-struct IconContext {
-    cache: RefCell<std::collections::HashMap<String, slint::Image>>,
-    pending: RefCell<std::collections::HashSet<String>>,
-    #[cfg(windows)]
-    service: Option<quicknest::infrastructure::windows::icons::IconService>,
-}
-
-impl IconContext {
-    fn new(cache_dir: std::path::PathBuf) -> Self {
-        #[cfg(not(windows))]
-        let _ = cache_dir;
-        Self {
-            cache: RefCell::new(std::collections::HashMap::new()),
-            pending: RefCell::new(std::collections::HashSet::new()),
-            #[cfg(windows)]
-            service: Some(quicknest::infrastructure::windows::icons::IconService::start(cache_dir)),
-        }
-    }
-
-    fn request(&self, key: &str) {
-        #[cfg(windows)]
-        if let Some(service) = &self.service {
-            service.request(key, key);
-        }
-        #[cfg(not(windows))]
-        let _ = key;
-    }
-
-    /// Joins finished extractions into the cache; true when a new icon arrived.
-    fn drain(&self) -> bool {
-        #[cfg(windows)]
-        {
-            let Some(service) = &self.service else {
-                return false;
-            };
-            let mut updated = false;
-            while let Some(result) = service.try_recv() {
-                let image = match result.pixels {
-                    Some(pixels) => {
-                        let mut buffer = slint::SharedPixelBuffer::<slint::Rgba8Pixel>::new(
-                            pixels.width,
-                            pixels.height,
-                        );
-                        let slice = buffer.make_mut_slice();
-                        for (pixel, source) in slice.iter_mut().zip(pixels.rgba.chunks_exact(4)) {
-                            pixel.r = source[0];
-                            pixel.g = source[1];
-                            pixel.b = source[2];
-                            pixel.a = source[3];
-                        }
-                        slint::Image::from_rgba8(buffer)
-                    }
-                    None => slint::Image::default(),
-                };
-                self.cache.borrow_mut().insert(result.key.clone(), image);
-                self.pending.borrow_mut().remove(&result.key);
-                updated = true;
-            }
-            updated
-        }
-        #[cfg(not(windows))]
-        {
-            false
-        }
-    }
-}
-
-thread_local! {
-    /// The UI-thread icon context; `refresh_ui` and the drain timer read it.
-    static ICON_CONTEXT: RefCell<Option<Rc<IconContext>>> = const { RefCell::new(None) };
-}
-
-fn install_icon_context(context: Rc<IconContext>) {
-    ICON_CONTEXT.with(|slot| *slot.borrow_mut() = Some(context));
-}
-
-fn icon_context() -> Option<Rc<IconContext>> {
-    ICON_CONTEXT.with(|slot| slot.borrow().clone())
-}
-
-fn drain_icon_results() -> bool {
-    ICON_CONTEXT.with(|slot| {
-        slot.borrow()
-            .as_ref()
-            .is_some_and(|context| context.drain())
-    })
 }
 
 /// P1-11: drops cache entries no item references anymore. Shared icons stay
@@ -902,6 +814,56 @@ fn launch_item_with_confirm(
 ) {
 }
 
+#[cfg(test)]
+thread_local! {
+    static FULL_REFRESH_COUNT: Cell<usize> = const { Cell::new(0) };
+}
+
+fn refresh_sidebar(
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    weak: &slint::Weak<MainWindow>,
+) {
+    let Some(ui) = weak.upgrade() else { return };
+    let (groups, categories, active) = {
+        let state = controller.borrow();
+        (
+            state.group_rows(),
+            state.category_rows(),
+            state.active_category_id().unwrap_or_default(),
+        )
+    };
+    let content_width = groups.iter().map(|row| row.tab_width).sum::<f32>()
+        + groups.len().saturating_sub(1) as f32 * 24.0;
+    let names = categories
+        .iter()
+        .map(|row| row.name.clone().into())
+        .collect::<Vec<slint::SharedString>>();
+    let group_views = groups
+        .into_iter()
+        .map(|row| GroupView {
+            id: row.id.into(),
+            name: row.name.into(),
+            accent: row.color.into(),
+            active: row.active,
+            item_count: row.item_count as i32,
+            tab_width: row.tab_width,
+        })
+        .collect::<Vec<_>>();
+    let category_views = categories
+        .into_iter()
+        .map(|row| CategoryView {
+            id: row.id.into(),
+            name: row.name.into(),
+            item_count: row.item_count as i32,
+        })
+        .collect::<Vec<_>>();
+    ui.set_groups(ModelRc::new(VecModel::from(group_views)));
+    ui.set_categories(ModelRc::new(VecModel::from(category_views)));
+    ui.set_category_names(ModelRc::new(VecModel::from(names)));
+    ui.set_active_category_id(active.into());
+    ui.set_group_tabs_content_width(content_width);
+}
+
 fn refresh_ui(
     controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
     weak: &slint::Weak<MainWindow>,
@@ -909,71 +871,26 @@ fn refresh_ui(
     let Some(ui) = weak.upgrade() else {
         return;
     };
-    // P3-09: the Everything toggle state drives the settings menu.
+    #[cfg(test)]
+    FULL_REFRESH_COUNT.with(|count| count.set(count.get() + 1));
     ui.set_everything_enabled(controller.borrow().library().settings.everything_enabled);
     ui.set_update_check_enabled(controller.borrow().library().settings.update_check_enabled);
-    let views: Vec<GroupView> = controller
-        .borrow()
-        .group_rows()
-        .into_iter()
-        .map(|row| GroupView {
-            id: row.id.clone().into(),
-            name: row.name.into(),
-            accent: row.color.into(),
-            active: row.active,
-            item_count: row.item_count as i32,
-            tab_width: row.tab_width,
-        })
-        .collect();
-    let categories: Vec<CategoryView> = controller
-        .borrow()
-        .category_rows()
-        .into_iter()
-        .map(|row| CategoryView {
-            id: row.id.clone().into(),
-            name: row.name.into(),
-            item_count: row.item_count as i32,
-        })
-        .collect();
-    ui.set_groups(ModelRc::new(VecModel::from(views)));
-    ui.set_categories(ModelRc::new(VecModel::from(categories)));
-    let names: Vec<slint::SharedString> = controller
-        .borrow()
-        .category_rows()
-        .iter()
-        .map(|row| row.name.clone().into())
-        .collect();
-    ui.set_category_names(ModelRc::new(VecModel::from(names)));
-    ui.set_active_category_id(
-        controller
-            .borrow()
-            .library()
-            .active_category()
-            .map(|category| category.id.clone())
-            .unwrap_or_default()
-            .into(),
-    );
+    refresh_sidebar(controller, weak);
     // P1-04 grid rows with P1-10 icons from the UI-side cache; missing
     // icons are queued once and use the default artwork.
-    let icon_context = icon_context();
     let rows = controller.borrow().item_rows();
+    let visible_sources = rows
+        .iter()
+        .map(|row| (row.id.clone(), row.icon_source.clone()))
+        .collect();
     let items: Vec<GridItem> = rows
         .into_iter()
         .map(|row| {
-            let icon = match (&row.icon_source, &icon_context) {
-                (Some(source), Some(context)) => {
-                    match context.cache.borrow().get(source).cloned() {
-                        Some(image) => image,
-                        None => {
-                            if context.pending.borrow_mut().insert(source.clone()) {
-                                context.request(source);
-                            }
-                            slint::Image::default()
-                        }
-                    }
-                }
-                _ => slint::Image::default(),
-            };
+            let icon = row
+                .icon_source
+                .as_deref()
+                .map(icon_ui::image_for)
+                .unwrap_or_default();
             // P3-01: the batch selection is shown on the card.
             let batch_selected = controller.borrow().is_batch_selected(&row.id);
             GridItem {
@@ -1001,6 +918,8 @@ fn refresh_ui(
         })
         .collect();
     ui.set_items(ModelRc::new(VecModel::from(items)));
+    icon_ui::sync_visible_sources(visible_sources);
+    icon_ui::tick(&ui);
     let icon_size = controller.borrow().icon_size();
     let (cell_width, cell_height) = icon_size.cell();
     ui.set_cell_width(cell_width);
@@ -1024,15 +943,6 @@ fn refresh_ui(
     );
     ui.set_sort_mode_value(settings_snapshot.sort_mode.clone().into());
     ui.set_icon_size_preset(icon_size.key().into());
-    // 第三批：分组栏横向滚动的 tabs 总内容宽度（drop_layout 命中补偿用）。
-    let group_tabs_width: f32 = controller
-        .borrow()
-        .group_rows()
-        .iter()
-        .map(|row| row.tab_width)
-        .sum::<f32>();
-    let group_tabs_spacing = controller.borrow().group_rows().len().saturating_sub(1) as f32 * 24.0;
-    ui.set_group_tabs_content_width(group_tabs_width + group_tabs_spacing);
     ui.set_active_item_id("".into());
     // P1-12: save failures are surfaced instead of being ignored;
     // a clear error restores the default status text.
@@ -1105,6 +1015,64 @@ fn register_transfer_open_callback(ui: &MainWindow) {
     });
 }
 
+fn launch_record(item_id: &str) -> quicknest::library_controller::LaunchRecord {
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|duration| duration.as_millis() as i64)
+        .unwrap_or(0);
+    quicknest::library_controller::LaunchRecord {
+        item_id: item_id.to_string(),
+        now_ms,
+    }
+}
+
+fn process_delayed_launch_outcomes(
+    ui: &MainWindow,
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    outcomes: Vec<DelayedLaunchOutcome>,
+    deferred_refresh: &Cell<bool>,
+) -> usize {
+    let mut records = Vec::new();
+    let mut failures = Vec::new();
+    for outcome in outcomes {
+        match outcome {
+            DelayedLaunchOutcome::Started { item_id } => records.push(launch_record(&item_id)),
+            DelayedLaunchOutcome::Failed { item_id, reason } => {
+                let name = controller
+                    .borrow()
+                    .item(&item_id)
+                    .map(|item| item.name)
+                    .unwrap_or(item_id);
+                failures.push(format!("{name}（{reason}）"));
+            }
+        }
+    }
+    let saved = if records.is_empty() {
+        Ok(0)
+    } else {
+        controller.borrow_mut().record_launch_batch(&records)
+    };
+    let committed = match saved {
+        Ok(count) => count,
+        Err(error) => {
+            failures.push(format!("启动统计保存失败：{error}"));
+            0
+        }
+    };
+    if committed > 0 || deferred_refresh.get() {
+        if ui.get_item_press_active() || ui.get_item_drag_active() {
+            deferred_refresh.set(true);
+        } else {
+            refresh_ui(controller, &ui.as_weak());
+            deferred_refresh.set(false);
+        }
+    }
+    if !failures.is_empty() {
+        ui.set_validation_status(format!("延时启动结果：{}", failures.join("；")).into());
+    }
+    committed
+}
+
 fn register_batch_launch_callback(
     ui: &MainWindow,
     controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
@@ -1123,6 +1091,7 @@ fn register_batch_launch_callback(
         let mut delayed = 0_usize;
         let mut failed = 0_usize;
         let mut skipped = 0_usize;
+        let mut records = Vec::new();
         for item_id in &ordered {
             let unverified = controller.borrow().item(item_id).is_some_and(|item| {
                 item.item_type == quicknest::library_model::ItemKind::Command
@@ -1138,12 +1107,17 @@ fn register_batch_launch_callback(
                     delayed += 1;
                 } else {
                     started += 1;
-                    controller.borrow_mut().record_launch(item_id);
+                    records.push(launch_record(item_id));
                 }
             } else {
                 failed += 1;
             }
         }
+        let stats_error = if records.is_empty() {
+            None
+        } else {
+            controller.borrow_mut().record_launch_batch(&records).err()
+        };
         controller.borrow_mut().clear_batch_selection();
         ui.set_batch_count(0);
         ui.set_batch_launch_title("批量启动所选".into());
@@ -1157,6 +1131,9 @@ fn register_batch_launch_callback(
         }
         if failed > 0 {
             message.push_str(&format!("（{failed} 个失败）"));
+        }
+        if let Some(error) = stats_error {
+            message.push_str(&format!("；启动统计保存失败：{error}"));
         }
         ui.set_validation_status(message.into());
     });
@@ -1190,6 +1167,7 @@ fn register_combination_launch_callback(
         let mut delayed = 0_usize;
         let mut failures = Vec::new();
         let mut skipped = 0_usize;
+        let mut records = Vec::new();
         for item_id in &item_ids {
             let item = controller.borrow().item(item_id);
             if item.as_ref().is_some_and(|item| {
@@ -1205,7 +1183,7 @@ fn register_combination_launch_callback(
                     delayed += 1;
                 } else {
                     started += 1;
-                    controller.borrow_mut().record_launch(item_id);
+                    records.push(launch_record(item_id));
                 }
             } else {
                 failures.push(
@@ -1214,6 +1192,11 @@ fn register_combination_launch_callback(
                 );
             }
         }
+        let stats_error = if records.is_empty() {
+            None
+        } else {
+            controller.borrow_mut().record_launch_batch(&records).err()
+        };
         refresh_ui(&controller, &weak);
         let mut summary = format!("组合“{name}”：{started}/{total} 个项目已启动");
         if delayed > 0 {
@@ -1229,8 +1212,12 @@ fn register_combination_launch_callback(
                 failures.join("、")
             ));
         }
+        let has_error = !failures.is_empty() || stats_error.is_some();
+        if let Some(error) = stats_error {
+            summary.push_str(&format!("；启动统计保存失败：{error}"));
+        }
         ui.set_combination_dialog_status(summary.into());
-        ui.set_combination_dialog_error(!failures.is_empty());
+        ui.set_combination_dialog_error(has_error);
     });
 }
 
@@ -1373,7 +1360,10 @@ fn launch_item_by_id(
             // sorting.
             // P4 审核修复：记录后立即刷新模型——最近/高频模式下网格顺序
             // 即时更新（旧实现要等下一次全量刷新）。
-            controller.borrow_mut().record_launch(&item.id);
+            let stats_error = controller
+                .borrow_mut()
+                .record_launch_batch(&[launch_record(&item.id)])
+                .err();
             if controller.borrow().sort_mode() != "manual" {
                 refresh_ui(controller, &ui.as_weak());
             }
@@ -1386,7 +1376,7 @@ fn launch_item_by_id(
             };
             // P3-08 (baseline 8.2): CMD/PowerShell runs display the actual
             // execution content in the status bar.
-            let status = if item.item_type == quicknest::library_model::ItemKind::Command {
+            let mut status = if item.item_type == quicknest::library_model::ItemKind::Command {
                 format!(
                     "已启动 {name}：{}",
                     quicknest::infrastructure::windows::launch::command_display(&item)
@@ -1394,6 +1384,9 @@ fn launch_item_by_id(
             } else {
                 format!("已启动 {name}")
             };
+            if let Some(error) = stats_error {
+                status.push_str(&format!("；启动统计保存失败：{error}"));
+            }
             ui.set_validation_status(status.into());
             if auto_hide && !pinned {
                 hide_panel(ui, machine);
@@ -1575,6 +1568,9 @@ fn copy_path_to_clipboard(_text: &str) -> bool {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let arguments: Vec<String> = std::env::args().collect();
+    if let Some(result) = quicknest::build_info::entry(&arguments) {
+        return result.map_err(Into::into);
+    }
     #[cfg(windows)]
     if let Some(result) = quicknest::updater::worker_entry(&arguments) {
         return result.map_err(Into::into);
@@ -1889,9 +1885,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // P1-11: the cache directory sits next to the config; entries not
     // referenced by the current library are pruned on startup.
     let icons_dir = Some(data_directory.join("icons"));
-    install_icon_context(Rc::new(IconContext::new(
-        icons_dir.clone().unwrap_or_default(),
-    )));
+    icon_ui::install(icons_dir.clone().unwrap_or_default());
     if let Some(directory) = &icons_dir {
         prune_icon_cache(directory, &controller);
     }
@@ -2017,56 +2011,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Rc clone and calls this after mutating the model.
         // refresh_ui 已提升为模块级函数（P4 审核：launch_item_by_id 也需要调用）。
 
-        /// P2-06: updates only the sidebar (groups/categories/active
-        /// category) without rebuilding the grid, so a card mid-drag keeps
-        /// its pointer capture while the spring-load switches groups.
-        fn refresh_sidebar(
-            controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
-            weak: &slint::Weak<MainWindow>,
-        ) {
-            let Some(ui) = weak.upgrade() else {
-                return;
-            };
-            let views: Vec<GroupView> = controller
-                .borrow()
-                .group_rows()
-                .into_iter()
-                .map(|row| GroupView {
-                    id: row.id.clone().into(),
-                    name: row.name.into(),
-                    accent: row.color.into(),
-                    active: row.active,
-                    item_count: row.item_count as i32,
-                    tab_width: row.tab_width,
-                })
-                .collect();
-            let categories: Vec<CategoryView> = controller
-                .borrow()
-                .category_rows()
-                .into_iter()
-                .map(|row| CategoryView {
-                    id: row.id.clone().into(),
-                    name: row.name.into(),
-                    item_count: row.item_count as i32,
-                })
-                .collect();
-            ui.set_groups(ModelRc::new(VecModel::from(views)));
-            ui.set_categories(ModelRc::new(VecModel::from(categories)));
-            ui.set_active_category_id(
-                controller
-                    .borrow()
-                    .library()
-                    .active_category()
-                    .map(|category| category.id.clone())
-                    .unwrap_or_default()
-                    .into(),
-            );
-        }
-
         // P2-01: search center helpers (baseline 2.6/13). Linear scan over the
         // registered library; pinyin matching is P2-02.
         let search_all_groups = Rc::new(Cell::new(false));
         let search_query_state = Rc::new(RefCell::new(String::new()));
+        let deferred_refresh = Rc::new(Cell::new(false));
         // P2-06: the group tab an internal drag hovers over, with the instant
         // the hover started (spring-load switches after 400 ms).
         let drag_group_hover: Rc<RefCell<Option<(String, Instant)>>> = Rc::new(RefCell::new(None));
@@ -2080,8 +2029,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             let controller = Rc::clone(&controller);
             let weak = ui.as_weak();
             let hover = Rc::clone(&drag_group_hover);
+            let deferred = Rc::clone(&deferred_refresh);
             ui.on_item_drag_finished(move || {
                 hover.borrow_mut().take();
+                deferred.set(false);
                 refresh_ui(&controller, &weak);
             });
         }
@@ -2174,45 +2125,30 @@ fn main() -> Result<(), Box<dyn Error>> {
         {
             let controller = Rc::clone(&controller);
             let weak = ui.as_weak();
+            let deferred = Rc::clone(&deferred_refresh);
             delayed_drain_timer.start(TimerMode::Repeated, Duration::from_millis(250), move || {
-                let drained: Vec<DelayedLaunchOutcome> = delayed_tasks().drain();
-                for outcome in drained {
-                    match outcome {
-                        DelayedLaunchOutcome::Started { item_id } => {
-                            controller.borrow_mut().record_launch(&item_id);
-                            refresh_ui(&controller, &weak);
-                        }
-                        DelayedLaunchOutcome::Failed { item_id, reason } => {
-                            let name = controller
-                                .borrow()
-                                .item(&item_id)
-                                .map(|item| item.name)
-                                .unwrap_or_default();
-                            if let Some(ui) = weak.upgrade() {
-                                ui.set_validation_status(
-                                    format!("延时启动失败：{name}（{reason}）").into(),
-                                );
-                            }
-                        }
-                    }
+                if let Some(ui) = weak.upgrade() {
+                    process_delayed_launch_outcomes(
+                        &ui,
+                        &controller,
+                        delayed_tasks().drain(),
+                        &deferred,
+                    );
                 }
             });
             _delayed_timer_keepalive = Some(delayed_drain_timer);
         }
         let icon_drain_timer = Timer::default();
         {
-            let controller = Rc::clone(&controller);
             let weak = ui.as_weak();
             icon_drain_timer.start(TimerMode::Repeated, Duration::from_millis(150), move || {
-                if drain_icon_results() {
-                    refresh_ui(&controller, &weak);
+                if let Some(ui) = weak.upgrade() {
+                    icon_ui::tick(&ui);
                 }
             });
         }
         _icon_timer_keepalive = Some(icon_drain_timer);
 
-        let weak = ui.as_weak();
-        refresh_ui(&controller, &weak);
         let weak = ui.as_weak();
         refresh_ui(&controller, &weak);
 
@@ -2295,13 +2231,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             ui.set_item_dialog_visible(true);
         }
 
-        let editing_item: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
-        let pending_item_delete: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
-        // P3-08 (baseline 8.3): the command item awaiting its first-run
-        // confirmation, plus whether the run was requested as administrator.
-        let pending_command_confirm: Rc<RefCell<Option<(String, bool)>>> =
-            Rc::new(RefCell::new(None));
-        let pending_item_move: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
+        let modal_pending = modal_ui::Pending::default();
+        let editing_item = modal_pending.editing_item.clone();
+        let pending_item_delete = modal_pending.item_delete.clone();
+        let pending_command_confirm = modal_pending.command.clone();
+        let pending_item_move = modal_pending.item_move.clone();
         {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
@@ -2371,60 +2305,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             });
         }
-        {
-            let weak = ui.as_weak();
-            ui.on_update_install_cancelled(move || {
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_update_confirm_visible(false);
-                }
-            });
-        }
         register_settings_panel_callbacks(&ui, &controller);
 
-        {
-            let weak = ui.as_weak();
-            let machine = Rc::clone(&focus_machine);
-            let pending = Rc::clone(&pending_command_confirm);
-            let controller = Rc::clone(&controller);
-            ui.on_escape_pressed(move || {
-                let Some(ui) = weak.upgrade() else {
-                    return;
-                };
-                if ui.get_settings_panel_visible() {
-                    ui.set_settings_panel_visible(false);
-                    refresh_ui(&controller, &weak);
-                } else if ui.get_command_confirm_visible() {
-                    pending.borrow_mut().take();
-                    ui.set_command_confirm_visible(false);
-                } else if ui.get_update_confirm_visible() {
-                    ui.set_update_confirm_visible(false);
-                } else if ui.get_combination_name_dialog_visible() {
-                    ui.set_combination_name_dialog_visible(false);
-                } else if ui.get_combination_dialog_visible() {
-                    ui.set_combination_dialog_visible(false);
-                } else if ui.get_transfer_dialog_visible() {
-                    ui.set_transfer_dialog_visible(false);
-                } else if ui.get_backup_dialog_visible() {
-                    ui.set_backup_dialog_visible(false);
-                } else if ui.get_item_dialog_visible() {
-                    ui.set_item_dialog_visible(false);
-                } else if ui.get_item_delete_confirm_visible() {
-                    ui.set_item_delete_confirm_visible(false);
-                } else if ui.get_move_dialog_visible() {
-                    ui.set_move_dialog_visible(false);
-                } else if ui.get_group_dialog_visible() {
-                    ui.set_group_dialog_visible(false);
-                } else if ui.get_group_delete_confirm_visible() {
-                    ui.set_group_delete_confirm_visible(false);
-                } else if ui.get_category_dialog_visible() {
-                    ui.set_category_dialog_visible(false);
-                } else if ui.get_category_delete_confirm_visible() {
-                    ui.set_category_delete_confirm_visible(false);
-                } else {
-                    hide_panel(&ui, &machine);
-                }
-            });
-        }
+        modal_ui::register(&ui, &focus_machine, &modal_pending);
         if mode == RunMode::Interactive && controller.borrow().update_check_enabled() {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
@@ -2519,24 +2402,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                         item_id.as_ref(),
                         false,
                     );
-                }
-            });
-        }
-        {
-            // P2-01/baseline 13.4: Esc clears the query first, then closes.
-            let weak = weak.clone();
-            let controller = Rc::clone(&controller);
-            let all_groups = Rc::clone(&search_all_groups);
-            let query_state = Rc::clone(&search_query_state);
-            ui.on_search_dismissed(move || {
-                if let Some(ui) = weak.upgrade() {
-                    if query_state.borrow().is_empty() {
-                        ui.set_search_visible(false);
-                    } else {
-                        query_state.borrow_mut().clear();
-                        ui.set_search_query("".into());
-                        refresh_search(&ui, &controller, all_groups.get(), "");
-                    }
                 }
             });
         }
@@ -3082,16 +2947,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
         }
         {
-            let weak = weak.clone();
-            let pending = Rc::clone(&pending_item_move);
-            ui.on_move_dialog_cancelled(move || {
-                pending.borrow_mut().take();
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_move_dialog_visible(false);
-                }
-            });
-        }
-        {
             // P1-06: launch entries; P1-08 binds reveal-in-explorer.
             let weak = weak.clone();
             let controller = Rc::clone(&controller);
@@ -3134,16 +2989,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             ui.on_item_menu_open_location(move |item_id: slint::SharedString| {
                 if let Some(ui) = weak.upgrade() {
                     open_item_location_by_id(&ui, &controller, item_id.as_ref());
-                }
-            });
-        }
-        {
-            let weak = weak.clone();
-            let editing = Rc::clone(&editing_item);
-            ui.on_item_dialog_cancelled(move || {
-                editing.borrow_mut().take();
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_item_dialog_visible(false);
                 }
             });
         }
@@ -3222,19 +3067,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
         }
         {
-            // P3-08 (baseline 8.3): cancelling never runs the command.
-            let weak = weak.clone();
-            let pending = Rc::clone(&pending_command_confirm);
-            ui.on_command_confirm_cancelled(move || {
-                let Some(ui) = weak.upgrade() else {
-                    return;
-                };
-                pending.borrow_mut().take();
-                ui.set_command_confirm_visible(false);
-                ui.set_validation_status("已取消执行".into());
-            });
-        }
-        {
             let weak = weak.clone();
             let controller = Rc::clone(&controller);
             let pending = Rc::clone(&pending_item_delete);
@@ -3246,16 +3078,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     ui.set_item_delete_confirm_visible(false);
                 }
                 refresh_ui(&controller, &weak);
-            });
-        }
-        {
-            let weak = weak.clone();
-            let pending = Rc::clone(&pending_item_delete);
-            ui.on_item_delete_confirm_cancelled(move || {
-                pending.borrow_mut().take();
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_item_delete_confirm_visible(false);
-                }
             });
         }
 
@@ -3282,8 +3104,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             let weak_root = weak.clone();
             // P2-11: group create/rename share this dialog; the target id
             // distinguishes rename (Some) from create (None).
-            let group_dialog_target: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
-            let pending_group_delete: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
+            let group_dialog_target = modal_pending.group_target.clone();
+            let pending_group_delete = modal_pending.group_delete.clone();
             let group_migrate_ids: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
 
             {
@@ -3292,10 +3114,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 ui.on_group_create_requested(move || {
                     *target.borrow_mut() = None;
                     if let Some(ui) = weak.upgrade() {
-                        ui.set_group_dialog_visible(true);
                         ui.set_group_dialog_title("新建分组".into());
                         ui.set_group_dialog_initial("".into());
                         ui.set_group_dialog_error("".into());
+                        ui.set_group_dialog_visible(true);
                     }
                 });
             }
@@ -3330,14 +3152,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             {
                 let weak = weak_root.clone();
-                ui.on_group_dialog_cancelled(move || {
-                    if let Some(ui) = weak.upgrade() {
-                        ui.set_group_dialog_visible(false);
-                    }
-                });
-            }
-            {
-                let weak = weak_root.clone();
                 let target = Rc::clone(&group_dialog_target);
                 let controller = Rc::clone(&controller);
                 ui.on_group_menu_rename(move |group_id: slint::SharedString| {
@@ -3350,10 +3164,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .unwrap_or_default();
                     *target.borrow_mut() = Some(id);
                     if let Some(ui) = weak.upgrade() {
-                        ui.set_group_dialog_visible(true);
                         ui.set_group_dialog_title("重命名分组".into());
                         ui.set_group_dialog_initial(name.into());
                         ui.set_group_dialog_error("".into());
+                        ui.set_group_dialog_visible(true);
                     }
                 });
             }
@@ -3481,33 +3295,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                     refresh_ui(&controller, &weak);
                 });
             }
-            {
-                let weak = weak_root.clone();
-                let pending = Rc::clone(&pending_group_delete);
-                ui.on_group_delete_confirm_cancel(move || {
-                    pending.borrow_mut().take();
-                    if let Some(ui) = weak.upgrade() {
-                        ui.set_group_delete_confirm_visible(false);
-                    }
-                });
-            }
         }
         {
             let controller = Rc::clone(&controller);
             let weak_root = weak.clone();
             // The dialog doubles for create (empty target) and rename (target
             // id set); the mode rides in this cell.
-            let dialog_target: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
+            let dialog_target = modal_pending.category_target.clone();
             let dialog_target_for_open = Rc::clone(&dialog_target);
             ui.on_category_create_opened({
                 let weak = weak_root.clone();
                 move || {
                     *dialog_target_for_open.borrow_mut() = None;
                     if let Some(ui) = weak.upgrade() {
-                        ui.set_category_dialog_visible(true);
                         ui.set_category_dialog_title("新建分类".into());
                         ui.set_category_dialog_initial("".into());
                         ui.set_category_dialog_error("".into());
+                        ui.set_category_dialog_visible(true);
                     }
                 }
             });
@@ -3530,10 +3334,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                             .map(|category| category.name.clone())
                             .unwrap_or_default();
                         *dialog_target_for_rename.borrow_mut() = Some(id);
-                        ui.set_category_dialog_visible(true);
                         ui.set_category_dialog_title("重命名分类".into());
                         ui.set_category_dialog_initial(name.into());
                         ui.set_category_dialog_error("".into());
+                        ui.set_category_dialog_visible(true);
                     }
                 }
             });
@@ -3647,14 +3451,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 });
             }
             {
-                let weak = weak.clone();
-                ui.on_category_dialog_cancelled(move || {
-                    if let Some(ui) = weak.upgrade() {
-                        ui.set_category_dialog_visible(false);
-                    }
-                });
-            }
-            {
                 let controller = Rc::clone(&controller);
                 let weak = weak.clone();
                 let dialog_target = Rc::clone(&dialog_target);
@@ -3690,14 +3486,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                         ui.set_category_delete_confirm_visible(false);
                     }
                     refresh_ui(&controller, &weak);
-                });
-            }
-            {
-                let weak = weak.clone();
-                ui.on_category_delete_confirm_cancel(move || {
-                    if let Some(ui) = weak.upgrade() {
-                        ui.set_category_delete_confirm_visible(false);
-                    }
                 });
             }
         }
@@ -4126,14 +3914,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             });
         }
-        {
-            let weak = ui.as_weak();
-            ui.on_backup_dialog_cancelled(move || {
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_backup_dialog_visible(false);
-                }
-            });
-        }
         fn transfer_dialog_owner(ui: &MainWindow) -> isize {
             quicknest::infrastructure::windows::window_handle::inspect_window(ui.window())
                 .map(|observation| observation.hwnd)
@@ -4263,14 +4043,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &machine,
                     quicknest::config_transfer::ImportMode::Overwrite,
                 );
-            });
-        }
-        {
-            let weak = ui.as_weak();
-            ui.on_transfer_dialog_cancelled(move || {
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_transfer_dialog_visible(false);
-                }
             });
         }
         // P3-05/P3-06/P3-07: grid sort mode switching.
@@ -4473,15 +4245,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         register_combination_launch_callback(&ui, &controller);
         register_combination_delete_callback(&ui, &controller);
-        {
-            let weak = ui.as_weak();
-            ui.on_combination_dialog_cancelled(move || {
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_combination_dialog_visible(false);
-                    ui.set_combination_name_dialog_visible(false);
-                }
-            });
-        }
     }
 
     let restore_timer = Rc::new(Timer::default());

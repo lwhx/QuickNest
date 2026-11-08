@@ -30,6 +30,10 @@ fn ui_fixture() -> (
     let ui = MainWindow::new().unwrap();
     ui.window().set_size(slint::PhysicalSize::new(760, 520));
     register_settings_panel_callbacks(&ui, &controller);
+    let machine = Rc::new(RefCell::new(
+        quicknest::window_state::FocusStateMachine::new(),
+    ));
+    modal_ui::register(&ui, &machine, &modal_ui::Pending::default());
     register_backup_open_callback(&ui, &controller, &Rc::new(RefCell::new(Vec::new())));
     register_transfer_open_callback(&ui);
     appearance_ui::register(&ui, &controller);
@@ -364,6 +368,202 @@ fn restore_and_overwrite_import_reapply_pinning_appearance_and_blur_policy() {
     );
     assert_eq!(ui.get_theme().window, theme);
     assert!(!machine.borrow().is_pinned());
+    ui.hide().unwrap();
+}
+
+fn press_key(ui: &MainWindow, text: &str) {
+    ui.window()
+        .dispatch_event(slint::platform::WindowEvent::KeyPressed { text: text.into() });
+    ui.window()
+        .dispatch_event(slint::platform::WindowEvent::KeyReleased { text: text.into() });
+}
+
+#[test]
+fn production_modal_callbacks_clear_pending_without_saving_or_launching() {
+    use quicknest::window_state::{FocusStateMachine, PanelState};
+    let (ui, controller, directory) = ui_fixture();
+    let before = std::fs::read(directory.0.join("config.json")).unwrap();
+    let machine = Rc::new(RefCell::new(FocusStateMachine::new()));
+    machine.borrow_mut().show().unwrap();
+    let pending = modal_ui::Pending::default();
+    modal_ui::register(&ui, &machine, &pending);
+    let launches = Rc::new(Cell::new(0));
+    let observed = launches.clone();
+    ui.on_command_confirm_confirmed(move || observed.set(observed.get() + 1));
+    *pending.command.borrow_mut() = Some(("must-not-launch".into(), false));
+    ui.set_command_confirm_visible(true);
+    press_key(&ui, "\t");
+    press_key(&ui, "\u{1b}");
+    assert!(!ui.get_command_confirm_visible());
+    assert!(pending.command.borrow().is_none());
+    assert_eq!(launches.get(), 0);
+
+    *pending.editing_item.borrow_mut() = Some("editing".into());
+    ui.set_item_dialog_visible(true);
+    ui.invoke_escape_pressed();
+    assert!(!ui.get_item_dialog_visible());
+    assert!(pending.editing_item.borrow().is_none());
+    *pending.item_move.borrow_mut() = Some("moving".into());
+    ui.set_move_dialog_visible(true);
+    ui.invoke_escape_pressed();
+    assert!(!ui.get_move_dialog_visible());
+    assert!(pending.item_move.borrow().is_none());
+    *pending.item_delete.borrow_mut() = Some("deleting".into());
+    ui.set_item_delete_confirm_visible(true);
+    ui.invoke_escape_pressed();
+    assert!(!ui.get_item_delete_confirm_visible());
+    assert!(pending.item_delete.borrow().is_none());
+
+    *pending.command.borrow_mut() = Some(("priority".into(), true));
+    ui.set_command_confirm_visible(true);
+    ui.set_settings_panel_visible(true);
+    ui.invoke_escape_pressed();
+    assert!(!ui.get_settings_panel_visible());
+    assert!(ui.get_command_confirm_visible());
+    assert!(pending.command.borrow().is_some());
+    ui.invoke_escape_pressed();
+    assert!(!ui.get_command_confirm_visible());
+    assert!(pending.command.borrow().is_none());
+
+    ui.set_search_query("query".into());
+    ui.set_search_visible(true);
+    press_key(&ui, "\u{1b}");
+    assert!(ui.get_search_visible());
+    assert!(ui.get_search_query().is_empty());
+    press_key(&ui, "\u{1b}");
+    assert!(!ui.get_search_visible());
+    assert_eq!(machine.borrow().state(), PanelState::Visible);
+    assert_eq!(
+        std::fs::read(directory.0.join("config.json")).unwrap(),
+        before
+    );
+    assert_eq!(launches.get(), 0);
+    ui.invoke_escape_pressed();
+    assert_eq!(machine.borrow().state(), PanelState::Hidden);
+    ui.hide().unwrap();
+    drop(controller);
+}
+
+fn backup_count(directory: &std::path::Path) -> usize {
+    std::fs::read_dir(directory)
+        .unwrap()
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            entry
+                .file_name()
+                .to_string_lossy()
+                .starts_with("config.backup.")
+        })
+        .count()
+}
+
+#[test]
+fn delayed_results_commit_once_and_refresh_once_per_batch() {
+    let (ui, controller, directory) = ui_fixture();
+    let ids = controller
+        .borrow()
+        .item_rows()
+        .into_iter()
+        .take(2)
+        .map(|row| row.id)
+        .collect::<Vec<_>>();
+    let deferred = Cell::new(false);
+    FULL_REFRESH_COUNT.with(|count| count.set(0));
+    let before = backup_count(&directory.0);
+    let committed = process_delayed_launch_outcomes(
+        &ui,
+        &controller,
+        vec![
+            DelayedLaunchOutcome::Started {
+                item_id: ids[0].clone(),
+            },
+            DelayedLaunchOutcome::Started {
+                item_id: ids[0].clone(),
+            },
+            DelayedLaunchOutcome::Failed {
+                item_id: ids[1].clone(),
+                reason: "controlled failure".into(),
+            },
+        ],
+        &deferred,
+    );
+    assert_eq!(committed, 2);
+    assert_eq!(controller.borrow().item(&ids[0]).unwrap().launch_count, 2);
+    assert_eq!(controller.borrow().item(&ids[1]).unwrap().launch_count, 0);
+    assert_eq!(backup_count(&directory.0), before + 1);
+    FULL_REFRESH_COUNT.with(|count| assert_eq!(count.get(), 1));
+    assert!(ui.get_validation_status().contains("controlled failure"));
+    assert!(!deferred.get());
+    process_delayed_launch_outcomes(&ui, &controller, Vec::new(), &deferred);
+    assert_eq!(backup_count(&directory.0), before + 1);
+    FULL_REFRESH_COUNT.with(|count| assert_eq!(count.get(), 1));
+    ui.hide().unwrap();
+}
+
+#[test]
+fn delayed_statistics_defer_structural_refresh_until_the_gesture_ends() {
+    let (ui, controller, directory) = ui_fixture();
+    let id = controller.borrow().item_rows()[0].id.clone();
+    let deferred = Cell::new(false);
+    ui.set_item_press_active(true);
+    FULL_REFRESH_COUNT.with(|count| count.set(0));
+    assert_eq!(
+        process_delayed_launch_outcomes(
+            &ui,
+            &controller,
+            vec![DelayedLaunchOutcome::Started {
+                item_id: id.clone()
+            },],
+            &deferred
+        ),
+        1
+    );
+    assert_eq!(controller.borrow().item(&id).unwrap().launch_count, 1);
+    assert_eq!(ui.get_items().row_data(0).unwrap().launch_count, 0);
+    assert!(deferred.get());
+    FULL_REFRESH_COUNT.with(|count| assert_eq!(count.get(), 0));
+    let backups = backup_count(&directory.0);
+    ui.set_item_press_active(false);
+    process_delayed_launch_outcomes(&ui, &controller, Vec::new(), &deferred);
+    assert!(!deferred.get());
+    assert_eq!(ui.get_items().row_data(0).unwrap().launch_count, 1);
+    assert_eq!(backup_count(&directory.0), backups);
+    FULL_REFRESH_COUNT.with(|count| assert_eq!(count.get(), 1));
+    ui.hide().unwrap();
+}
+
+#[cfg(windows)]
+#[test]
+fn delayed_statistics_commit_failure_is_not_reported_as_a_launch_failure() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::FILE_SHARE_READ;
+    let (ui, controller, directory) = ui_fixture();
+    let id = controller.borrow().item_rows()[0].id.clone();
+    let config = directory.0.join("config.json");
+    let before = std::fs::read(&config).unwrap();
+    let lock = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&config)
+        .unwrap();
+    FULL_REFRESH_COUNT.with(|count| count.set(0));
+    assert_eq!(
+        process_delayed_launch_outcomes(
+            &ui,
+            &controller,
+            vec![DelayedLaunchOutcome::Started {
+                item_id: id.clone()
+            },],
+            &Cell::new(false)
+        ),
+        0
+    );
+    assert_eq!(controller.borrow().item(&id).unwrap().launch_count, 0);
+    assert_eq!(std::fs::read(&config).unwrap(), before);
+    assert!(ui.get_validation_status().contains("启动统计保存失败"));
+    assert!(!ui.get_validation_status().contains("controlled failure"));
+    FULL_REFRESH_COUNT.with(|count| assert_eq!(count.get(), 0));
+    drop(lock);
     ui.hide().unwrap();
 }
 

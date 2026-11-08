@@ -6,18 +6,43 @@ $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 . (Join-Path $root 'scripts\test-sandbox.ps1')
 function Get-QnScriptSafetyClass([string]$Name, [Management.Automation.Language.ScriptBlockAst]$Ast, [string]$Source) {
     if (Get-QnScriptBlockReason $Ast) { return 'BLOCKED' }
+    $Name = $Name.Replace('\','/')
     if ($Name -in @('test-sandbox.ps1','verify-sandbox-preflight.ps1')) { return 'infrastructure' }
     $support = @('p0-05-desktop.ps1','p0-06-native.ps1','p1-17-focus.ps1')
     $utilities = @('run-regression.ps1','assert-p0-03-report.ps1','assert-p0-04-report.ps1','assert-p0-05-interactive.ps1','summarize-p0-06.ps1','gen-icon.ps1','update-keygen.ps1','update-sign.ps1','update-server.ps1')
-    if ($Name -notlike 'verify-p*.ps1' -and $Name -notin $support -and $Name -notin $utilities) { throw ('unclassified executable script requires migration or a first-statement BLOCKED guard: ' + $Name) }
+    # Exact audited paths only; verify-* or an infrastructure basename grants no exemption.
+    $releaseScripts = @('release-metadata.ps1','build-release.ps1','verify-release-artifacts.ps1','fixtures/verify-release-artifacts-fixtures.ps1','installer/build-portable.ps1')
+    $isRelease = $Name -in $releaseScripts
+    if ($Name -notlike 'verify-p*.ps1' -and $Name -notin $support -and $Name -notin $utilities -and -not $isRelease) { throw ('unclassified executable script requires migration or a first-statement BLOCKED guard: ' + $Name) }
     $commands = @($Ast.FindAll({ param($node) $node -is [Management.Automation.Language.CommandAst] }, $true))
     foreach ($command in $commands) {
         if ($command.GetCommandName() -match '(^|\\)(Remove-Item|Stop-Process|taskkill)(\.exe)?$') { throw ('unguarded mutation in ' + $Name + ': ' + $command.Extent.Text) }
+        if ($isRelease -and $command.GetCommandName() -match '(^|\\)(Start-Process|Invoke-WebRequest|Invoke-RestMethod|Set-ItemProperty|New-ItemProperty|Remove-ItemProperty|schtasks|reg|msiexec)(\.exe)?$') { throw ('release entry has an unsupported external/user-state operation: ' + $Name) }
     }
     $dangerousMembers = @($Ast.FindAll({ param($node)
         $node -is [Management.Automation.Language.InvokeMemberExpressionAst] -and $node.Member.Value -in @('Kill','Delete','DeleteFile','RemoveDirectory')
     }, $true))
-    if ($dangerousMembers.Count) { throw ('unguarded member mutation in ' + $Name) }
+    foreach ($member in $dangerousMembers) {
+        $owner = $member.Parent
+        while ($owner -and $owner -isnot [Management.Automation.Language.FunctionDefinitionAst]) { $owner = $owner.Parent }
+        # The sole exception owns a freshly created Process object, starts it,
+        # and kills that object only after timeout. No PID/name lookup is used.
+        $ownedProbe = $Name -eq 'release-metadata.ps1' -and $member.Member.Value -eq 'Kill' -and $owner -and $owner.Name -in @('Invoke-QnReleaseProbe','Invoke-QnReleaseTool') -and $member.Expression.Extent.Text -ceq '$process' -and $owner.Extent.Text -match '\$startedHere = \$process.Start\(\)' -and $owner.Extent.Text -match '\$startedHere -and -not \$process.HasExited'
+        if (-not $ownedProbe) { throw ('unguarded member mutation in ' + $Name) }
+    }
+    if ($isRelease) {
+        if ($Name -eq 'release-metadata.ps1') {
+            foreach ($statement in $Ast.EndBlock.Statements) { if ($statement -isnot [Management.Automation.Language.FunctionDefinitionAst]) { throw 'release metadata library must only define functions' } }
+            return 'release-support-library'
+        }
+        if ($Name -eq 'fixtures/verify-release-artifacts-fixtures.ps1') {
+            if ($Source -notmatch 'GetTempPath' -or $Source -notmatch 'Assert-QnReleasePath' -or $Source -match 'Invoke-QnReleaseProbe|Get-QnExecutableBuildInfo|Read-QnReleaseContext|Diagnostics.Process') { throw 'release fixtures must stay in newly allocated temp roots without executable probes' }
+            return 'release-headless-fixtures'
+        }
+        if ($Source -notmatch 'Read-QnReleaseContext' -or $Source -notmatch 'Open-QnReleaseStageLocks' -or $Source -notmatch 'Assert-QnReleaseSourceUnchanged' -or $Source -notmatch 'Assert-QnReleaseStage') { throw ('release entry lacks the frozen-input contract: ' + $Name) }
+        if ($Name -eq 'build-release.ps1' -and ($Source -notmatch "'--locked','--offline'" -or $Source -notmatch 'savedEnvironment' -or $Source -notmatch 'QUICKNEST_UPDATE_PUBLIC_KEY_HEX')) { throw 'release build lacks offline/key/environment controls' }
+        return 'release-frozen-input-contract'
+    }
     if ($Name -like 'verify-p*.ps1') {
         if ($Source -notmatch 'Initialize-QnTestSandbox' -or $Source -notmatch 'Restore-QnEnvironment') { throw ('missing sandbox/env restoration in ' + $Name) }
         if ($Source -match '\$env:QUICKNEST_DATA_DIR\s*=') { throw ('child overwrites caller data root: ' + $Name) }
@@ -31,13 +56,14 @@ $scriptsDirectory = Join-Path $root 'scripts'
 # Filesystem inventory deliberately includes ignored/hidden temporary scripts and
 # nested helpers. Git tracking and a verify-* filename are not safety boundaries.
 $files = @(Get-ChildItem -LiteralPath $scriptsDirectory -Filter '*.ps1' -File -Recurse -Force | Sort-Object FullName)
+$files += Get-Item -LiteralPath (Join-Path $root 'installer/build-portable.ps1')
 $checked = 0
 $classes = @{}
 $blockedNames = @()
 foreach ($file in $files) {
     $tokens = $null; $errors = $null
     $ast = [Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors)
-    $name = $file.FullName.Substring($scriptsDirectory.Length + 1)
+    $name = if ($file.FullName.StartsWith($scriptsDirectory + '\', [StringComparison]::OrdinalIgnoreCase)) { $file.FullName.Substring($scriptsDirectory.Length + 1) } else { 'installer/build-portable.ps1' }
     if ($errors.Count) { throw ("{0}: {1}" -f $name, ($errors -join '; ')) }
     $class = Get-QnScriptSafetyClass $name $ast ([IO.File]::ReadAllText($file.FullName))
     if (-not $classes.ContainsKey($class)) { $classes[$class] = 0 }
