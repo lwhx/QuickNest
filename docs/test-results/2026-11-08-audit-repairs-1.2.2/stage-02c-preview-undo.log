@@ -1,0 +1,22 @@
+test library_controller::tests::overwrite_undo_removes_untouched_imports_and_restores_settings ... ok
+test library_controller::tests::path_missing_only_checks_file_like_targets ... ok
+test library_controller::tests::renaming_a_category_reaches_the_model ... ok
+test library_controller::tests::renaming_and_color_reach_the_model ... ok
+test library_controller::tests::repeated_valid_selections_do_not_write_or_clear_a_save_error ... ok
+test library_controller::tests::safe_mode_refuses_manual_backups ... ok
+test library_controller::tests::safe_mode_refuses_repeated_selections_and_every_launch_batch ... ok
+test library_controller::tests::sample_library_has_the_baseline_groups_and_categories ... ok
+test library_controller::tests::save_failures_are_recorded_for_the_ui ... ok
+test library_controller::tests::search_keeps_pinyin_above_path_below_direct_names_and_respects_scope ... ok
+test library_controller::tests::search_respects_scope_and_ranks_by_match ... ok
+test library_controller::tests::search_reuses_cached_pinyin_and_rebuilds_it_after_a_name_change ... ok
+test library_controller::tests::search_skips_pinyin_cache_for_empty_ineligible_and_direct_name_queries ... ok
+test library_controller::tests::selections_repair_missing_or_stale_raw_fields_and_then_skip_writes ... ok
+test library_controller::tests::selections_validate_ids_before_accepting_matching_raw_fields ... ok
+test library_controller::tests::set_icon_size_normalizes_and_persists ... ok
+test library_controller::tests::set_pinned_and_window_bounds_are_transactional ... ok
+test library_controller::tests::stale_selections_are_reconciled_and_combinations_require_live_ids ... ok
+test library_controller::tests::unknown_schema_with_new_structure_stays_read_only_even_with_valid_backup ... ok
+
+test result: ok. 67 passed; 0 failed; 0 ignored; 0 measured; 278 filtered out; finished in 0.56s
+

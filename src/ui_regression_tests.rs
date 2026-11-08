@@ -568,6 +568,209 @@ fn delayed_statistics_commit_failure_is_not_reported_as_a_launch_failure() {
 }
 
 #[test]
+fn tray_settings_shows_panel_from_hidden_state() {
+    let (ui, controller, _directory) = ui_fixture();
+    let machine = Rc::new(RefCell::new(
+        quicknest::window_state::FocusStateMachine::new(),
+    ));
+    let suppression = Rc::new(RefCell::new(None));
+    ui.hide().unwrap();
+    // Audit A6: the tray entry must reach the real settings panel even when
+    // the window is hidden — no status-line-only response.
+    handle_tray_event(
+        &ui.as_weak(),
+        &controller,
+        &machine,
+        &suppression,
+        quicknest::infrastructure::windows::tray::TrayEvent::MenuSelected {
+            command: quicknest::infrastructure::windows::tray::TrayCommand::Settings,
+        },
+    );
+    assert!(
+        ui.window().is_visible(),
+        "tray settings must show the window"
+    );
+    assert!(ui.get_settings_panel_visible());
+    ui.hide().unwrap();
+}
+
+#[test]
+fn settings_hotkey_and_maintenance_section_instantiates() {
+    // Audit D3: the hotkey/maintenance section is instantiated with the
+    // settings panel; the entries are real buttons (labels asserted), and
+    // the configured-hotkey text exists. Opening Explorer itself stays a
+    // desktop-only action and is not exercised here.
+    let (ui, _controller, _directory) = ui_fixture();
+    ui.set_hotkey_configured("Ctrl+Alt+Space".into());
+    ui.set_hotkey_status("组合被其他程序占用".into());
+    click_id(&ui, "settings-hit");
+    assert!(ui.get_settings_panel_visible(), "control: panel opens");
+    slint::platform::update_timers_and_animations();
+    // The configured-hotkey Text renders via the plain hotkey-configured
+    // property; the testing backend does not expose static text nodes, so
+    // the value assertion stays declarative. The two maintenance entries
+    // must exist as real buttons.
+    for label in ["打开数据目录", "定位崩溃日志"] {
+        assert!(
+            ElementHandle::find_by_accessible_label(&ui, label)
+                .find(|candidate| candidate.accessible_role()
+                    == Some(i_slint_backend_testing::AccessibleRole::Button))
+                .is_some(),
+            "maintenance button {label} must exist"
+        );
+    }
+    click_id(&ui, "panel-close-hit");
+    assert!(!ui.get_settings_panel_visible());
+    ui.hide().unwrap();
+}
+
+#[test]
+fn title_settings_focus_keeps_global_routes_alive() {
+    use i_slint_backend_testing::{ElementHandle, ElementQuery};
+    use slint::platform::{Key, WindowEvent};
+    let (ui, _controller, _directory) = ui_fixture();
+    let machine = Rc::new(RefCell::new(
+        quicknest::window_state::FocusStateMachine::new(),
+    ));
+    machine.borrow_mut().show().unwrap();
+    let pending = modal_ui::Pending::default();
+    // Re-register the formal router against this machine; the fixture keeps
+    // its own, but this test needs to observe hide_panel through it.
+    modal_ui::register(&ui, &machine, &pending);
+    let searches = Rc::new(Cell::new(0));
+    {
+        let searches = searches.clone();
+        ui.on_search_requested(move || searches.set(searches.get() + 1));
+    }
+    let press = |text: slint::SharedString| {
+        ui.window()
+            .dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+        ui.window()
+            .dispatch_event(WindowEvent::KeyReleased { text });
+    };
+    let has_title_focus = || {
+        ElementHandle::find_by_element_id(&ui, "MainWindow::settings-focus-ring")
+            .next()
+            .is_some()
+    };
+    let bound = ElementQuery::from_root(&ui).find_all().len() + 1;
+    for _ in 0..bound {
+        press("\t".into());
+        slint::platform::update_timers_and_animations();
+        if has_title_focus() {
+            break;
+        }
+    }
+    assert!(has_title_focus(), "control: settings button must get focus");
+    // Audit A7: focused title settings must not swallow the global routes.
+    ui.window().dispatch_event(WindowEvent::KeyPressed {
+        text: Key::Control.into(),
+    });
+    press("f".into());
+    ui.window().dispatch_event(WindowEvent::KeyReleased {
+        text: Key::Control.into(),
+    });
+    assert_eq!(searches.get(), 1, "Ctrl+F must still open search");
+    press_key(&ui, "\u{1b}");
+    assert_eq!(
+        machine.borrow().state(),
+        quicknest::window_state::PanelState::Hidden,
+        "Esc must reach the formal router and hide the panel"
+    );
+    ui.hide().unwrap();
+}
+
+#[test]
+fn search_reveal_scrolls_the_selection_into_the_viewport() {
+    // Audit B7: with more results than the viewport shows, the reveal keeps
+    // the selected row fully visible and returns to the top for row zero.
+    let (ui, _controller, _directory) = ui_fixture();
+    let rows: Vec<SearchRow> = (0..20)
+        .map(|index| SearchRow {
+            id: format!("row-{index}").into(),
+            name: format!("Result {index}").into(),
+            path: "C:/audit/placeholder".into(),
+            scope: "audit".into(),
+            type_label: "文件".into(),
+        })
+        .collect();
+    ui.set_search_results(ModelRc::new(VecModel::from(rows)));
+    ui.set_search_visible(true);
+    let visible = ui.get_search_visible_height();
+    assert!(
+        visible > 0.0,
+        "control: the search viewport must have height"
+    );
+
+    ui.set_search_selected_index(19);
+    reveal_search_selection(&ui);
+    let offset = ui.get_search_scroll_offset();
+    let selected_top = 19.0 * 46.0;
+    assert!(offset <= selected_top, "top above viewport: {offset}");
+    assert!(
+        offset + visible >= selected_top + 46.0,
+        "bottom outside viewport: offset={offset}, visible={visible}"
+    );
+
+    ui.set_search_selected_index(0);
+    reveal_search_selection(&ui);
+    assert_eq!(ui.get_search_scroll_offset(), 0.0);
+
+    // A mid-list selection near the bottom edge also reveals correctly.
+    ui.set_search_selected_index(0);
+    let mid = (visible / 46.0).floor() as i32;
+    ui.set_search_selected_index(mid + 1);
+    reveal_search_selection(&ui);
+    let offset = ui.get_search_scroll_offset();
+    assert!(offset > 0.0, "a row below the fold must scroll: {offset}");
+    assert!(offset + visible >= (mid + 2) as f32 * 46.0);
+    ui.hide().unwrap();
+}
+
+#[test]
+fn search_paging_and_jump_navigation_move_the_selection() {
+    // Audit D5: paging steps by the visible row count (wrapping like the
+    // arrow keys), jumps clamp into the model — production helpers, not
+    // test copies.
+    let (ui, _controller, _directory) = ui_fixture();
+    let rows: Vec<SearchRow> = (0..25)
+        .map(|index| SearchRow {
+            id: format!("row-{index}").into(),
+            name: format!("Result {index}").into(),
+            path: "C:/audit/placeholder".into(),
+            scope: "audit".into(),
+            type_label: "文件".into(),
+        })
+        .collect();
+    ui.set_search_results(ModelRc::new(VecModel::from(rows)));
+    ui.set_search_visible(true);
+    let visible_rows = (ui.get_search_visible_height() / 46.0).floor().max(1.0) as i32;
+    assert!(visible_rows >= 1);
+
+    ui.set_search_selected_index(0);
+    search_page(&ui, 1);
+    assert_eq!(ui.get_search_selected_index(), visible_rows);
+    search_page(&ui, -1);
+    assert_eq!(ui.get_search_selected_index(), 0);
+    // Paging up from the top wraps to the end, like the arrow keys.
+    search_page(&ui, -1);
+    assert_eq!(
+        ui.get_search_selected_index(),
+        (0i32 - visible_rows).rem_euclid(25)
+    );
+
+    search_jump(&ui, 24);
+    assert_eq!(ui.get_search_selected_index(), 24);
+    search_jump(&ui, -5);
+    assert_eq!(ui.get_search_selected_index(), 0);
+    search_jump(&ui, 999);
+    assert_eq!(ui.get_search_selected_index(), 24);
+    search_jump(&ui, 7);
+    assert_eq!(ui.get_search_selected_index(), 7);
+    ui.hide().unwrap();
+}
+
+#[test]
 fn deleting_nonempty_category_prepares_confirmation_without_nested_borrow() {
     let controller = RefCell::new(quicknest::library_controller::LibraryController::load(None));
     let source = controller.borrow().active_category_id().unwrap();

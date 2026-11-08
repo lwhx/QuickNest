@@ -65,10 +65,17 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; \
 
 [Registry]
 ; 开机启动（基线 23 章）：HKCU 当前用户 Run 键；卸载时删除该值。
+; B10（1.2.2）：覆盖安装且用户未勾选"开机自动启动"时，删除旧安装遗留的
+; 同名 Run 值（ValueType:none + Flags:deletevalue 只删除、不写入）。
+; Inno 的 [Registry] 节随安装阶段执行：向导被取消时不会进行任何安装步骤，
+; 因此取消安装不会提前改动注册表；选中分支保持原有写入行为不变。
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
     ValueType: string; ValueName: "QuickNest"; \
     ValueData: """{app}\{#MyAppExeName}"""; \
     Flags: uninsdeletevalue; Tasks: autostart
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
+    ValueType: none; ValueName: "QuickNest"; \
+    Flags: deletevalue; Check: not WizardIsTaskSelected('autostart')
 
 [Run]
 ; 安装完成后可选立即启动：runasoriginaluser 使用 Inno 保存的原始用户上下文。

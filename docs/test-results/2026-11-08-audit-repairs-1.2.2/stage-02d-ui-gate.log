@@ -1,0 +1,30 @@
+test ui_regression_tests::combination_delete_reports_commit_failure_and_retains_selection ... ok
+test ui_regression_tests::combination_failures_name_items_without_counting_them_as_started ... ok
+test ui_regression_tests::delayed_results_commit_once_and_refresh_once_per_batch ... ok
+test ui_regression_tests::delayed_statistics_commit_failure_is_not_reported_as_a_launch_failure ... ok
+test ui_regression_tests::delayed_statistics_defer_structural_refresh_until_the_gesture_ends ... ok
+test ui_regression_tests::deleting_empty_category_needs_no_confirmation ... ok
+test ui_regression_tests::deleting_nonempty_category_prepares_confirmation_without_nested_borrow ... ok
+test ui_regression_tests::production_modal_callbacks_clear_pending_without_saving_or_launching ... ok
+test ui_regression_tests::restore_and_overwrite_import_reapply_pinning_appearance_and_blur_policy ... ok
+test ui_regression_tests::settings_close_buttons_and_child_dialogs_change_real_visibility ... ok
+test update_ui_tests::active_result_finishes_its_own_check ... ok
+test update_ui_tests::cancelled_queued_result_cannot_finish_a_check ... ok
+test update_ui_tests::stale_queued_result_cannot_finish_a_new_check ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s
+
+     Running tests\ui_layout.rs (target\debug\deps\ui_layout-52196ae9bdce1530.exe)
+
+running 8 tests
+test group_scroll_viewport_fits_beside_the_fixed_overflow_button ... ok
+test item_editor_keeps_actions_in_window_and_scrolls_wrapped_errors_at_both_supported_sizes ... ok
+test modal_escape_bubbles_from_controls_and_title_buttons_keep_receiving_clicks ... ok
+test pill_buttons_expose_state_and_reject_disabled_pointer_keyboard_and_accessible_actions ... ok
+test search_escape_keeps_clear_then_dismiss_behavior_without_hiding_window ... ok
+test settings_title_and_options_are_keyboard_reachable_without_moving_pointer_hits ... ok
+test shared_name_dialogs_preserve_edits_on_error_and_reinitialize_after_cancel ... ok
+test switching_modals_keeps_escape_when_the_old_focused_control_is_removed ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.08s
+

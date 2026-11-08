@@ -37,10 +37,24 @@ function Get-QnScriptSafetyClass([string]$Name, [Management.Automation.Language.
         }
         if ($Name -eq 'fixtures/verify-release-artifacts-fixtures.ps1') {
             if ($Source -notmatch 'GetTempPath' -or $Source -notmatch 'Assert-QnReleasePath' -or $Source -match 'Invoke-QnReleaseProbe|Get-QnExecutableBuildInfo|Read-QnReleaseContext|Diagnostics.Process') { throw 'release fixtures must stay in newly allocated temp roots without executable probes' }
+            if ($Source -notmatch 'Assert-QnReleaseFrozenArchive' -or $Source -notmatch 'Assert-QnReleaseRecipe' -or $Source -notmatch 'Assert-QnReleaseSnapshot' -or $Source -notmatch 'CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS' -or $Source -notmatch 'quicknest-recipe-v2' -or $Source -notmatch 'WizardIsTaskSelected') { throw 'release fixtures must exercise the recipe, snapshot, frozen-archive and installer contracts as pure text-double functions' }
             return 'release-headless-fixtures'
         }
+        if ($Name -eq 'build-release.ps1') {
+            # Current-source contract: the build entry freezes and re-checks the
+            # live worktree, pins the release profile and records the snapshot.
+            if ($Source -notmatch "'--locked','--offline'" -or $Source -notmatch 'savedEnvironment' -or $Source -notmatch 'QUICKNEST_UPDATE_PUBLIC_KEY_HEX') { throw 'release build lacks offline/key/environment controls' }
+            if ($Source -notmatch 'Assert-QnReleaseSourceUnchanged' -or $Source -notmatch '\^CARGO_PROFILE_' -or $Source -notmatch 'Assert-QnReleaseRecipe' -or $Source -notmatch 'Assert-QnReleaseSnapshot' -or $Source -notmatch 'build_recipe' -or $Source -notmatch 'original_context' -or $Source -notmatch "'source-files'") { throw 'release build lacks current-source, pinned-profile and frozen snapshot assertions' }
+            return 'release-current-source-contract'
+        }
+        if ($Name -eq 'verify-release-artifacts.ps1') {
+            # Frozen-evidence contract: -Archive verifies without Cargo/Git or
+            # the current tree, -Legacy stays read-only, -ReleaseDirectory keeps
+            # the strict current-source assertions.
+            if ($Source -notmatch '\-Archive' -or $Source -notmatch '\-Legacy' -or $Source -notmatch 'Assert-QnReleaseFrozenArchive' -or $Source -notmatch 'Assert-QnReleaseSourceManifest' -or $Source -notmatch 'Assert-QnReleaseSnapshot' -or $Source -notmatch 'original_context' -or $Source -notmatch 'Read-QnReleaseContext' -or $Source -notmatch 'Open-QnReleaseStageLocks' -or $Source -notmatch 'Assert-QnReleaseSourceUnchanged' -or $Source -notmatch 'Assert-QnReleaseStage') { throw 'release verifier lacks frozen-evidence archive mode or the strict current-source mode' }
+            return 'release-frozen-evidence-contract'
+        }
         if ($Source -notmatch 'Read-QnReleaseContext' -or $Source -notmatch 'Open-QnReleaseStageLocks' -or $Source -notmatch 'Assert-QnReleaseSourceUnchanged' -or $Source -notmatch 'Assert-QnReleaseStage') { throw ('release entry lacks the frozen-input contract: ' + $Name) }
-        if ($Name -eq 'build-release.ps1' -and ($Source -notmatch "'--locked','--offline'" -or $Source -notmatch 'savedEnvironment' -or $Source -notmatch 'QUICKNEST_UPDATE_PUBLIC_KEY_HEX')) { throw 'release build lacks offline/key/environment controls' }
         return 'release-frozen-input-contract'
     }
     if ($Name -like 'verify-p*.ps1') {

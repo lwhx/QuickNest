@@ -1,0 +1,22 @@
+     Running unittests src\lib.rs (target\debug\deps\quicknest-86eb0e1b0b862b1b.exe)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 365 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 365 filtered out; finished in 0.00s
+test result: ok. 362 passed; 0 failed; 3 ignored; 0 measured; 1 filtered out; finished in 18.50s
+     Running unittests src\main.rs (target\debug\deps\quicknest-d12e01ab5f07b1f8.exe)
+test result: ok. 38 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.03s
+     Running tests\file_drop_data.rs (target\debug\deps\file_drop_data-eebfe17cf0f3353e.exe)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests\icon_cache.rs (target\debug\deps\icon_cache-4e95e82a4f2d8282.exe)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+     Running tests\icon_extract.rs (target\debug\deps\icon_extract-962cc9214517bbd9.exe)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests\icon_queue.rs (target\debug\deps\icon_queue-0e906a4134b04224.exe)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+     Running tests\lnk_launch.rs (target\debug\deps\lnk_launch-83e85d4801776442.exe)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+     Running tests\msi_advertised.rs (target\debug\deps\msi_advertised-45eda99c2259f5de.exe)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+     Running tests\ole_mta.rs (target\debug\deps\ole_mta-69bdeeffced1af4e.exe)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests\ui_layout.rs (target\debug\deps\ui_layout-52196ae9bdce1530.exe)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s

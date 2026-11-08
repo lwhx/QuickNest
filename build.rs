@@ -105,6 +105,73 @@ fn tool_version(variable: &str) -> String {
         .to_owned()
 }
 
+// The nine pinned release profile keys, in canonical order, with the
+// CARGO_PROFILE_RELEASE_* environment variables that pin them.
+const RECIPE_KEYS: [(&str, &str); 9] = [
+    ("opt-level", "CARGO_PROFILE_RELEASE_OPT_LEVEL"),
+    ("debug", "CARGO_PROFILE_RELEASE_DEBUG"),
+    ("debug-assertions", "CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS"),
+    ("overflow-checks", "CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS"),
+    ("lto", "CARGO_PROFILE_RELEASE_LTO"),
+    ("codegen-units", "CARGO_PROFILE_RELEASE_CODEGEN_UNITS"),
+    ("incremental", "CARGO_PROFILE_RELEASE_INCREMENTAL"),
+    ("panic", "CARGO_PROFILE_RELEASE_PANIC"),
+    ("strip", "CARGO_PROFILE_RELEASE_STRIP"),
+];
+const RECIPE_HEADER: &str = "quicknest-recipe-v2\n";
+
+// Transport encoding used by scripts/build-release.ps1: "key=value" pairs
+// joined with ';' (no control characters travel through the environment).
+// The canonical fingerprint string is reconstructed from the parsed pairs.
+fn recipe_transport() -> Option<String> {
+    println!("cargo:rerun-if-env-changed=QUICKNEST_BUILD_RECIPE");
+    for (_, variable) in RECIPE_KEYS {
+        println!("cargo:rerun-if-env-changed={variable}");
+    }
+    std::env::var("QUICKNEST_BUILD_RECIPE")
+        .ok()
+        .filter(|recipe| !recipe.is_empty())
+}
+
+fn parse_recipe_transport(recipe: &str) -> Vec<(&'static str, &str)> {
+    let mut parsed = Vec::new();
+    for (index, pair) in recipe.split(';').enumerate() {
+        assert!(
+            index < RECIPE_KEYS.len(),
+            "Release build recipe has too many keys"
+        );
+        let (key, value) = pair
+            .split_once('=')
+            .unwrap_or_else(|| panic!("Release build recipe pair is malformed: {pair}"));
+        let (expected_key, _) = RECIPE_KEYS[index];
+        assert!(key == expected_key, "Release build recipe key out of order");
+        assert!(
+            !value.is_empty() && !value.contains(['\t', '\n', '\r', ';']),
+            "Release build recipe value has separators"
+        );
+        parsed.push((expected_key, value));
+    }
+    assert_eq!(
+        parsed.len(),
+        RECIPE_KEYS.len(),
+        "Release build recipe is incomplete"
+    );
+    parsed
+}
+
+// Byte-identical reconstruction of the canonical v2 recipe string that
+// scripts/release-metadata.ps1 (Assert-QnReleaseRecipe) produces.
+fn canonical_recipe(parsed: &[(&'static str, &str)]) -> String {
+    let mut canonical = String::from(RECIPE_HEADER);
+    for (key, value) in parsed {
+        canonical.push_str(key);
+        canonical.push('\t');
+        canonical.push_str(value);
+        canonical.push('\n');
+    }
+    canonical
+}
+
 fn write_build_info() {
     use std::fmt::Write;
     let names = [
@@ -156,6 +223,7 @@ fn write_build_info() {
     let cargo = tool_version("CARGO");
     let target = std::env::var("TARGET").unwrap();
     let profile = std::env::var("PROFILE").unwrap();
+    let recipe = recipe_transport();
     let values: Vec<_> = names
         .iter()
         .map(|name| std::env::var(name).ok().filter(|s| !s.is_empty()))
@@ -214,8 +282,22 @@ fn write_build_info() {
             sha256(cargo.as_bytes()),
             "Cargo changed after source freeze"
         );
+        let recipe_text =
+            recipe.expect("Release build recipe is missing; use scripts/build-release.ps1");
+        let parsed = parse_recipe_transport(&recipe_text);
+        for (index, (_, value)) in parsed.iter().enumerate() {
+            let (_, variable) = RECIPE_KEYS[index];
+            let actual = std::env::var(variable)
+                .unwrap_or_else(|_| panic!("Pinned profile environment {variable} is missing"));
+            assert_eq!(
+                actual.as_str(),
+                *value,
+                "Cargo profile override {variable} differs from the frozen recipe"
+            );
+        }
         let version = std::env::var("CARGO_PKG_VERSION").unwrap();
-        let recipe = format!(
+        // v1 canonical string plus the reconstructed canonical v2 recipe string.
+        let canonical = format!(
             "quicknest-build-v1\nversion\t{version}\nsource_fingerprint\t{}\nbase_head\t{}\ndirty\t{}\ntarget\t{target}\nprofile\t{profile}\nrustc\t{}\ncargo\t{}\nupdate_key_status\t{key_status}\nupdate_key_blob_sha256\t{}\n",
             v[0],
             v[1],
@@ -224,12 +306,18 @@ fn write_build_info() {
             v[4],
             key_hash.as_deref().unwrap_or("")
         );
+        let fingerprint_input = canonical + &canonical_recipe(&parsed);
         assert_eq!(
             v[5],
-            sha256(recipe.as_bytes()),
+            sha256(fingerprint_input.as_bytes()),
             "Release build fingerprint differs from the frozen recipe"
         );
         generated.push_str("const BUILD_PROVENANCE: &str = \"recorded\";\n");
+        generated.push_str("const BUILD_RECIPE_RECORDED: bool = true;\n");
+        for (key, value) in &parsed {
+            let const_name = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+            writeln!(generated, "const {const_name}: &str = {value:?};").unwrap();
+        }
         for (name, value) in [
             ("BUILD_SOURCE_FINGERPRINT", v[0]),
             ("BUILD_BASE_HEAD", v[1]),
@@ -244,7 +332,16 @@ fn write_build_info() {
         )
         .unwrap();
     } else {
+        assert!(
+            recipe.is_none(),
+            "A build recipe requires full release provenance; use scripts/build-release.ps1"
+        );
         generated.push_str("const BUILD_PROVENANCE: &str = \"unrecorded\";\nconst BUILD_SOURCE_FINGERPRINT: Option<&str> = None;\nconst BUILD_BASE_HEAD: Option<&str> = None;\nconst BUILD_FINGERPRINT: Option<&str> = None;\nconst BUILD_DIRTY: Option<bool> = None;\n");
+        generated.push_str("const BUILD_RECIPE_RECORDED: bool = false;\n");
+        for (key, _) in RECIPE_KEYS {
+            let const_name = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+            writeln!(generated, "const {const_name}: &str = \"\";").unwrap();
+        }
     }
     let path = std::path::PathBuf::from(std::env::var_os("OUT_DIR").unwrap())
         .join("quicknest_build_info.rs");

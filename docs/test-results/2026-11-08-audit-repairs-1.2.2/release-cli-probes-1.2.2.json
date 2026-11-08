@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "version": "1.2.2",
+  "executable": "E:\\Programs\\ZCODE\\01\\QuickNest\\installer\\output\\release-1.2.2-175a3d187f6d4f238a6785e8c19870fb\\staging\\quicknest.exe",
+  "source_fingerprint": "e1d7caac890c202049a731f74eb36f348c88da88554edfd094db8843e03b8aca",
+  "build_fingerprint": "c04e3f84d0d46b0d886e5aa6560435680683114eb4d48779adfb7fdbd585d021",
+  "invalid_relative_data_root": true,
+  "initialized_files": 0,
+  "passed": 9,
+  "observations": [
+    {
+      "name": "build-info-before-data-initialization",
+      "args": [
+        "--quicknest-build-info"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"schema_version\":1,\"version\":\"1.2.2\",\"provenance\":\"recorded\",\"source_fingerprint\":\"e1d7caac890c202049a731f74eb36f348c88da88554edfd094db8843e03b8aca\",\"build_fingerprint\":\"c04e3f84d0d46b0d886e5aa6560435680683114eb4d48779adfb7fdbd585d021\",\"base_head\":\"946565d2098ec775cfc5087b4e1d93a806e7622e\",\"dirty\":true,\"target\":\"x86_64-pc-windows-msvc\",\"profile\":\"release\",\"rustc\":\"rustc 1.96.0 (ac68faa20 2026-05-25)\\nbinary: rustc\\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\\ncommit-date: 2026-05-25\\nhost: x86_64-pc-windows-msvc\\nrelease: 1.96.0\\nLLVM version: 22.1.2\",\"cargo\":\"cargo 1.96.0 (30a34c682 2026-05-25)\\nrelease: 1.96.0\\ncommit-hash: 30a34c6821b57de0aaec83a901aca39f88f6778c\\ncommit-date: 2026-05-25\\nhost: x86_64-pc-windows-msvc\\nlibgit2: 1.9.2 (sys:0.20.4 vendored)\\nlibcurl: 8.19.0-DEV (sys:0.4.87+curl-8.19.0 vendored ssl:Schannel)\\nos: Windows 10.0.26200 (Windows 11 Professional) [64-bit]\",\"update_key\":{\"status\":\"disabled\",\"blob_sha256\":null},\"recipe\":{\"opt-level\":\"3\",\"debug\":\"false\",\"debug-assertions\":\"false\",\"overflow-checks\":\"false\",\"lto\":\"false\",\"codegen-units\":\"16\",\"incremental\":\"false\",\"panic\":\"unwind\",\"strip\":\"none\"}}",
+      "stderr": ""
+    },
+    {
+      "name": "health-before-data-initialization",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.2",
+        "d1e6128bc7ff02c51248712abb446057"
+      ],
+      "exit_code": 0,
+      "stdout": "QuickNestHealth\t1.2.2\td1e6128bc7ff02c51248712abb446057",
+      "stderr": ""
+    },
+    {
+      "name": "build-info-extra-argument",
+      "args": [
+        "--quicknest-build-info",
+        "extra"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"Usage: quicknest --quicknest-build-info\""
+    },
+    {
+      "name": "build-info-duplicate-switch",
+      "args": [
+        "--quicknest-build-info",
+        "--quicknest-build-info"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"Usage: quicknest --quicknest-build-info\""
+    },
+    {
+      "name": "health-missing-arguments",
+      "args": [
+        "--quicknest-update-health"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-wrong-version",
+      "args": [
+        "--quicknest-update-health",
+        "0.0.0",
+        "d1e6128bc7ff02c51248712abb446057"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-short-nonce",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.2",
+        "abc"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-nonhex-nonce",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.2",
+        "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    },
+    {
+      "name": "health-extra-argument",
+      "args": [
+        "--quicknest-update-health",
+        "1.2.2",
+        "d1e6128bc7ff02c51248712abb446057",
+        "extra"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: \"healthcheck 版本或 nonce 无效\""
+    }
+  ]
+}

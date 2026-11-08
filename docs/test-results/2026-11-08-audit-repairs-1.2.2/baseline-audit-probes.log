@@ -1,0 +1,61 @@
+   Compiling quicknest v1.2.1 (E:\Programs\ZCODE\01\QuickNest\target\audit-1.2.1-2026-11-08\snapshot)
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\target\audit-1.2.1-2026-11-08\snapshot\ui\main_window.slint:123:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 123 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 44s
+     Running unittests src\main.rs (target\debug\deps\quicknest-d12e01ab5f07b1f8.exe)
+
+running 8 tests
+test audit_followup_tests::audit_hidden_tray_settings_should_show_and_open_the_settings_panel ... 
+thread 'audit_followup_tests::audit_hidden_tray_settings_should_show_and_open_the_settings_panel' (36396) panicked at src\audit_followup_tests.rs:56:5:
+BUG: tray Settings only writes status into the hidden window
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test audit_followup_tests::audit_new_manual_backup_must_survive_older_future_timestamped_backups ... 
+thread 'audit_followup_tests::audit_new_manual_backup_must_survive_older_future_timestamped_backups' (40192) panicked at src\audit_followup_tests.rs:95:5:
+BUG: backup_now returned a path already deleted by the same prune: C:\Users\ADMINI~1\AppData\Local\Temp\quicknest-audit-a54e1e1a-8a34-4fd1-a748-5c47a895b4bb\config.backup.20261108-031256-908-0000000000000000.json
+FAILED
+test audit_followup_tests::audit_overwrite_import_must_not_save_a_combination_of_stale_selection_ids ... 
+thread 'audit_followup_tests::audit_overwrite_import_must_not_save_a_combination_of_stale_selection_ids' (3112) panicked at src\audit_followup_tests.rs:108:5:
+BUG: successfully saved a combination made only of stale selection IDs
+FAILED
+test audit_followup_tests::audit_safe_mode_export_must_not_replace_its_protected_config ... 
+thread 'audit_followup_tests::audit_safe_mode_export_must_not_replace_its_protected_config' (39828) panicked at src\audit_followup_tests.rs:71:5:
+BUG: active safe-mode config can be exported over; rejected=false, original_preserved=false
+FAILED
+test audit_followup_tests::audit_title_settings_focus_must_preserve_background_shortcuts ... 
+thread 'audit_followup_tests::audit_title_settings_focus_must_preserve_background_shortcuts' (27968) panicked at src\audit_followup_tests.rs:138:5:
+assertion `left == right` failed: BUG: focused title settings scope loses background Ctrl+F and Esc routing
+  left: (0, 0)
+ right: (1, 1)
+FAILED
+test audit_followup_tests::audit_tray_pin_should_roll_back_when_atomic_save_is_denied ... 
+thread 'audit_followup_tests::audit_tray_pin_should_roll_back_when_atomic_save_is_denied' (34328) panicked at src\audit_followup_tests.rs:46:5:
+assertion `left == right` failed: BUG: production tray callback reports success and retains unsaved pin state
+  left: true
+ right: false
+FAILED
+test audit_followup_tests::audit_unreadable_valid_backup_must_not_be_deleted_before_retention_is_full ... 
+thread 'audit_followup_tests::audit_unreadable_valid_backup_must_not_be_deleted_before_retention_is_full' (5148) panicked at src\audit_followup_tests.rs:83:5:
+assertion `left == right` failed: BUG: failed read is treated as invalid and deletes an otherwise valid backup
+  left: 1
+ right: 0
+FAILED
+test audit_followup_tests::control_tray_pin_success_commits_to_its_owned_config ... ok
+
+failures:
+
+failures:
+    audit_followup_tests::audit_hidden_tray_settings_should_show_and_open_the_settings_panel
+    audit_followup_tests::audit_new_manual_backup_must_survive_older_future_timestamped_backups
+    audit_followup_tests::audit_overwrite_import_must_not_save_a_combination_of_stale_selection_ids
+    audit_followup_tests::audit_safe_mode_export_must_not_replace_its_protected_config
+    audit_followup_tests::audit_title_settings_focus_must_preserve_background_shortcuts
+    audit_followup_tests::audit_tray_pin_should_roll_back_when_atomic_save_is_denied
+    audit_followup_tests::audit_unreadable_valid_backup_must_not_be_deleted_before_retention_is_full
+
+test result: FAILED. 1 passed; 7 failed; 0 ignored; 0 measured; 29 filtered out; finished in 0.30s
+
+error: test failed, to rerun pass `--bin quicknest`

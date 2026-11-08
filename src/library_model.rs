@@ -128,6 +128,26 @@ pub fn is_unc_path(value: &str) -> bool {
     trimmed.starts_with("\\\\") && trimmed.len() > 2
 }
 
+/// B8（2026-11-08 审核）：目标是否为 Windows 脚本文件（.bat/.cmd/.ps1，
+/// 后缀大小写不敏感）。判定只看扩展名（`Path::extension`），不探测磁盘——
+/// 校验发生在启动分发之前，必须是纯逻辑，且与启动器自身的扩展名检查共用
+/// 同一语义。URI / Shell namespace 目标不是文件系统路径，永不判为脚本；
+/// 无扩展名的隐藏文件（恰好叫 `.ps1`）也不算。脚本目标只能走明确的命令
+/// 模式（CMD/PowerShell），原生程序路径（CreateProcessW + Shell 关联回退）
+/// 的参数编码对脚本不成立。
+pub fn is_script_target(path: &str) -> bool {
+    let trimmed = path.trim();
+    if trimmed.is_empty() || is_uri_target(trimmed) || is_shell_namespace_target(trimmed) {
+        return false;
+    }
+    let extension = std::path::Path::new(trimmed)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    matches!(extension.as_str(), "bat" | "cmd" | "ps1")
+}
+
 /// Window state shown when the item is launched (baseline 3.4).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
@@ -341,6 +361,47 @@ impl Item {
             return None;
         }
         (!target.is_empty()).then(|| target.to_string())
+    }
+
+    /// B8（2026-11-08 审核）：声明类型与脚本目标不一致。三种明确组合：
+    /// EXE/普通文件类型却指向脚本（会走原生 argv 编码 + Shell 关联回退，
+    /// 绕开 CMD 专用编码与命令确认），以及自定义命令的执行模式与脚本后缀
+    /// 互相矛盾（cmd 模式跑 .ps1、powershell 模式跑 .bat/.cmd）。
+    /// Direct 模式下的脚本由启动器自身拒绝（UnsafeCommand），不在此列。
+    /// Folder/Lnk/Uri 目标不按后缀判定。
+    pub fn has_script_mismatch(&self) -> bool {
+        let path = self.launch.path.trim();
+        let extension = std::path::Path::new(path)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        match self.item_type {
+            ItemKind::Exe | ItemKind::File => is_script_target(path),
+            ItemKind::Command => match normalize_execution_mode(&self.launch.execution_mode) {
+                "cmd" => extension == "ps1",
+                "powershell" => extension == "bat" || extension == "cmd",
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+
+    /// P2-17 + B8：按“需确认”判定（导入标记与启动确认共用的同一规则）。
+    /// 命令/自动化项目携带字面执行内容；脚本类型不匹配的项目同样隐藏了
+    /// 执行内容。确认语义是一次性的：由 `requires_command_confirmation`
+    /// 以 `confirm_on_first_run` 为闸门，确认后不再重复。
+    pub fn confirmation_relevant(&self) -> bool {
+        matches!(self.item_type, ItemKind::Command | ItemKind::Automation)
+            || self.has_script_mismatch()
+    }
+
+    /// P2-17 + B8：首次运行前的单次确认闸门。未验证的命令/自动化项目和
+    /// 脚本类型不匹配的项目返回 true；用户确认后（`confirm_on_first_run`
+    /// 置为 false）永远返回 false，确认不会重复。启动本身仍受
+    /// `validate_launch_guard` 约束——确认不等于放行不一致的类型。
+    pub fn requires_command_confirmation(&self) -> bool {
+        self.launch.confirm_on_first_run && self.confirmation_relevant()
     }
 }
 
@@ -3019,5 +3080,110 @@ mod migration_tests {
         assert_eq!(item.launch_count, 15);
         assert!(item.favorite);
         assert_eq!(item.launch.path, "https://example.com");
+    }
+}
+
+#[cfg(test)]
+mod script_guard_tests {
+    use super::*;
+
+    // B8：脚本后缀判定大小写不敏感，只认 .bat/.cmd/.ps1。
+    #[test]
+    fn script_targets_are_recognized_case_insensitively() {
+        for script in [
+            "C:\\Apps\\run.bat",
+            "C:\\Apps\\RUN.BAT",
+            "C:\\Apps\\run.cmd",
+            "C:\\Apps\\Setup.CmD",
+            "C:\\Apps\\run.ps1",
+            "C:\\Apps\\Deploy.Ps1",
+            "tools\\run.cmd",
+            "  run.ps1  ",
+        ] {
+            assert!(is_script_target(script), "{script} is a script");
+        }
+        for other in [
+            "",
+            "   ",
+            "C:\\Windows\\notepad.exe",
+            "C:\\Apps\\run.bat.old",
+            "bat",
+            ".ps1",
+            "C:\\Apps\\script.ps1x",
+            "https://example.com/run.bat",
+            "shell:AppsFolder",
+        ] {
+            assert!(!is_script_target(other), "{other} is not a script");
+        }
+    }
+
+    // B8：类型与脚本后缀的不一致组合逐一核对；一致组合不报 mismatch，
+    // Direct 模式下的脚本仍由启动器自身拒绝。
+    #[test]
+    fn script_mismatch_covers_declared_type_and_mode_contradictions() {
+        let item = |kind: ItemKind, path: &str, mode: &str| {
+            let mut item = Item::new("id", "item", kind, path);
+            item.launch.execution_mode = mode.to_string();
+            item
+        };
+        // EXE / 普通文件类型声明脚本目标：不一致。
+        assert!(item(ItemKind::Exe, "C:\\Apps\\run.cmd", "").has_script_mismatch());
+        assert!(item(ItemKind::Exe, "C:\\Apps\\run.bat", "").has_script_mismatch());
+        assert!(item(ItemKind::Exe, "C:\\Apps\\run.ps1", "").has_script_mismatch());
+        assert!(item(ItemKind::File, "C:\\Apps\\run.cmd", "").has_script_mismatch());
+        // 类型与后缀一致时不报。
+        assert!(!item(ItemKind::Exe, "C:\\Windows\\notepad.exe", "").has_script_mismatch());
+        assert!(!item(ItemKind::File, "C:\\Docs\\notes.txt", "").has_script_mismatch());
+        // Folder/Lnk/Uri 不按脚本后缀判定。
+        assert!(!item(ItemKind::Folder, "C:\\Apps\\run.cmd", "").has_script_mismatch());
+        assert!(!item(ItemKind::Lnk, "C:\\Apps\\launcher.lnk", "").has_script_mismatch());
+        assert!(!item(ItemKind::Uri, "https://example.com", "").has_script_mismatch());
+        // Command：模式与后缀一致时不报。
+        assert!(!item(ItemKind::Command, "C:\\Apps\\run.cmd", "cmd").has_script_mismatch());
+        assert!(!item(ItemKind::Command, "C:\\Apps\\run.bat", "cmd").has_script_mismatch());
+        assert!(!item(ItemKind::Command, "C:\\Apps\\run.ps1", "powershell").has_script_mismatch());
+        // Command：模式与后缀矛盾时报 mismatch。
+        assert!(item(ItemKind::Command, "C:\\Apps\\run.ps1", "cmd").has_script_mismatch());
+        assert!(item(ItemKind::Command, "C:\\Apps\\run.bat", "powershell").has_script_mismatch());
+        assert!(item(ItemKind::Command, "C:\\Apps\\run.cmd", "powershell").has_script_mismatch());
+        // Direct 模式下的脚本由 launch_command 自身拒绝（UnsafeCommand），
+        // 不属于类型不匹配。
+        assert!(!item(ItemKind::Command, "C:\\Apps\\run.cmd", "direct").has_script_mismatch());
+        assert!(!item(ItemKind::Command, "C:\\Apps\\run.ps1", "").has_script_mismatch());
+        // 大小写不敏感：CMD 模式 + 大写 .PS1 同样矛盾。
+        assert!(item(ItemKind::Command, "C:\\Apps\\RUN.PS1", "cmd").has_script_mismatch());
+    }
+
+    // B8 + P2-17：确认判定覆盖命令、自动化与 mismatch 项；一次性语义——
+    // 确认后（confirm_on_first_run=false）不再要求确认。
+    #[test]
+    fn confirmation_covers_commands_automation_and_script_mismatch_once() {
+        let mut mismatch = Item::new("id", "脚本", ItemKind::Exe, "C:\\Apps\\run.cmd");
+        // 未标记的 mismatch 项不主动要求确认（由导入/编辑标记）。
+        assert!(!mismatch.requires_command_confirmation());
+        mismatch.launch.confirm_on_first_run = true;
+        assert!(mismatch.requires_command_confirmation());
+        assert!(mismatch.confirmation_relevant());
+        // 确认后不再重复（一次性确认语义不变）。
+        mismatch.launch.confirm_on_first_run = false;
+        assert!(!mismatch.requires_command_confirmation());
+
+        let mut command = Item::new("id", "命令", ItemKind::Command, "cmd.exe");
+        assert!(!command.requires_command_confirmation());
+        command.launch.confirm_on_first_run = true;
+        assert!(command.requires_command_confirmation());
+
+        let mut automation = Item::new("id", "自动化", ItemKind::Automation, "powershell.exe");
+        automation.launch.confirm_on_first_run = true;
+        assert!(automation.requires_command_confirmation());
+
+        let mut plain = Item::new("id", "程序", ItemKind::Exe, "C:\\Windows\\notepad.exe");
+        plain.launch.confirm_on_first_run = true;
+        assert!(!plain.requires_command_confirmation());
+        assert!(!plain.confirmation_relevant());
+
+        let mut file = Item::new("id", "脚本文件", ItemKind::File, "C:\\Apps\\run.bat");
+        file.launch.confirm_on_first_run = true;
+        assert!(file.requires_command_confirmation());
     }
 }

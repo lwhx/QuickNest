@@ -4,6 +4,7 @@ pub mod coordinates;
 pub mod dialogs;
 pub mod drop_target;
 pub mod file_drop;
+pub(crate) mod file_identity;
 pub mod focus;
 pub mod hotkey;
 pub mod icons;

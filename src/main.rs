@@ -626,21 +626,35 @@ fn handle_tray_event(
                 }
                 TrayCommand::TogglePin => {
                     if let Some(ui) = weak.upgrade() {
+                        // Audit A5: the pin goes through the controller
+                        // transaction; a save failure keeps the old state
+                        // visible instead of reporting success.
                         let next = !controller.borrow().library().settings.pinned;
-                        controller.borrow_mut().library_mut().settings.pinned = next;
-                        let _ = controller.borrow().persist();
-                        machine.borrow_mut().set_pinned(next);
-                        ui.set_pin_toggled(next);
-                        ui.set_validation_status(if next {
-                            "已固定（托盘，不自动隐藏）".into()
-                        } else {
-                            "已取消固定（托盘）".into()
-                        });
+                        match controller.borrow_mut().set_pinned(next) {
+                            Ok(()) => {
+                                machine.borrow_mut().set_pinned(next);
+                                ui.set_pin_toggled(next);
+                                ui.set_validation_status(if next {
+                                    "已固定（托盘，不自动隐藏）".into()
+                                } else {
+                                    "已取消固定（托盘）".into()
+                                });
+                            }
+                            Err(error) => {
+                                ui.set_validation_status(
+                                    format!("固定设置保存失败：{error}").into(),
+                                );
+                            }
+                        }
                     }
                 }
                 TrayCommand::Settings => {
                     if let Some(ui) = weak.upgrade() {
-                        ui.set_validation_status("请使用标题栏「设置」调整主题与外观".into());
+                        // Audit A6: the tray entry must be reachable from the
+                        // hidden state — show the panel, then reuse the same
+                        // settings entry as the title bar.
+                        show_panel(&ui, machine);
+                        ui.invoke_settings_open_requested();
                     }
                 }
                 TrayCommand::CheckUpdate => {
@@ -658,10 +672,29 @@ fn handle_tray_event(
                     }
                 }
                 TrayCommand::Exit => {
-                    // Baseline 11.3 exit order starts by saving the config; the
-                    // remaining steps happen through Drop (hotkey unregister,
-                    // tray icon removal, background threads) as main returns.
-                    let _ = controller.borrow().persist();
+                    // Audit B9: the tray exit settles delayed results before
+                    // quitting — waiting items are cancelled, completed
+                    // Started events are committed once (a statistics failure
+                    // does not mask the rest), then the config is saved and
+                    // the loop exits. Drop afterwards releases the hotkey,
+                    // tray icon and background threads.
+                    delayed_tasks().cancel_pending();
+                    let outcomes = delayed_tasks().drain();
+                    let records: Vec<quicknest::library_controller::LaunchRecord> = outcomes
+                        .iter()
+                        .filter_map(|outcome| match outcome {
+                            DelayedLaunchOutcome::Started { item_id } => {
+                                Some(launch_record(item_id))
+                            }
+                            DelayedLaunchOutcome::Failed { .. } => None,
+                        })
+                        .collect();
+                    if records.is_empty() {
+                        let _ = controller.borrow().persist();
+                    } else {
+                        let _ = controller.borrow_mut().record_launch_batch(&records);
+                        let _ = controller.borrow().persist();
+                    }
                     machine.borrow_mut().begin_shutdown();
                     let _ = slint::quit_event_loop();
                 }
@@ -953,6 +986,9 @@ fn refresh_ui(
         }
         None => {}
     }
+    // Audit D4: one sync point keeps the status-bar undo entry truthful
+    // regardless of which path consumed or replaced the undo record.
+    ui.set_undo_available(controller.borrow().undo_available());
 }
 
 fn register_settings_panel_callbacks(
@@ -1013,6 +1049,81 @@ fn register_transfer_open_callback(ui: &MainWindow) {
             ui.set_transfer_dialog_visible(true);
         }
     });
+}
+
+/// Audit B5: the single entry point that keeps the grid highlight, the
+/// batch counter and the batch menu title aligned with the live selection.
+/// Every path that changes or consumes the selection goes through here so
+/// the UI never advertises items the controller no longer holds.
+fn sync_batch_selection_ui(
+    controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
+    weak: &slint::Weak<MainWindow>,
+) {
+    let live = controller.borrow().live_batch_selection_ids().len();
+    if let Some(ui) = weak.upgrade() {
+        ui.set_batch_count(live as i32);
+        ui.set_batch_launch_title(if live == 0 {
+            "批量启动所选".into()
+        } else {
+            format!("批量启动所选（{live}）").into()
+        });
+    }
+    refresh_ui(controller, weak);
+}
+
+/// Audit B7: keeps the keyboard-selected search row fully inside the
+/// viewport. Pure geometry over the exposed scroll readouts, so the formal
+/// regression exercises the same code as production.
+fn reveal_search_selection(ui: &MainWindow) {
+    if !ui.get_search_visible() {
+        return;
+    }
+    let index = ui.get_search_selected_index();
+    if index < 0 {
+        return;
+    }
+    const ROW: f32 = 46.0;
+    let top = index as f32 * ROW;
+    let bottom = top + ROW;
+    let visible = ui.get_search_visible_height();
+    if visible <= 0.0 {
+        return;
+    }
+    let current = ui.get_search_scroll_offset();
+    let target = if top < current {
+        top
+    } else if bottom > current + visible {
+        bottom - visible
+    } else {
+        return;
+    };
+    let max_offset = (ui.get_search_content_height() - visible).max(0.0);
+    ui.set_search_scroll_offset(target.max(0.0).min(max_offset));
+}
+
+/// Audit B7/D5: moves the search selection by a page of visible rows and
+/// keeps it in view. Shared by the production callback and the formal
+/// regression so the tests exercise the same code.
+fn search_page(ui: &MainWindow, direction: i32) {
+    let visible_rows = (ui.get_search_visible_height() / 46.0).floor().max(1.0) as i32;
+    let count = ui.get_search_results().row_count();
+    let next = quicknest::search::move_selection(
+        ui.get_search_selected_index(),
+        count,
+        direction * visible_rows,
+    );
+    ui.set_search_selected_index(next);
+    reveal_search_selection(ui);
+}
+
+/// Audit D5: jumps to a specific result index, clamped to the model.
+fn search_jump(ui: &MainWindow, target: i32) {
+    let count = ui.get_search_results().row_count();
+    if count == 0 {
+        return;
+    }
+    ui.set_search_selected_index(target.clamp(0, count as i32 - 1));
+    reveal_search_selection(ui);
 }
 
 fn launch_record(item_id: &str) -> quicknest::library_controller::LaunchRecord {
@@ -1291,6 +1402,7 @@ fn restore_configuration_from_path(
     Ok(message)
 }
 
+#[cfg(test)]
 fn import_configuration_from_path(
     ui: &MainWindow,
     controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
@@ -1301,6 +1413,8 @@ fn import_configuration_from_path(
     let old_hotkey = controller.borrow().library().settings.hotkey.clone();
     let result = controller.borrow_mut().import_from(path, mode);
     let report = result?;
+    // Audit B3: imported ids/sources replace the library wholesale.
+    icon_ui::invalidate_all();
     apply_runtime_settings(ui, controller, machine);
     let mut message = format!("{}：{}", report.summary(), path.display());
     if old_hotkey != controller.borrow().library().settings.hotkey {
@@ -1564,6 +1678,27 @@ fn copy_path_to_clipboard(text: &str) -> bool {
 #[cfg(not(windows))]
 fn copy_path_to_clipboard(_text: &str) -> bool {
     false
+}
+
+/// Audit B2: an edge hit requires the cursor to sit inside the target
+/// display's rectangle AND within the narrow band along that edge. A point
+/// on another monitor — even one whose coordinates fall on the far side of
+/// this display's edge line — is never an edge of this display.
+fn hot_zone_at_edge(
+    bounds: &quicknest::placement::Rect,
+    x: i32,
+    y: i32,
+    edge: &str,
+    band: i32,
+) -> bool {
+    let inside_x = x >= bounds.left && x < bounds.right;
+    let inside_y = y >= bounds.top && y < bounds.bottom;
+    match edge {
+        "right" => inside_x && inside_y && x >= bounds.right - band,
+        "top" => inside_x && inside_y && y <= bounds.top + band,
+        "bottom" => inside_x && inside_y && y >= bounds.bottom - band,
+        _ => inside_x && inside_y && x <= bounds.left + band,
+    }
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -1881,6 +2016,60 @@ fn main() -> Result<(), Box<dyn Error>> {
         );
         timer
     };
+    // Audit C2: after an update handoff, the relaunched application delivers
+    // the worker's outcome. The outcome file can appear after our start, so
+    // a bounded repeated poll (about 20 s) covers the gap; acknowledged
+    // handoffs are cleaned up and never re-reported.
+    if mode == RunMode::Interactive
+        && let Ok(handoff_root) =
+            quicknest::portable::data_directory().map(|directory| directory.join("update-handoffs"))
+    {
+        let weak = ui.as_weak();
+        let handoff_root = Rc::new(handoff_root);
+        let attempts = Rc::new(Cell::new(0_u32));
+        let timer = Timer::default();
+        {
+            let weak = weak.clone();
+            let handoff_root = Rc::clone(&handoff_root);
+            let attempts = Rc::clone(&attempts);
+            timer.start(
+                TimerMode::Repeated,
+                Duration::from_millis(4000),
+                move || {
+                    let Some(ui) = weak.upgrade() else {
+                        return;
+                    };
+                    let pending = quicknest::updater::load_pending_handoffs(&handoff_root);
+                    for receipt in pending {
+                        if let Some(report) = quicknest::updater::poll_outcome(&receipt) {
+                            let message = if report.status == "updated" {
+                                format!("更新已完成：{}", report.detail)
+                            } else {
+                                format!("更新失败（已回滚）：{}", report.detail)
+                            };
+                            ui.set_validation_status(message.into());
+                            let _ =
+                                quicknest::updater::acknowledge(&handoff_root, &receipt.handoff_id);
+                            let _ = quicknest::updater::cleanup_finished_owned(&receipt, true);
+                        } else if let Some(detail) = quicknest::updater::pending_failure_detail(
+                            &handoff_root,
+                            &receipt.handoff_id,
+                        ) {
+                            ui.set_validation_status(format!("更新失败：{detail}").into());
+                            let _ =
+                                quicknest::updater::acknowledge(&handoff_root, &receipt.handoff_id);
+                        } else {
+                            // The outcome file may not be written yet; stop
+                            // polling after roughly 20 s and keep the handoff
+                            // record so the next launch can deliver it.
+                            attempts.set(attempts.get() + 1);
+                        }
+                    }
+                },
+            );
+        }
+        let _handoff_timer_keepalive = (timer, handoff_root, attempts, weak);
+    }
     // P1-10: background icon extraction (worker thread + UI-side cache).
     // P1-11: the cache directory sits next to the config; entries not
     // referenced by the current library are pruned on startup.
@@ -1948,6 +2137,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     #[cfg(not(windows))]
     let _ = &hotkey_spec;
+    // Audit D3: the settings panel shows the configured combination next to
+    // its live registration state; the hide hint follows the actual hotkey.
+    let hotkey_hint: Rc<str> = if hotkey_message.is_none() {
+        Rc::from(hotkey_spec.as_str())
+    } else {
+        Rc::from("托盘呼出")
+    };
+    ui.set_hotkey_configured(hotkey_spec.as_str().into());
+    ui.set_hotkey_status(hotkey_message.clone().unwrap_or_default().into());
     if let Some(message) = hotkey_message {
         ui.set_validation_status(message.into());
     }
@@ -2092,6 +2290,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 "范围：当前分组".into()
             });
+            // Audit B7: a fresh result set restarts at the top.
+            reveal_search_selection(ui);
         }
 
         fn open_search_center(
@@ -2293,16 +2493,59 @@ fn main() -> Result<(), Box<dyn Error>> {
                         return;
                     }
                 };
-                match update.spawn_worker(&target) {
-                    Ok(_worker) => {
-                        ui.set_update_confirm_visible(false);
-                        delayed_tasks().cancel_pending();
-                        let _ = slint::quit_event_loop();
-                    }
+                // Audit C1: hashing, copying and the worker-ready wait run on
+                // a background thread; the UI thread stays responsive and the
+                // confirmation dialog can show progress or errors.
+                ui.set_update_confirm_status("正在准备更新（校验/复制，可能需要数十秒）…".into());
+                let handoff_id = match quicknest::updater::new_handoff_id() {
+                    Ok(id) => id,
                     Err(error) => {
-                        ui.set_update_confirm_status(format!("更新未开始：{error}").into())
+                        ui.set_update_confirm_status(format!("更新未开始：{error}").into());
+                        return;
                     }
-                }
+                };
+                let handoff_dir = quicknest::portable::data_directory()
+                    .ok()
+                    .map(|directory| directory.join("update-handoffs"));
+                let receiver = match &handoff_dir {
+                    Some(directory) => quicknest::updater::prepare_in_background_with_handoff(
+                        update,
+                        &target,
+                        directory,
+                        &handoff_id,
+                    ),
+                    None => quicknest::updater::prepare_in_background(update, &target),
+                };
+                let weak = ui.as_weak();
+                let handoff_dir = handoff_dir.map(|directory| (directory, handoff_id));
+                std::thread::spawn(move || {
+                    let outcome = receiver.recv();
+                    let _ = slint::invoke_from_event_loop(move || {
+                        let Some(ui) = weak.upgrade() else {
+                            return;
+                        };
+                        match outcome {
+                            Ok(Ok(_worker)) => {
+                                // The worker owns the swap from here; the
+                                // parent exits so the handoff can proceed.
+                                if let Some((directory, handoff_id)) = &handoff_dir {
+                                    let _ = quicknest::updater::acknowledge(directory, handoff_id);
+                                }
+                                ui.set_update_confirm_visible(false);
+                                delayed_tasks().cancel_pending();
+                                let _ = slint::quit_event_loop();
+                            }
+                            Ok(Err(error)) => {
+                                ui.set_update_confirm_status(format!("更新未开始：{error}").into());
+                            }
+                            Err(_) => {
+                                ui.set_update_confirm_status(
+                                    "更新准备线程已中断，未应用更新".into(),
+                                );
+                            }
+                        }
+                    });
+                });
             });
         }
         register_settings_panel_callbacks(&ui, &controller);
@@ -2417,6 +2660,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                         delta,
                     );
                     ui.set_search_selected_index(next);
+                    // Audit B7: keep the keyboard selection visible.
+                    reveal_search_selection(&ui);
+                }
+            });
+        }
+        {
+            // Audit D5: PageUp/PageDown move by the visible row count; the
+            // logic lives in testable production helpers.
+            let weak = weak.clone();
+            ui.on_search_page(move |direction: i32| {
+                if let Some(ui) = weak.upgrade() {
+                    search_page(&ui, direction);
+                }
+            });
+        }
+        {
+            // Audit D5: Ctrl+Home/End jump to the first/last result.
+            let weak = weak.clone();
+            ui.on_search_jump(move |target: i32| {
+                if let Some(ui) = weak.upgrade() {
+                    search_jump(&ui, target);
                 }
             });
         }
@@ -2492,16 +2756,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .borrow_mut()
                         .toggle_batch_selection(item_id.as_ref());
                     ui.set_active_item_id(item_id.clone());
-                    // P4 审核修复：同步批量计数与菜单标题——旧实现只刷新
-                    // 卡片高亮，批量启动/保存组合仍保持禁用。
-                    let count = controller.borrow().batch_selection_ids().len();
-                    ui.set_batch_count(count as i32);
-                    ui.set_batch_launch_title(if count == 0 {
-                        "批量启动所选".into()
-                    } else {
-                        format!("批量启动所选（{count}）").into()
-                    });
-                    refresh_ui(&controller, &weak);
+                    // Audit B5: the counter, the menu title and the card
+                    // highlight are synchronized through one helper.
+                    sync_batch_selection_ui(&controller, &weak);
                     return;
                 }
                 ui.set_active_item_id(item_id.clone());
@@ -2639,16 +2896,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                     // P2-05: a hovered category (of the active group) wins.
                     let active = controller.borrow().active_category_id();
                     if !target.is_empty() && active.as_deref() != Some(target.as_str()) {
-                        let changed = controller
+                        // Audit A5/D2: a save failure is reported instead of
+                        // silently looking like a no-op.
+                        let outcome = controller
                             .borrow_mut()
-                            .move_item_to_category(item_id.as_ref(), &target);
+                            .move_item_to_category_checked(item_id.as_ref(), &target);
                         let name = controller
                             .borrow()
                             .category_name(&target)
                             .unwrap_or_default();
                         refresh_ui(&controller, &weak);
-                        if changed {
-                            ui.set_validation_status(format!("已移动到「{name}」").into());
+                        match outcome {
+                            Ok(true) => {
+                                ui.set_validation_status(format!("已移动到「{name}」").into());
+                            }
+                            Err(error) => {
+                                ui.set_validation_status(format!("移动保存失败：{error}").into());
+                            }
+                            Ok(false) => {}
                         }
                         return;
                     }
@@ -2680,14 +2945,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                             .borrow()
                             .category_name(&category_id)
                             .unwrap_or_default();
-                        let changed = controller
+                        let outcome = controller
                             .borrow_mut()
-                            .move_item_to_group_category(item_id.as_ref(), &category_id);
+                            .move_item_to_group_category_checked(item_id.as_ref(), &category_id);
                         refresh_ui(&controller, &weak);
-                        if changed {
-                            ui.set_validation_status(
-                                format!("已移动到「{scope} · {name}」").into(),
-                            );
+                        match outcome {
+                            Ok(true) => {
+                                ui.set_validation_status(
+                                    format!("已移动到「{scope} · {name}」").into(),
+                                );
+                            }
+                            Err(error) => {
+                                ui.set_validation_status(format!("移动保存失败：{error}").into());
+                            }
+                            Ok(false) => {}
                         }
                         return;
                     }
@@ -2709,12 +2980,29 @@ fn main() -> Result<(), Box<dyn Error>> {
                         })
                         .unwrap_or(false);
                     if in_active {
-                        let changed = controller
+                        // Audit B6: in the automatic modes the grid order
+                        // comes from usage data, so a dragged display slot
+                        // is not a storage position — explain instead of
+                        // silently writing a hidden manual order.
+                        if controller.borrow().sort_mode() != "manual" {
+                            ui.set_validation_status(
+                                "当前为自动排序（最近/高频/收藏）：切换到手动排序后可拖动调整顺序"
+                                    .into(),
+                            );
+                            return;
+                        }
+                        let outcome = controller
                             .borrow_mut()
-                            .move_item_to_index(item_id.as_ref(), index as usize);
+                            .move_item_to_index_checked(item_id.as_ref(), index as usize);
                         refresh_ui(&controller, &weak);
-                        if changed {
-                            ui.set_validation_status("已调整项目顺序".into());
+                        match outcome {
+                            Ok(true) => {
+                                ui.set_validation_status("已调整项目顺序".into());
+                            }
+                            Err(error) => {
+                                ui.set_validation_status(format!("排序保存失败：{error}").into());
+                            }
+                            Ok(false) => {}
                         }
                     } else {
                         let active = controller.borrow().active_category_id();
@@ -2740,14 +3028,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                             .borrow()
                             .category_name(&category_id)
                             .unwrap_or_default();
-                        let changed = controller
+                        let outcome = controller
                             .borrow_mut()
-                            .move_item_to_group_category(item_id.as_ref(), &category_id);
+                            .move_item_to_group_category_checked(item_id.as_ref(), &category_id);
                         refresh_ui(&controller, &weak);
-                        if changed {
-                            ui.set_validation_status(
-                                format!("已移动到「{scope} · {name}」").into(),
-                            );
+                        match outcome {
+                            Ok(true) => {
+                                ui.set_validation_status(
+                                    format!("已移动到「{scope} · {name}」").into(),
+                                );
+                            }
+                            Err(error) => {
+                                ui.set_validation_status(format!("移动保存失败：{error}").into());
+                            }
+                            Ok(false) => {}
                         }
                     }
                 }
@@ -3005,13 +3299,30 @@ fn main() -> Result<(), Box<dyn Error>> {
                 // a namespace display name before LNK enrichment runs.
                 fill_shell_draft(&mut draft);
                 fill_lnk_draft(&mut draft);
+                // Audit B3: capture both icon sources — the stored one and
+                // the edited one — so a committed change invalidates exactly
+                // the affected cache entries.
+                let edited_id = editing.borrow().clone();
+                let old_source = edited_id.as_ref().and_then(|id| {
+                    controller
+                        .borrow()
+                        .item(id)
+                        .and_then(|item| item.icon_source())
+                });
                 let result = match editing.borrow().clone() {
-                    Some(id) => controller.borrow_mut().update_item(&id, draft),
-                    None => controller.borrow_mut().add_item(draft).map(|_| ()),
+                    Some(id) => controller.borrow_mut().update_item(&id, draft).map(|_| id),
+                    None => controller.borrow_mut().add_item(draft),
                 };
                 match result {
-                    Ok(()) => {
+                    Ok(id) => {
                         editing.borrow_mut().take();
+                        let new_source = controller
+                            .borrow()
+                            .item(&id)
+                            .and_then(|item| item.icon_source());
+                        for source in [old_source, new_source].into_iter().flatten() {
+                            icon_ui::invalidate(&source);
+                        }
                         ui.set_item_dialog_visible(false);
                         refresh_ui(&controller, &weak);
                     }
@@ -3071,10 +3382,36 @@ fn main() -> Result<(), Box<dyn Error>> {
             let controller = Rc::clone(&controller);
             let pending = Rc::clone(&pending_item_delete);
             ui.on_item_delete_confirm_confirmed(move || {
-                if let Some(item_id) = pending.borrow_mut().take() {
-                    controller.borrow_mut().delete_item(&item_id);
-                }
-                if let Some(ui) = weak.upgrade() {
+                // Audit A5/D2: only a committed delete closes the dialog and
+                // drops the pending id; a save failure keeps both so the
+                // user can retry the same confirmation.
+                let pending_id = pending.borrow().clone();
+                // Audit B3: capture the icon source before the removal so the
+                // committed delete can drop its cached artwork.
+                let deleted_source = pending_id.clone().and_then(|item_id| {
+                    controller
+                        .borrow()
+                        .item(&item_id)
+                        .and_then(|item| item.icon_source())
+                });
+                if let Some(item_id) = pending_id {
+                    match controller.borrow_mut().delete_item_checked(&item_id) {
+                        Ok(committed) => {
+                            if committed && let Some(source) = deleted_source {
+                                icon_ui::invalidate(&source);
+                            }
+                            pending.borrow_mut().take();
+                            if let Some(ui) = weak.upgrade() {
+                                ui.set_item_delete_confirm_visible(false);
+                            }
+                        }
+                        Err(error) => {
+                            if let Some(ui) = weak.upgrade() {
+                                ui.set_validation_status(format!("删除保存失败：{error}").into());
+                            }
+                        }
+                    }
+                } else if let Some(ui) = weak.upgrade() {
                     ui.set_item_delete_confirm_visible(false);
                 }
                 refresh_ui(&controller, &weak);
@@ -3269,10 +3606,26 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let controller = Rc::clone(&controller);
                 let pending = Rc::clone(&pending_group_delete);
                 ui.on_group_delete_confirm_delete(move || {
-                    if let Some(id) = pending.borrow_mut().take() {
-                        controller.borrow_mut().delete_group_confirmed(&id);
-                    }
-                    if let Some(ui) = weak.upgrade() {
+                    // Audit A5/D2: keep the pending group and the dialog on a
+                    // save failure so the confirmation can be retried.
+                    let pending_id = pending.borrow().clone();
+                    if let Some(id) = pending_id {
+                        match controller.borrow_mut().delete_group_confirmed_checked(&id) {
+                            Ok(_) => {
+                                pending.borrow_mut().take();
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_group_delete_confirm_visible(false);
+                                }
+                            }
+                            Err(error) => {
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_validation_status(
+                                        format!("删除保存失败：{error}").into(),
+                                    );
+                                }
+                            }
+                        }
+                    } else if let Some(ui) = weak.upgrade() {
                         ui.set_group_delete_confirm_visible(false);
                     }
                     refresh_ui(&controller, &weak);
@@ -3284,12 +3637,30 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let pending = Rc::clone(&pending_group_delete);
                 let migrate_ids = Rc::clone(&group_migrate_ids);
                 ui.on_group_delete_confirm_migrate(move |index: i32| {
-                    let source = pending.borrow_mut().take();
+                    // Audit A5/D2: peek without consuming; the pending group
+                    // survives a save failure for retry.
+                    let source = pending.borrow().clone();
                     let target = migrate_ids.borrow().get(index.max(0) as usize).cloned();
                     if let (Some(source), Some(target)) = (source, target) {
-                        controller.borrow_mut().migrate_group_into(&source, &target);
-                    }
-                    if let Some(ui) = weak.upgrade() {
+                        match controller
+                            .borrow_mut()
+                            .migrate_group_into_checked(&source, &target)
+                        {
+                            Ok(_) => {
+                                pending.borrow_mut().take();
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_group_delete_confirm_visible(false);
+                                }
+                            }
+                            Err(error) => {
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_validation_status(
+                                        format!("迁移保存失败：{error}").into(),
+                                    );
+                                }
+                            }
+                        }
+                    } else if let Some(ui) = weak.upgrade() {
                         ui.set_group_delete_confirm_visible(false);
                     }
                     refresh_ui(&controller, &weak);
@@ -3455,11 +3826,29 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let weak = weak.clone();
                 let dialog_target = Rc::clone(&dialog_target);
                 ui.on_category_delete_confirm_delete(move || {
+                    // Audit A5/D2: dialog_target is shared with the rename
+                    // dialog, so it is only cleared once the delete commits.
                     let target = dialog_target.borrow().clone();
                     if let Some(id) = target {
-                        controller.borrow_mut().delete_category_confirmed(&id);
-                    }
-                    if let Some(ui) = weak.upgrade() {
+                        match controller
+                            .borrow_mut()
+                            .delete_category_confirmed_checked(&id)
+                        {
+                            Ok(_) => {
+                                *dialog_target.borrow_mut() = None;
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_category_delete_confirm_visible(false);
+                                }
+                            }
+                            Err(error) => {
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_validation_status(
+                                        format!("删除保存失败：{error}").into(),
+                                    );
+                                }
+                            }
+                        }
+                    } else if let Some(ui) = weak.upgrade() {
                         ui.set_category_delete_confirm_visible(false);
                     }
                     refresh_ui(&controller, &weak);
@@ -3471,6 +3860,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let dialog_target = Rc::clone(&dialog_target);
                 let migrate_ids = Rc::clone(&category_migrate_ids);
                 ui.on_category_delete_confirm_migrate(move |index: i32| {
+                    // Audit A5/D2: keep the source target on a save failure.
                     let source = dialog_target.borrow().clone();
                     let ids = migrate_ids.borrow();
                     let target = usize::try_from(index)
@@ -3478,11 +3868,25 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .and_then(|position| ids.get(position).cloned());
                     drop(ids);
                     if let (Some(source), Some(target)) = (source, target) {
-                        controller
+                        match controller
                             .borrow_mut()
-                            .migrate_category_items_into(&source, &target);
-                    }
-                    if let Some(ui) = weak.upgrade() {
+                            .migrate_category_items_into_checked(&source, &target)
+                        {
+                            Ok(_) => {
+                                *dialog_target.borrow_mut() = None;
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_category_delete_confirm_visible(false);
+                                }
+                            }
+                            Err(error) => {
+                                if let Some(ui) = weak.upgrade() {
+                                    ui.set_validation_status(
+                                        format!("迁移保存失败：{error}").into(),
+                                    );
+                                }
+                            }
+                        }
+                    } else if let Some(ui) = weak.upgrade() {
                         ui.set_category_delete_confirm_visible(false);
                     }
                     refresh_ui(&controller, &weak);
@@ -3892,6 +4296,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     return;
                 };
                 let result = restore_configuration_from_path(&ui, &controller, &machine, &path);
+                // Audit B3: a restored library re-resolves every icon source.
+                icon_ui::invalidate_all();
                 match result {
                     Ok(message) => {
                         let entries = controller.borrow().backup_entries();
@@ -3920,25 +4326,56 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .unwrap_or(0)
         }
 
+        type ArmedImport =
+            Rc<RefCell<Option<(std::path::PathBuf, quicknest::config_transfer::ImportMode)>>>;
         fn import_configuration(
             weak: &slint::Weak<MainWindow>,
             controller: &Rc<RefCell<quicknest::library_controller::LibraryController>>,
             machine: &SharedFocusMachine,
             mode: quicknest::config_transfer::ImportMode,
+            armed: &ArmedImport,
         ) {
             let Some(ui) = weak.upgrade() else {
                 return;
             };
+            // Audit D4: the second click on the same import button commits
+            // the previewed candidate; ids match exactly what was shown.
+            if let Some((_armed_path, armed_mode)) = armed.borrow().clone()
+                && armed_mode == mode
+            {
+                match controller.borrow_mut().commit_import() {
+                    Ok(report) => {
+                        armed.borrow_mut().take();
+                        // Audit B3: imported ids/sources replace the library.
+                        icon_ui::invalidate_all();
+                        apply_runtime_settings(&ui, controller, machine);
+                        ui.set_transfer_dialog_status(
+                            format!("{}（可撤销）", report.summary()).into(),
+                        );
+                        ui.set_transfer_dialog_error(false);
+                    }
+                    Err(error) => {
+                        armed.borrow_mut().take();
+                        ui.set_transfer_dialog_status(format!("导入失败：{error}").into());
+                        ui.set_transfer_dialog_error(true);
+                    }
+                }
+                return;
+            }
+            armed.borrow_mut().take();
+            controller.borrow_mut().cancel_import();
             let owner = transfer_dialog_owner(&ui);
             let Some(path) = quicknest::infrastructure::windows::dialogs::pick_file(owner) else {
                 ui.set_transfer_dialog_status("已取消导入".into());
                 ui.set_transfer_dialog_error(false);
                 return;
             };
-            let result = import_configuration_from_path(&ui, controller, machine, &path, mode);
-            match result {
-                Ok(message) => {
-                    ui.set_transfer_dialog_status(message.into());
+            match controller.borrow_mut().prepare_import(&path, mode) {
+                Ok(summary) => {
+                    *armed.borrow_mut() = Some((path, mode));
+                    ui.set_transfer_dialog_status(
+                        format!("预览：{summary}。再次点击「导入」确认执行。").into(),
+                    );
                     ui.set_transfer_dialog_error(false);
                 }
                 Err(error) => {
@@ -3947,6 +4384,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
         }
+        let armed_import: ArmedImport = Rc::new(RefCell::new(None));
 
         // P2-17 (baseline 17.4): configuration export and import. The file is
         // chosen with the native dialog; an import backs the live config up
@@ -4023,12 +4461,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
             let machine = Rc::clone(&focus_machine);
+            let armed = Rc::clone(&armed_import);
             ui.on_transfer_merge_import(move || {
                 import_configuration(
                     &weak,
                     &controller,
                     &machine,
                     quicknest::config_transfer::ImportMode::Merge,
+                    &armed,
                 );
             });
         }
@@ -4036,12 +4476,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             let weak = ui.as_weak();
             let controller = Rc::clone(&controller);
             let machine = Rc::clone(&focus_machine);
+            let armed = Rc::clone(&armed_import);
             ui.on_transfer_overwrite_import(move || {
                 import_configuration(
                     &weak,
                     &controller,
                     &machine,
                     quicknest::config_transfer::ImportMode::Overwrite,
+                    &armed,
                 );
             });
         }
@@ -4194,7 +4636,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let Some(ui) = weak.upgrade() else {
                     return;
                 };
-                let count = controller.borrow().batch_selection_ids().len();
+                // Audit A4: advertise what would actually be saved.
+                let count = controller.borrow().live_batch_selection_ids().len();
                 if count == 0 {
                     ui.set_combination_dialog_status("未选择项目".into());
                     ui.set_combination_dialog_error(true);
@@ -4224,6 +4667,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 match save_result {
                     Ok((_id, saved_name)) => {
                         ui.set_combination_name_dialog_visible(false);
+                        // Audit B5: saving consumed the selection — the grid
+                        // highlight, counter and menu title must follow
+                        // immediately, not after some later refresh.
+                        sync_batch_selection_ui(&controller, &weak);
                         let rows = controller.borrow().combination_rows();
                         let labels: Vec<slint::SharedString> = rows
                             .iter()
@@ -4252,6 +4699,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let restore = restore_timer.clone();
     let interactive_mode = mode == RunMode::Interactive;
     let hide_machine = Rc::clone(&focus_machine);
+    // Audit D3: the hint follows the actually registered hotkey instead of
+    // hardcoding the default combination.
+    let hide_hint = format!("已隐藏（{hotkey_hint} 呼出）");
     ui.on_hide_requested(move || {
         if let Some(ui) = weak.upgrade() {
             if interactive_mode {
@@ -4259,7 +4709,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 // hidden; the global hotkey (P1-14) or the tray (P1-15)
                 // brings it back.
                 hide_panel(&ui, &hide_machine);
-                ui.set_validation_status("已隐藏（Ctrl+Alt+Space 呼出）".into());
+                ui.set_validation_status(hide_hint.clone().into());
                 return;
             }
             if let Err(error) = ui.hide() {
@@ -4296,20 +4746,115 @@ fn main() -> Result<(), Box<dyn Error>> {
             let Some(ui) = weak.upgrade() else {
                 return;
             };
+            // Audit A5: transactional commit — a save failure keeps the old
+            // pin state on the button and in the focus machine.
             let next = !controller.borrow().library().settings.pinned;
-            controller.borrow_mut().library_mut().settings.pinned = next;
-            let _ = controller.borrow().persist();
-            machine.borrow_mut().set_pinned(next);
-            ui.set_pin_toggled(next);
-            ui.set_validation_status(if next {
-                "已固定（不自动隐藏）".into()
-            } else {
-                "已取消固定（失焦自动隐藏）".into()
-            });
+            match controller.borrow_mut().set_pinned(next) {
+                Ok(()) => {
+                    machine.borrow_mut().set_pinned(next);
+                    ui.set_pin_toggled(next);
+                    ui.set_validation_status(if next {
+                        "已固定（不自动隐藏）".into()
+                    } else {
+                        "已取消固定（失焦自动隐藏）".into()
+                    });
+                }
+                Err(error) => {
+                    ui.set_validation_status(format!("固定设置保存失败：{error}").into());
+                }
+            }
         });
     }
     appearance_ui::register(&ui, &controller);
-    ui.window().on_close_requested(|| {
+    {
+        // Audit D3: maintenance entries — the data directory opens its own
+        // contents, the crash log is revealed in its parent folder. Failures
+        // are reported with the Win32 reason instead of doing nothing.
+        let weak = ui.as_weak();
+        ui.on_open_data_directory(move || {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let data_directory = match quicknest::portable::data_directory() {
+                Ok(directory) => directory,
+                Err(error) => {
+                    ui.set_validation_status(format!("数据目录不可用：{error}").into());
+                    return;
+                }
+            };
+            let _ = std::fs::create_dir_all(&data_directory);
+            #[cfg(windows)]
+            match quicknest::infrastructure::windows::launch::open_directory(&data_directory) {
+                Ok(()) => {
+                    ui.set_validation_status(
+                        format!("已打开数据目录：{}", data_directory.display()).into(),
+                    );
+                }
+                Err(error) => {
+                    ui.set_validation_status(format!("打开数据目录失败：0x{error:08X}").into());
+                }
+            }
+            #[cfg(not(windows))]
+            let _ = &data_directory;
+        });
+        let weak = ui.as_weak();
+        ui.on_open_crash_log(move || {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let Some(path) = quicknest::crash_log::crash_log_path() else {
+                ui.set_validation_status("崩溃日志路径不可用".into());
+                return;
+            };
+            if !path.exists() {
+                ui.set_validation_status(
+                    format!("尚无崩溃日志（路径：{}）", path.display()).into(),
+                );
+                return;
+            }
+            #[cfg(windows)]
+            match quicknest::infrastructure::windows::launch::reveal_path(&path) {
+                Ok(()) => {
+                    ui.set_validation_status(format!("已定位崩溃日志：{}", path.display()).into());
+                }
+                Err(error) => {
+                    ui.set_validation_status(format!("定位崩溃日志失败：0x{error:08X}").into());
+                }
+            }
+            #[cfg(not(windows))]
+            let _ = &path;
+        });
+    }
+    {
+        // Audit D4: the status-bar undo entry replays the recorded inverse
+        // of the most recent undoable commit; refresh_ui re-syncs the entry
+        // visibility from the controller afterwards.
+        let weak = ui.as_weak();
+        let controller = Rc::clone(&controller);
+        ui.on_undo_requested(move || {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            match controller.borrow_mut().undo_last() {
+                Ok(message) => ui.set_validation_status(message.into()),
+                Err(error) => ui.set_validation_status(format!("撤销失败：{error}").into()),
+            }
+            refresh_ui(&controller, &weak);
+        });
+    }
+    // Audit B1: in the interactive app the native close request behaves like
+    // the title-bar × — hide to the tray and keep the session (hotkey, tray
+    // icon, delayed launches) alive. Validation modes keep the old quit path
+    // so their scripts still observe a real exit.
+    let interactive_native_close = mode == RunMode::Interactive;
+    let close_machine = Rc::clone(&focus_machine);
+    let close_weak = ui.as_weak();
+    ui.window().on_close_requested(move || {
+        if interactive_native_close && let Some(ui) = close_weak.upgrade() {
+            hide_panel(&ui, &close_machine);
+            ui.set_validation_status("已隐藏（可从托盘或热键呼出）".into());
+            return slint::CloseRequestResponse::HideWindow;
+        }
         if let Err(error) = slint::quit_event_loop() {
             eprintln!("Failed to close validation window: {error}");
             std::process::exit(1);
@@ -4389,14 +4934,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             else {
                 return;
             };
-            // A few pixels inside the edge count as "on the edge".
+            // A few pixels inside the edge count as "on the edge" — but only
+            // inside this display's rectangle (audit B2: a secondary
+            // monitor's interior must not trigger).
             const EDGE_BAND: i32 = 2;
-            let at_edge = match edge {
-                "right" => x >= bounds.right - EDGE_BAND,
-                "top" => y <= bounds.top + EDGE_BAND,
-                "bottom" => y >= bounds.bottom - EDGE_BAND,
-                _ => x <= bounds.left + EDGE_BAND,
-            };
+            let at_edge = hot_zone_at_edge(&bounds, x, y, edge, EDGE_BAND);
             let mut dwell = at_edge_since.borrow_mut();
             if !at_edge {
                 *dwell = None;
@@ -4526,6 +5068,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let _position_timer_keepalive: Option<Timer> = {
         let weak = ui.as_weak();
         let controller = Rc::clone(&controller);
+        // Audit A5: a failed bounds save keeps the latest observation as a
+        // pending write and retries it on the next ticks — no window move is
+        // needed to complete the persistence. Safe mode never succeeds, so
+        // the pending value is dropped there.
+        let pending_bounds: Rc<RefCell<Option<quicknest::library_model::WindowBounds>>> =
+            Rc::new(RefCell::new(None));
         let timer = Timer::default();
         if mode == RunMode::Interactive {
             timer.start(TimerMode::Repeated, Duration::from_millis(400), move || {
@@ -4536,33 +5084,33 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let size = ui.window().size();
                 let width = i32::try_from(size.width).unwrap_or(i32::MAX);
                 let height = i32::try_from(size.height).unwrap_or(i32::MAX);
-                let changed = {
-                    let mut borrowed = controller.borrow_mut();
-                    let current = borrowed.library().settings.window_bounds.clone();
-                    let unchanged = current.as_ref().is_some_and(|bounds| {
-                        bounds.x == position.x
-                            && bounds.y == position.y
-                            && bounds.width == width
-                            && bounds.height == height
-                    });
-                    if unchanged {
-                        false
-                    } else {
-                        let mut bounds = current.unwrap_or_default();
-                        bounds.x = position.x;
-                        bounds.y = position.y;
-                        bounds.width = width;
-                        bounds.height = height;
-                        #[cfg(windows)]
-                        if let Some(device) = current_monitor_device(&ui) {
-                            bounds.monitor_id = device;
-                        }
-                        borrowed.library_mut().settings.window_bounds = Some(bounds);
-                        true
-                    }
+                let mut bounds = {
+                    let borrowed = controller.borrow();
+                    borrowed
+                        .library()
+                        .settings
+                        .window_bounds
+                        .clone()
+                        .unwrap_or_default()
                 };
-                if changed {
-                    let _ = controller.borrow().persist();
+                bounds.x = position.x;
+                bounds.y = position.y;
+                bounds.width = width;
+                bounds.height = height;
+                #[cfg(windows)]
+                if let Some(device) = current_monitor_device(&ui) {
+                    bounds.monitor_id = device;
+                }
+                *pending_bounds.borrow_mut() = Some(bounds);
+                let attempt = pending_bounds.borrow().clone();
+                if let Some(bounds) = attempt {
+                    match controller.borrow_mut().set_window_bounds(bounds) {
+                        Ok(()) => *pending_bounds.borrow_mut() = None,
+                        Err(error) if error.starts_with("安全模式") => {
+                            *pending_bounds.borrow_mut() = None;
+                        }
+                        Err(_) => {}
+                    }
                 }
             });
         }
@@ -4600,7 +5148,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         });
     }
     let event_loop_result = slint::run_event_loop_until_quit();
+    // Audit B9: the final settle — waiting items are cancelled, completed
+    // results are drained once and committed even though the window is gone,
+    // and the config is saved. A failure to record statistics must not mask
+    // a successful save of the rest of the configuration.
     delayed_tasks().cancel_pending();
+    let outcomes = delayed_tasks().drain();
+    if !outcomes.is_empty() {
+        let records: Vec<quicknest::library_controller::LaunchRecord> = outcomes
+            .iter()
+            .filter_map(|outcome| match outcome {
+                DelayedLaunchOutcome::Started { item_id } => Some(launch_record(item_id)),
+                DelayedLaunchOutcome::Failed { .. } => None,
+            })
+            .collect();
+        if records.is_empty() {
+            let _ = controller.borrow().persist();
+        } else {
+            let _ = controller.borrow_mut().record_launch_batch(&records);
+        }
+    } else {
+        let _ = controller.borrow().persist();
+    }
     #[cfg(windows)]
     UPDATE_UI.with(|state| {
         state
@@ -4610,6 +5179,53 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
     event_loop_result?;
     Ok(())
+}
+
+#[cfg(test)]
+mod hot_zone_tests {
+    use super::*;
+
+    fn primary() -> quicknest::placement::Rect {
+        quicknest::placement::Rect::new(0, 0, 1920, 1080)
+    }
+
+    #[test]
+    fn secondary_monitor_interiors_never_hit_primary_edges() {
+        // Baseline audit counterexamples: the far side of each edge line on
+        // a secondary display is outside this display's rectangle.
+        let cases = [
+            ("right", 2500, 500),
+            ("left", -500, 500),
+            ("top", 600, -400),
+            ("bottom", 600, 1400),
+        ];
+        for (edge, x, y) in cases {
+            assert!(
+                !hot_zone_at_edge(&primary(), x, y, edge, 2),
+                "{edge} edge must not trigger at ({x},{y})"
+            );
+        }
+    }
+
+    #[test]
+    fn real_edges_hit_within_the_band_and_interior_misses() {
+        // Exactly on the band, inside the rectangle.
+        assert!(hot_zone_at_edge(&primary(), 1919, 500, "right", 2));
+        assert!(hot_zone_at_edge(&primary(), 1918, 500, "right", 2));
+        assert!(hot_zone_at_edge(&primary(), 600, 0, "top", 2));
+        assert!(hot_zone_at_edge(&primary(), 600, 2, "top", 2));
+        assert!(hot_zone_at_edge(&primary(), 0, 500, "left", 2));
+        assert!(hot_zone_at_edge(&primary(), 600, 1079, "bottom", 2));
+        // A corner point satisfies two edges — the shared corner is part of
+        // both bands, which matches the original inclusive semantics.
+        assert!(hot_zone_at_edge(&primary(), 0, 0, "left", 2));
+        // Interior and just outside the band never trigger.
+        assert!(!hot_zone_at_edge(&primary(), 960, 540, "right", 2));
+        assert!(!hot_zone_at_edge(&primary(), 1910, 500, "right", 2));
+        assert!(!hot_zone_at_edge(&primary(), 600, 10, "top", 2));
+        // The far boundary line itself belongs to the neighbouring monitor.
+        assert!(!hot_zone_at_edge(&primary(), 1920, 500, "right", 2));
+    }
 }
 
 #[cfg(all(test, windows))]

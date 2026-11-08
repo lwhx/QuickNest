@@ -1,0 +1,5 @@
+Verified frozen archive without Cargo/Git/current source: E:\Programs\ZCODE\01\QuickNest\installer\output\release-1.2.2-175a3d187f6d4f238a6785e8c19870fb
+version=1.2.2; source=e1d7caac890c202049a731f74eb36f348c88da88554edfd094db8843e03b8aca; build=c04e3f84d0d46b0d886e5aa6560435680683114eb4d48779adfb7fdbd585d021
+pinned recipe: opt-level=3 debug=false debug-assertions=false overflow-checks=false lto=false codegen-units=16 incremental=false panic=unwind strip=none
+PE subsystem probe (record-only, not a gate): windows-gui(2)
+Source fingerprint, manifest chain, staging, ZIP, setup evidence and compiler arguments were re-derived from the frozen snapshot and recorded context only.

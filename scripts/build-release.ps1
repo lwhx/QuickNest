@@ -20,13 +20,41 @@ if ([IO.Path]::GetFileName($InnoCompiler) -ine 'ISCC.exe') { throw 'The installe
 $key = Get-QnReleaseKeyInfo $root $UpdatePublicKeyHex
 # The optional argument is the sole key input. An inherited environment key is
 # deliberately cleared for the default build, then the caller's env is restored.
-$environmentNames = @('QUICKNEST_UPDATE_PUBLIC_KEY_HEX','QUICKNEST_BUILD_SOURCE_FINGERPRINT','QUICKNEST_BUILD_BASE_HEAD','QUICKNEST_BUILD_DIRTY','QUICKNEST_BUILD_RUSTC_SHA256','QUICKNEST_BUILD_CARGO_SHA256','QUICKNEST_BUILD_FINGERPRINT','CARGO_TARGET_DIR','CARGO_BUILD_TARGET','RUSTFLAGS','CARGO_ENCODED_RUSTFLAGS','RUSTC','RUSTDOC','RUSTC_WRAPPER','RUSTC_WORKSPACE_WRAPPER','CARGO_BUILD_RUSTC','CARGO_BUILD_RUSTC_WRAPPER','CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER','CARGO_BUILD_RUSTFLAGS','CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS','CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER','RUSTC_BOOTSTRAP')
+$environmentNames = @('QUICKNEST_UPDATE_PUBLIC_KEY_HEX','QUICKNEST_BUILD_SOURCE_FINGERPRINT','QUICKNEST_BUILD_BASE_HEAD','QUICKNEST_BUILD_DIRTY','QUICKNEST_BUILD_RUSTC_SHA256','QUICKNEST_BUILD_CARGO_SHA256','QUICKNEST_BUILD_FINGERPRINT','QUICKNEST_BUILD_RECIPE','CARGO_TARGET_DIR','CARGO_BUILD_TARGET','RUSTFLAGS','CARGO_ENCODED_RUSTFLAGS','RUSTC','RUSTDOC','RUSTC_WRAPPER','RUSTC_WORKSPACE_WRAPPER','CARGO_BUILD_RUSTC','CARGO_BUILD_RUSTC_WRAPPER','CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER','CARGO_BUILD_RUSTFLAGS','CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_RUSTFLAGS','CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER','RUSTC_BOOTSTRAP')
 $savedEnvironment = @{}
 foreach ($name in $environmentNames) { $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process') }
+# B11: every inherited Cargo profile override is cleared by full prefix, which
+# covers CARGO_PROFILE_RELEASE_* plus _PACKAGE_* and _BUILD_OVERRIDE_* forms,
+# then the nine canonical release keys are pinned explicitly and recorded.
+$clearedProfileEnvironment = @([Environment]::GetEnvironmentVariables('Process').Keys | Where-Object { $_ -match '^CARGO_PROFILE_' } | Sort-Object -Unique)
+foreach ($name in $clearedProfileEnvironment) {
+    if (-not $savedEnvironment.ContainsKey($name)) { $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process') }
+}
+# The pinned values equal the effective release defaults so the compiled output
+# stays equivalent to an unpinned build while becoming explicit and auditable.
+$recipe = [pscustomobject][ordered]@{
+    'opt-level'='3'; 'debug'='false'; 'debug-assertions'='false'; 'overflow-checks'='false'
+    'lto'='false'; 'codegen-units'='16'; 'incremental'='false'; 'panic'='unwind'; 'strip'='none'
+}
+[void](Assert-QnReleaseRecipe $recipe)
+$recipeKeys = @('opt-level','debug','debug-assertions','overflow-checks','lto','codegen-units','incremental','panic','strip')
+$recipeEnvironmentNames = @{
+    'opt-level'='CARGO_PROFILE_RELEASE_OPT_LEVEL'; 'debug'='CARGO_PROFILE_RELEASE_DEBUG'
+    'debug-assertions'='CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS'; 'overflow-checks'='CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS'
+    'lto'='CARGO_PROFILE_RELEASE_LTO'; 'codegen-units'='CARGO_PROFILE_RELEASE_CODEGEN_UNITS'
+    'incremental'='CARGO_PROFILE_RELEASE_INCREMENTAL'; 'panic'='CARGO_PROFILE_RELEASE_PANIC'
+    'strip'='CARGO_PROFILE_RELEASE_STRIP'
+}
+$pinnedProfileEnvironment = [ordered]@{}
+foreach ($recipeKey in $recipeKeys) { $pinnedProfileEnvironment[$recipeEnvironmentNames[$recipeKey]] = Get-QnReleaseRecipeValue $recipe $recipeKey }
 $locks = $null
 try {
-    foreach ($name in $environmentNames) { [Environment]::SetEnvironmentVariable($name, $null, 'Process') }
+    foreach ($name in $savedEnvironment.Keys) { [Environment]::SetEnvironmentVariable($name, $null, 'Process') }
     [Environment]::SetEnvironmentVariable('QUICKNEST_UPDATE_PUBLIC_KEY_HEX', $key.normalized_hex, 'Process')
+    foreach ($recipeKey in $recipeKeys) { [Environment]::SetEnvironmentVariable($recipeEnvironmentNames[$recipeKey], (Get-QnReleaseRecipeValue $recipe $recipeKey), 'Process') }
+    # Transport form without control characters; build.rs reconstructs the
+    # canonical recipe string from these pairs before hashing it.
+    [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_RECIPE', (($recipeKeys | ForEach-Object { $_ + '=' + (Get-QnReleaseRecipeValue $recipe $_) }) -join ';'), 'Process')
     $target = 'x86_64-pc-windows-msvc'
     [Environment]::SetEnvironmentVariable('CARGO_TARGET_DIR', (Join-Path $root 'target'), 'Process')
     Push-Location -LiteralPath $root
@@ -41,21 +69,38 @@ try {
         base_head = $source.base_head; dirty = $source.dirty
         target = $target; profile = 'release'; rustc = $rustc; cargo = $cargo
         update_key = [pscustomobject][ordered]@{ status = $key.status; blob_sha256 = $key.blob_sha256 }
+        recipe = $recipe
     }
     $info.build_fingerprint = Get-QnReleaseBuildFingerprint $info
     $run = Assert-QnReleasePath (Join-Path $OutputParent ('release-' + $version + '-' + [Guid]::NewGuid().ToString('N'))) $OutputParent
     [void][IO.Directory]::CreateDirectory($run)
-    [IO.File]::WriteAllText((Join-Path $run '.quicknest-release-run'), 'QuickNest local release v1', (New-Object Text.UTF8Encoding($false)))
+    [IO.File]::WriteAllText((Join-Path $run '.quicknest-release-run'), 'QuickNest local release v2', (New-Object Text.UTF8Encoding($false)))
     Write-QnReleaseJson (Join-Path $run 'source-manifest.json') $source
+    # D6: full frozen source snapshot inside the run, including untracked input,
+    # so the finished archive can be re-verified without this repository.
+    $snapshotRoot = Assert-QnReleasePath (Join-Path $run 'source-files') $run
+    [void][IO.Directory]::CreateDirectory($snapshotRoot)
+    foreach ($record in $source.files) {
+        $relativePath = [string]$record.path
+        $snapshotDestination = Assert-QnReleasePath (Join-Path $snapshotRoot ($relativePath.Replace('/', '\'))) $run
+        $snapshotParent = Split-Path -Parent $snapshotDestination
+        if (-not (Test-Path -LiteralPath $snapshotParent)) { [void][IO.Directory]::CreateDirectory($snapshotParent) }
+        [IO.File]::Copy((Assert-QnReleasePath (Join-Path $root ($relativePath.Replace('/', '\'))) $root), $snapshotDestination, $false)
+        $copied = Get-QnReleaseFileRecord $snapshotDestination $relativePath
+        if ($copied.bytes -ne $record.bytes -or $copied.sha256 -cne $record.sha256) { throw ('Frozen snapshot copy differs from the source manifest: ' + $relativePath) }
+    }
+    [void](Assert-QnReleaseSnapshot $run $source)
+    $stageDirectory = Assert-QnReleasePath (Join-Path $run 'staging') $run
+    $buildArguments = @('build','--manifest-path',(Join-Path $root 'Cargo.toml'),'--locked','--offline','--release','--target',$target,'--bin','quicknest')
+    $buildLog = Join-Path $run 'cargo-build.log'
+    Write-Host ('Source frozen: ' + $source.source_fingerprint + '; base HEAD=' + $source.base_head + '; dirty=' + $source.dirty)
+    Write-Host ('Release profile pinned: ' + (($recipeKeys | ForEach-Object { $_ + '=' + (Get-QnReleaseRecipeValue $recipe $_) }) -join ' '))
     [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_SOURCE_FINGERPRINT', $source.source_fingerprint, 'Process')
     [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_BASE_HEAD', $source.base_head, 'Process')
     [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_DIRTY', $source.dirty.ToString().ToLowerInvariant(), 'Process')
     [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_RUSTC_SHA256', (Get-QnReleaseTextHash $rustc), 'Process')
     [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_CARGO_SHA256', (Get-QnReleaseTextHash $cargo), 'Process')
     [Environment]::SetEnvironmentVariable('QUICKNEST_BUILD_FINGERPRINT', $info.build_fingerprint, 'Process')
-    $buildArguments = @('build','--manifest-path',(Join-Path $root 'Cargo.toml'),'--locked','--offline','--release','--target',$target,'--bin','quicknest')
-    $buildLog = Join-Path $run 'cargo-build.log'
-    Write-Host ('Source frozen: ' + $source.source_fingerprint + '; base HEAD=' + $source.base_head + '; dirty=' + $source.dirty)
     # An explicit process avoids PS 5.1 treating successful native stderr as a
     # terminating NativeCommandError. Logs are written with explicit UTF-8.
     $buildExit = Invoke-QnReleaseTool 'cargo.exe' $buildArguments $root $buildLog
@@ -69,15 +114,22 @@ try {
     if ($health -cne ("QuickNestHealth`t" + $version + "`t" + $nonce)) { throw 'Existing update-health protocol did not match' }
     if ((Get-QnReleaseHash $exe) -cne $exeRecord.sha256) { throw 'Executable changed during early-entry probes' }
     $build = [pscustomobject][ordered]@{
-        schema_version = 1; source_manifest = Get-QnReleaseFileRecord (Join-Path $run 'source-manifest.json') 'source-manifest.json'
+        schema_version = 2; version = $version
+        source_manifest = Get-QnReleaseFileRecord (Join-Path $run 'source-manifest.json') 'source-manifest.json'
         build_info = $info; executable = $exeRecord
+        build_recipe = $recipe
+        original_context = [pscustomobject][ordered]@{
+            repository_root = $root; release_directory = $run
+            staging_directory = $stageDirectory; source_snapshot_directory = $snapshotRoot
+        }
+        cleared_build_environment = $environmentNames
+        cleared_profile_environment = $clearedProfileEnvironment
+        pinned_profile_environment = $pinnedProfileEnvironment
         cargo_arguments = $buildArguments; cargo_exit_code = $buildExit
         cargo_log = Get-QnReleaseFileRecord $buildLog 'cargo-build.log'
         update_health_protocol_verified = $true; desktop_validation_executed = $false
-        cleared_build_environment = $environmentNames
     }
     Write-QnReleaseJson (Join-Path $run 'build-manifest.json') $build
-    $stageDirectory = Assert-QnReleasePath (Join-Path $run 'staging') $run
     [void][IO.Directory]::CreateDirectory($stageDirectory)
     [IO.File]::Copy($exe, (Join-Path $stageDirectory 'quicknest.exe'), $false)
     foreach ($distributedFile in @(@{ source='assets/QuickNest.ico'; destination='QuickNest.ico' }, @{ source='README.md'; destination='README.md' })) {
@@ -131,12 +183,13 @@ try {
     }
     Write-QnReleaseJson (Join-Path $run 'setup-evidence.json') $setupEvidence
     $release = [pscustomobject][ordered]@{
-        schema_version = 1; version = $version; source_fingerprint = $source.source_fingerprint; build_fingerprint = $info.build_fingerprint
+        schema_version = 2; version = $version; source_fingerprint = $source.source_fingerprint; build_fingerprint = $info.build_fingerprint
         source_manifest = $build.source_manifest
         build_manifest = $stage.build_manifest; staging_manifest = $stageManifest
         setup_evidence = Get-QnReleaseFileRecord (Join-Path $run 'setup-evidence.json') 'setup-evidence.json'
         portable = Get-QnReleaseFileRecord (Join-Path $run ('QuickNest-' + $version + '-portable.zip')) ('QuickNest-' + $version + '-portable.zip')
         setup = $setupRecord
+        build_recipe = $recipe
         installation_executed = $false; desktop_validation_executed = $false
     }
     Write-QnReleaseJson (Join-Path $run 'release-manifest.json') $release
@@ -144,5 +197,5 @@ try {
     Write-Host ('Local release completed: ' + $run)
 } finally {
     if ($null -ne $locks) { foreach ($lock in $locks) { $lock.Dispose() } }
-    foreach ($name in $environmentNames) { [Environment]::SetEnvironmentVariable($name, $savedEnvironment[$name], 'Process') }
+    foreach ($name in $savedEnvironment.Keys) { [Environment]::SetEnvironmentVariable($name, $savedEnvironment[$name], 'Process') }
 }

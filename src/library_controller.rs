@@ -7,7 +7,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::infrastructure::windows::config_save::{
-    SaveOutcome, prune_backups, recover_latest_backup, save_atomic, unsupported_schema_version,
+    SaveOutcome, lease_backup, prune_backups_locked, recover_latest_backup, save_atomic,
+    unsupported_schema_version,
 };
 use crate::library_model::{DeleteOutcome, IconSize, Item, ItemDraft, ItemKind, Library, new_uuid};
 use crate::pinyin_index::PinyinIndex;
@@ -121,6 +122,50 @@ pub struct LibraryController {
     /// P3-01: the items picked for a batch launch. Transient UI state; it is
     /// never part of the persisted library.
     batch_selection: RefCell<Vec<String>>,
+    /// Audit D4: a prepared import waiting for the user's confirmation.
+    pending_import: RefCell<Option<PendingImport>>,
+    /// Audit D4: the most recent undoable committed operation. A new
+    /// undoable commit replaces it; it is consumed by a successful undo.
+    last_undo: RefCell<Option<UndoRecord>>,
+}
+
+/// A prepared import waiting for confirmation (audit D4). The candidate is
+/// computed once at prepare time, so confirmed ids cannot drift between the
+/// preview and the commit.
+struct PendingImport {
+    document: crate::config_transfer::ImportDocument,
+    mode: crate::config_transfer::ImportMode,
+    baseline: Library,
+    candidate: Library,
+    report: crate::config_transfer::ImportReport,
+}
+
+/// One conditional undo step (audit D4). Undo only touches objects that
+/// still match the recorded snapshot, so unrelated later edits survive.
+#[derive(Debug, Clone)]
+enum UndoRecord {
+    Items {
+        category_id: String,
+        position: usize,
+        items: Vec<crate::library_model::Item>,
+    },
+    Category {
+        group_id: String,
+        position: usize,
+        category: Box<crate::library_model::Category>,
+    },
+    Group {
+        position: usize,
+        group: Box<crate::library_model::Group>,
+    },
+    OverwriteImport {
+        imported_groups: Vec<crate::library_model::Group>,
+        imported_combinations: Vec<crate::library_model::LaunchCombination>,
+        combinations_before: Vec<crate::library_model::LaunchCombination>,
+        settings_before: Box<crate::library_model::Settings>,
+        settings_after: Box<crate::library_model::Settings>,
+        settings_applied: bool,
+    },
 }
 
 impl LibraryController {
@@ -172,6 +217,8 @@ impl LibraryController {
             save_error: RefCell::new(None),
             pinyin_cache: RefCell::new(HashMap::new()),
             batch_selection: RefCell::new(Vec::new()),
+            pending_import: RefCell::new(None),
+            last_undo: RefCell::new(None),
         }
     }
 
@@ -496,22 +543,48 @@ impl LibraryController {
 
     /// Deletes a group after the user confirmed dropping its content.
     pub fn delete_group_confirmed(&mut self, group_id: &str) -> bool {
+        self.delete_group_confirmed_checked(group_id)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant: `Ok(true)` committed, `Ok(false)` no change, `Err`
+    /// save failure with the model rolled back (audit A5/D2).
+    pub fn delete_group_confirmed_checked(&mut self, group_id: &str) -> Result<bool, String> {
+        // Audit D4: snapshot the subtree before the removal.
+        let snapshot = self
+            .library
+            .groups
+            .iter()
+            .enumerate()
+            .find(|(_, group)| group.id == group_id)
+            .map(|(position, group)| (position, group.clone()));
         let previous = self.library.clone();
         let changed = self.library.delete_group_confirmed(group_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
+        let committed = self.commit_checked(previous, changed)?;
+        if committed && let Some((position, group)) = snapshot {
+            self.last_undo.borrow_mut().replace(UndoRecord::Group {
+                position,
+                group: Box::new(group),
+            });
         }
-        changed
+        Ok(committed)
     }
 
     /// Deletes a group after the user chose to migrate its content elsewhere.
     pub fn migrate_group_into(&mut self, group_id: &str, target_group_id: &str) -> bool {
+        self.migrate_group_into_checked(group_id, target_group_id)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant of [`Self::migrate_group_into`].
+    pub fn migrate_group_into_checked(
+        &mut self,
+        group_id: &str,
+        target_group_id: &str,
+    ) -> Result<bool, String> {
         let previous = self.library.clone();
         let changed = self.library.migrate_group_into(group_id, target_group_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
-        }
-        changed
+        self.commit_checked(previous, changed)
     }
 
     /// Creates a category in the active group.
@@ -559,25 +632,57 @@ impl LibraryController {
 
     /// Deletes a category after the user confirmed dropping its items.
     pub fn delete_category_confirmed(&mut self, category_id: &str) -> bool {
+        self.delete_category_confirmed_checked(category_id)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant of [`Self::delete_category_confirmed`].
+    pub fn delete_category_confirmed_checked(&mut self, category_id: &str) -> Result<bool, String> {
+        // Audit D4: snapshot the category and its anchor before the removal.
+        let snapshot = self.library.groups.iter().find_map(|group| {
+            group
+                .categories
+                .iter()
+                .position(|category| category.id == category_id)
+                .map(|category_index| {
+                    (
+                        group.id.clone(),
+                        category_index,
+                        group.categories[category_index].clone(),
+                    )
+                })
+        });
         let previous = self.library.clone();
         let changed = self.library.delete_category_confirmed(category_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
+        let committed = self.commit_checked(previous, changed)?;
+        if committed && let Some((group_id, position, category)) = snapshot {
+            self.last_undo.borrow_mut().replace(UndoRecord::Category {
+                group_id,
+                position,
+                category: Box::new(category),
+            });
         }
-        changed
+        Ok(committed)
     }
 
     /// Moves the items of one category into another (migrate choice), then
     /// removes the source category.
     pub fn migrate_category_items_into(&mut self, category_id: &str, target_id: &str) -> bool {
+        self.migrate_category_items_into_checked(category_id, target_id)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant of [`Self::migrate_category_items_into`].
+    pub fn migrate_category_items_into_checked(
+        &mut self,
+        category_id: &str,
+        target_id: &str,
+    ) -> Result<bool, String> {
         let previous = self.library.clone();
         let changed = self
             .library
             .migrate_category_items_into(category_id, target_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
-        }
-        changed
+        self.commit_checked(previous, changed)
     }
 
     /// Moves a category to a new position (drag reorder / up-down buttons).
@@ -696,13 +801,63 @@ impl LibraryController {
         Ok(())
     }
 
+    /// Shared tail for the checked mutators: persists when something
+    /// changed and reports the exact outcome instead of collapsing "no
+    /// change" and "save failed" into one bool (audit A5/D2).
+    fn commit_checked(&mut self, previous: Library, changed: bool) -> Result<bool, String> {
+        if !changed {
+            return Ok(false);
+        }
+        self.persist_change(previous)?;
+        Ok(true)
+    }
+
     pub fn delete_item(&mut self, item_id: &str) -> bool {
+        self.delete_item_checked(item_id).unwrap_or(false)
+    }
+
+    /// `Ok(true)` committed, `Ok(false)` unknown id, `Err` save failure with
+    /// the model rolled back (audit A5/D2: callers must keep the dialog
+    /// state and offer a retry instead of reporting success).
+    pub fn delete_item_checked(&mut self, item_id: &str) -> Result<bool, String> {
+        // Audit D4: capture the undo anchor and item snapshot before the
+        // removal; the record is only published after a committed delete.
+        let located = self
+            .locate_item(item_id)
+            .map(|(group_index, category_index, item_index)| {
+                let items = vec![
+                    self.library.groups[group_index].categories[category_index].items[item_index]
+                        .clone(),
+                ];
+                let category_id = self.library.groups[group_index].categories[category_index]
+                    .id
+                    .clone();
+                (category_id, item_index, items)
+            });
         let previous = self.library.clone();
         let changed = self.library.remove_item(item_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
+        let committed = self.commit_checked(previous, changed)?;
+        if committed && let Some((category_id, position, items)) = located {
+            self.last_undo.borrow_mut().replace(UndoRecord::Items {
+                category_id,
+                position,
+                items,
+            });
         }
-        changed
+        Ok(committed)
+    }
+
+    /// The group/category/index triple of an item, first occurrence.
+    fn locate_item(&self, item_id: &str) -> Option<(usize, usize, usize)> {
+        for (group_index, group) in self.library.groups.iter().enumerate() {
+            for (category_index, category) in group.categories.iter().enumerate() {
+                if let Some(item_index) = category.items.iter().position(|item| item.id == item_id)
+                {
+                    return Some((group_index, category_index, item_index));
+                }
+            }
+        }
+        None
     }
 
     /// Duplicates a project (baseline 3.5) with a fresh UUID; the copy is
@@ -722,36 +877,64 @@ impl LibraryController {
 
     /// Moves a project to another category of the active group (baseline 3.5).
     pub fn move_item_to_category(&mut self, item_id: &str, target_category_id: &str) -> bool {
+        self.move_item_to_category_checked(item_id, target_category_id)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant of [`Self::move_item_to_category`]: `Ok(true)`
+    /// committed, `Ok(false)` no change, `Err` save failure (rolled back).
+    pub fn move_item_to_category_checked(
+        &mut self,
+        item_id: &str,
+        target_category_id: &str,
+    ) -> Result<bool, String> {
         let previous = self.library.clone();
         let changed = self
             .library
             .move_item_to_category(item_id, target_category_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
-        }
-        changed
+        self.commit_checked(previous, changed)
     }
 
     /// Reorders a project inside the active category (P2-04 grid drag).
     pub fn move_item_to_index(&mut self, item_id: &str, new_index: usize) -> bool {
+        self.move_item_to_index_checked(item_id, new_index)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant of [`Self::move_item_to_index`]. Audit B6: in the
+    /// automatic modes the grid is ordered by usage, so a display slot is
+    /// not a storage slot — in-category reorder is refused there (cross-
+    /// category moves stay available, manual mode keeps working).
+    pub fn move_item_to_index_checked(
+        &mut self,
+        item_id: &str,
+        new_index: usize,
+    ) -> Result<bool, String> {
+        if self.sort_mode() != "manual" {
+            return Ok(false);
+        }
         let previous = self.library.clone();
         let changed = self.library.move_item_to_index(item_id, new_index);
-        if changed {
-            return self.persist_change(previous).is_ok();
-        }
-        changed
+        self.commit_checked(previous, changed)
     }
 
     /// Moves a project into a category of any group (P2-06 cross-group drag).
     pub fn move_item_to_group_category(&mut self, item_id: &str, target_category_id: &str) -> bool {
+        self.move_item_to_group_category_checked(item_id, target_category_id)
+            .unwrap_or(false)
+    }
+
+    /// Checked variant of [`Self::move_item_to_group_category`].
+    pub fn move_item_to_group_category_checked(
+        &mut self,
+        item_id: &str,
+        target_category_id: &str,
+    ) -> Result<bool, String> {
         let previous = self.library.clone();
         let changed = self
             .library
             .move_item_across_groups(item_id, target_category_id);
-        if changed {
-            return self.persist_change(previous).is_ok();
-        }
-        changed
+        self.commit_checked(previous, changed)
     }
 
     /// The active category of an arbitrary group (P2-06 spring-load drop
@@ -809,7 +992,15 @@ impl LibraryController {
         match save_atomic(path, &json) {
             Ok(outcome) => {
                 self.save_error.borrow_mut().take();
-                let _ = prune_backups(path, 10);
+                // The backup this save just created (audit A3) must not be
+                // deleted by its own maintenance when older backups carry
+                // future-dated names. Maintenance failures never turn an
+                // already committed save into a failure.
+                let created_backup = match &outcome {
+                    SaveOutcome::Replaced(replaced) => vec![replaced.backup.clone()],
+                    SaveOutcome::Created => Vec::new(),
+                };
+                let _ = prune_backups_locked(path, 10, &created_backup);
                 Ok(outcome)
             }
             Err(error) => {
@@ -897,6 +1088,29 @@ impl LibraryController {
     /// P3-01: drops the batch selection.
     pub fn clear_batch_selection(&self) {
         self.batch_selection.borrow_mut().clear();
+    }
+
+    /// Audit A4: the selected ids that still resolve to a live item, in
+    /// selection order. UI counts and combination saves must use this so a
+    /// stale selection can never produce an empty shell combination.
+    pub fn live_batch_selection_ids(&self) -> Vec<String> {
+        self.batch_selection
+            .borrow()
+            .iter()
+            .filter(|id| self.library.find_item(id).is_some())
+            .cloned()
+            .collect()
+    }
+
+    /// Audit A4: drops selection ids that no longer resolve after a
+    /// whole-library replacement (overwrite import, restore). Live global
+    /// selections across categories and groups are kept by design. Returns
+    /// how many stale ids were dropped.
+    pub fn reconcile_batch_selection(&self) -> usize {
+        let mut selection = self.batch_selection.borrow_mut();
+        let before = selection.len();
+        selection.retain(|id| self.library.find_item(id).is_some());
+        before - selection.len()
     }
 
     /// Commits successful launch events as one transaction. Missing items
@@ -1027,10 +1241,46 @@ impl LibraryController {
         favorite
     }
 
+    /// Audit A5: commits the pinned flag transactionally. Identical values
+    /// never write; a save failure rolls the model back so the caller keeps
+    /// the previous pin state and can retry the same target value.
+    pub fn set_pinned(&mut self, pinned: bool) -> Result<(), String> {
+        if self.library.settings.pinned == pinned {
+            return Ok(());
+        }
+        if let LoadState::SafeMode { reason } = &self.load_state {
+            return Err(format!("安全模式：{reason}"));
+        }
+        let previous = self.library.clone();
+        self.library.settings.pinned = pinned;
+        self.persist_change(previous)
+    }
+
+    /// Audit A5: transactional window-bounds persistence. Identical bounds
+    /// (including the monitor id) never write; failures roll back so the
+    /// pending observation can be retried without another window move.
+    pub fn set_window_bounds(
+        &mut self,
+        bounds: crate::library_model::WindowBounds,
+    ) -> Result<(), String> {
+        if self.library.settings.window_bounds.as_ref() == Some(&bounds) {
+            return Ok(());
+        }
+        if let LoadState::SafeMode { reason } = &self.load_state {
+            return Err(format!("安全模式：{reason}"));
+        }
+        let previous = self.library.clone();
+        self.library.settings.window_bounds = Some(bounds);
+        self.persist_change(previous)
+    }
+
     /// P2-17 (baseline 22 启动组合): saves the current batch selection as a
     /// named combination and clears the selection. The rows for the dialog.
     pub fn save_batch_combination(&mut self, name: &str) -> Result<(String, String), String> {
-        let ids = self.batch_selection_ids();
+        // Audit A4: only ids that still resolve may enter a combination;
+        // a selection left from before a whole-library replacement must not
+        // produce an empty shell.
+        let ids = self.live_batch_selection_ids();
         if ids.is_empty() {
             return Err("未选择项目".to_string());
         }
@@ -1088,7 +1338,7 @@ impl LibraryController {
     /// Returns the number of bytes written.
     pub fn export_all_to(&self, path: &std::path::Path) -> Result<usize, String> {
         let document = crate::config_transfer::export_all(&self.library);
-        write_export(path, &document)
+        write_export(path, self.config_path.as_deref(), &document)
     }
 
     /// P2-17 (baseline 17.4): writes one group to an export file.
@@ -1096,7 +1346,7 @@ impl LibraryController {
         let Some(document) = crate::config_transfer::export_group(&self.library, group_id) else {
             return Err("分组不存在".to_string());
         };
-        write_export(path, &document)
+        write_export(path, self.config_path.as_deref(), &document)
     }
 
     /// P2-17 (baseline 17.4/15.7/8.4): imports an export or configuration
@@ -1112,25 +1362,266 @@ impl LibraryController {
         }
         let text = std::fs::read_to_string(path).map_err(|error| error.to_string())?;
         let document = crate::config_transfer::parse_import(&text)?;
+        self.import_document_now(document, mode, None)
+    }
+
+    /// Audit D4: computes the import candidate without touching anything —
+    /// no backup, no write, no id churn. The candidate is kept so the
+    /// confirmed ids cannot drift between the preview and the commit.
+    pub fn prepare_import(
+        &mut self,
+        path: &std::path::Path,
+        mode: crate::config_transfer::ImportMode,
+    ) -> Result<String, String> {
+        if let LoadState::SafeMode { reason } = &self.load_state {
+            return Err(format!("安全模式：{reason}"));
+        }
+        let text = std::fs::read_to_string(path).map_err(|error| error.to_string())?;
+        let document = crate::config_transfer::parse_import(&text)?;
+        let baseline = self.library.clone();
+        let mut candidate = baseline.clone();
+        let report = crate::config_transfer::apply_import(&mut candidate, &document, mode);
+        self.pending_import.borrow_mut().replace(PendingImport {
+            document,
+            mode,
+            baseline,
+            candidate,
+            report: report.clone(),
+        });
+        Ok(report.summary())
+    }
+
+    /// Audit D4: applies the prepared candidate. The live library must still
+    /// match the preview baseline; otherwise the plan is dropped and the
+    /// caller asks for a fresh preview.
+    pub fn commit_import(&mut self) -> Result<crate::config_transfer::ImportReport, String> {
+        let plan = self
+            .pending_import
+            .borrow_mut()
+            .take()
+            .ok_or_else(|| "没有待确认的导入".to_string())?;
+        if self.library != plan.baseline {
+            return Err("配置在预览后发生了变化，请重新预览".to_string());
+        }
+        self.import_document_now(
+            plan.document,
+            plan.mode,
+            Some((plan.candidate, plan.report)),
+        )
+    }
+
+    /// Audit D4: discards the prepared import without any write. Returns
+    /// whether a plan was actually pending.
+    pub fn cancel_import(&mut self) -> bool {
+        self.pending_import.borrow_mut().take().is_some()
+    }
+
+    /// Audit D4: whether a committed operation can still be undone.
+    pub fn undo_available(&self) -> bool {
+        self.last_undo.borrow().is_some()
+    }
+
+    /// Audit D4: applies the inverse of the most recent undoable commit.
+    /// Only objects that still match the recorded snapshot are touched, so
+    /// unrelated later edits survive. The record is consumed only after the
+    /// inverse itself is committed; a failed precondition keeps it.
+    pub fn undo_last(&mut self) -> Result<String, String> {
+        let record = self
+            .last_undo
+            .borrow()
+            .clone()
+            .ok_or_else(|| "没有可撤销的操作".to_string())?;
+        let previous = self.library.clone();
+        let outcome: Result<String, String> = match record {
+            UndoRecord::Items {
+                category_id,
+                position,
+                items,
+            } => {
+                if items
+                    .iter()
+                    .any(|item| self.library.find_item(&item.id).is_some())
+                {
+                    Err("项目 id 已被占用，无法自动撤销".into())
+                } else if let Some(category) = self
+                    .library
+                    .groups
+                    .iter_mut()
+                    .flat_map(|group| group.categories.iter_mut())
+                    .find(|category| category.id == category_id)
+                {
+                    let index = position.min(category.items.len());
+                    let count = items.len();
+                    category.items.splice(index..index, items);
+                    Ok(format!("已撤销删除：恢复 {count} 个项目"))
+                } else {
+                    Err("原分类已不存在，无法自动撤销".into())
+                }
+            }
+            UndoRecord::Category {
+                group_id,
+                position,
+                category,
+            } => {
+                let occupied = self.library.groups.iter().any(|group| {
+                    group
+                        .categories
+                        .iter()
+                        .any(|existing| existing.id == category.id)
+                });
+                if occupied {
+                    Err("分类 id 已被占用，无法自动撤销".into())
+                } else if let Some(group) = self
+                    .library
+                    .groups
+                    .iter_mut()
+                    .find(|group| group.id == group_id)
+                {
+                    let name = category.name.clone();
+                    let index = position.min(group.categories.len());
+                    group.categories.insert(index, *category);
+                    Ok(format!("已撤销删除：恢复分类「{name}」"))
+                } else {
+                    Err("原分组已不存在，无法自动撤销".into())
+                }
+            }
+            UndoRecord::Group { position, group } => {
+                if self
+                    .library
+                    .groups
+                    .iter()
+                    .any(|existing| existing.id == group.id)
+                {
+                    Err("分组 id 已被占用，无法自动撤销".into())
+                } else {
+                    let name = group.name.clone();
+                    let index = position.min(self.library.groups.len());
+                    self.library.groups.insert(index, *group);
+                    Ok(format!("已撤销删除：恢复分组「{name}」"))
+                }
+            }
+            UndoRecord::OverwriteImport {
+                imported_groups,
+                imported_combinations,
+                combinations_before,
+                settings_before,
+                settings_after,
+                settings_applied,
+            } => {
+                let mut removed = 0_usize;
+                let mut kept_edited = 0_usize;
+                for imported in &imported_groups {
+                    if let Some(position) = self
+                        .library
+                        .groups
+                        .iter()
+                        .position(|live| live.id == imported.id)
+                    {
+                        if self.library.groups[position] == *imported {
+                            self.library.groups.remove(position);
+                            removed += 1;
+                        } else {
+                            kept_edited += 1;
+                        }
+                    } else {
+                        kept_edited += 1;
+                    }
+                }
+                if removed == 0 {
+                    return Err("导入内容已被后续编辑，无法自动撤销；请使用历史备份恢复".into());
+                }
+                let mut notes = vec![format!("已撤销覆盖导入：移除 {removed} 个导入分组")];
+                if kept_edited > 0 {
+                    notes.push(format!("{kept_edited} 个分组已被后续编辑，保留"));
+                }
+                if self.library.combinations == imported_combinations {
+                    self.library.combinations = combinations_before;
+                }
+                if settings_applied && self.library.settings == *settings_after {
+                    self.library.settings = *settings_before;
+                    notes.push("设置已恢复".to_string());
+                }
+                Ok(notes.join("；"))
+            }
+        };
+        match outcome {
+            Ok(message) => {
+                if self.persist_change(previous).is_ok() {
+                    self.last_undo.borrow_mut().take();
+                    Ok(message)
+                } else {
+                    Err("撤销保存失败：请重试".into())
+                }
+            }
+            // A failed precondition keeps the record so the same undo can be
+            // attempted again after the user resolves the conflict.
+            Err(message) => Err(message),
+        }
+    }
+
+    /// Shared commit path for a parsed import document. `candidate` carries
+    /// the previewed library when the import went through
+    /// [`Self::prepare_import`], so confirmed ids match the preview exactly;
+    /// a direct [`Self::import_from`] re-applies from the document. Records
+    /// the overwrite undo payload on success (audit D4).
+    fn import_document_now(
+        &mut self,
+        document: crate::config_transfer::ImportDocument,
+        mode: crate::config_transfer::ImportMode,
+        candidate: Option<(Library, crate::config_transfer::ImportReport)>,
+    ) -> Result<crate::config_transfer::ImportReport, String> {
         // Baseline 15.7 "导入前备份": the current configuration is kept before
         // anything is applied, so an unwanted import can be undone from the
-        // backup dialog.
-        if let Some(config) = &self.config_path
+        // backup dialog. The lease keeps that file alive across the save's
+        // prune below (audit A3); failure to register it aborts the import
+        // instead of silently losing the rollback guarantee.
+        let _pre_import_lease = if let Some(config) = &self.config_path
             && config.exists()
         {
-            crate::infrastructure::windows::config_save::backup_now(config)
+            let backup = crate::infrastructure::windows::config_save::backup_now(config)
                 .map_err(|error| error.to_string())?;
-        }
-        // P4 审核修复（2026-11-07）：保存失败时回滚内存状态——旧实现先改
-        // 内存再落盘，失败后界面报“导入失败”但内存已是导入内容，随后的
-        // 普通保存会把“失败的导入”正式写入磁盘。
+            Some(lease_backup(&backup).map_err(|error| error.to_string())?)
+        } else {
+            None
+        };
+        // P4 审核修复（2026-11-07）：保存失败时回滚内存状态。
         let previous = self.library.clone();
-        let report = crate::config_transfer::apply_import(&mut self.library, &document, mode);
+        let (report, settings_applied) = match candidate {
+            Some((candidate_library, report)) => {
+                let settings_applied = candidate_library.settings != previous.settings;
+                self.library = candidate_library;
+                (report, settings_applied)
+            }
+            None => {
+                let report =
+                    crate::config_transfer::apply_import(&mut self.library, &document, mode);
+                let settings_applied = self.library.settings != previous.settings;
+                (report, settings_applied)
+            }
+        };
         self.pinyin_cache.borrow_mut().clear();
         if let Err(error) = self.persist() {
             self.library = previous;
             self.pinyin_cache.borrow_mut().clear();
             return Err(error);
+        }
+        // Audit A4: overwrite imports regenerate every id; merge imports can
+        // remove replaced groups. Keep only ids that still resolve.
+        self.reconcile_batch_selection();
+        // Audit D4: only overwrite imports have a bounded structural
+        // inverse; merge imports mix ids with live data and stay on the
+        // backup path instead.
+        if mode == crate::config_transfer::ImportMode::Overwrite {
+            self.last_undo
+                .borrow_mut()
+                .replace(UndoRecord::OverwriteImport {
+                    imported_groups: self.library.groups.clone(),
+                    imported_combinations: self.library.combinations.clone(),
+                    combinations_before: previous.combinations.clone(),
+                    settings_before: Box::new(previous.settings.clone()),
+                    settings_after: Box::new(self.library.settings.clone()),
+                    settings_applied,
+                });
         }
         Ok(report)
     }
@@ -1152,6 +1643,9 @@ impl LibraryController {
         self.load_state = LoadState::Loaded;
         self.pinyin_cache.borrow_mut().clear();
         self.save_error.borrow_mut().take();
+        // Audit A4: the restored library replaces the old one wholesale;
+        // selection ids that no longer resolve must not linger.
+        self.reconcile_batch_selection();
         Ok(format!("已恢复；恢复前的配置保存在 {}", replaced.display()))
     }
 }
@@ -1159,10 +1653,12 @@ impl LibraryController {
 /// Writes an export document as pretty JSON (P2-17).
 fn write_export(
     path: &std::path::Path,
+    active_config: Option<&std::path::Path>,
     document: &crate::config_transfer::ExportDocument,
 ) -> Result<usize, String> {
     let json = serde_json::to_string_pretty(document).map_err(|error| error.to_string())?;
-    std::fs::write(path, json.as_bytes()).map_err(|error| error.to_string())?;
+    crate::infrastructure::windows::config_save::export_atomic(path, active_config, &json)
+        .map_err(|error| error.to_string())?;
     Ok(json.len())
 }
 
@@ -2388,6 +2884,512 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("quicknest-config-{}", new_uuid()));
         std::fs::create_dir_all(&dir).expect("temp dir");
         dir
+    }
+
+    #[test]
+    fn export_refuses_active_config_case_and_hardlink_including_schema999_safe_mode() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        for safe in [false, true] {
+            let dir = temp_config_dir();
+            let config = dir.join("config.json");
+            let original = if safe {
+                br#"{"schema_version":999,"groups":[],"audit_marker":"preserve-this"}"#.to_vec()
+            } else {
+                serde_json::to_vec(&sample_library()).unwrap()
+            };
+            std::fs::write(&config, &original).unwrap();
+            let controller = LibraryController::load(Some(config.clone()));
+            assert_eq!(
+                matches!(controller.load_state(), LoadState::SafeMode { .. }),
+                safe
+            );
+            let hardlink = dir.join("alias.json");
+            std::fs::hard_link(&config, &hardlink).unwrap();
+            let group = controller.library.groups[0].id.clone();
+            for destination in [&config, &dir.join("CONFIG.JSON"), &hardlink] {
+                assert!(
+                    controller
+                        .export_all_to(destination)
+                        .unwrap_err()
+                        .contains("active config")
+                );
+                assert!(
+                    controller
+                        .export_group_to(destination, &group)
+                        .unwrap_err()
+                        .contains("active config")
+                );
+                assert_eq!(std::fs::read(&config).unwrap(), original);
+                assert_eq!(std::fs::read(&hardlink).unwrap(), original);
+            }
+            // Equal content does not make an independent file the active file.
+            let export = dir.join("independent.json");
+            std::fs::write(&export, &original).unwrap();
+            let expected = serde_json::to_string_pretty(&crate::config_transfer::export_all(
+                &controller.library,
+            ))
+            .unwrap();
+            assert_eq!(controller.export_all_to(&export).unwrap(), expected.len());
+            assert_eq!(std::fs::read_to_string(&export).unwrap(), expected);
+            assert!(controller.export_group_to(&export, &group).is_ok());
+            assert_eq!(std::fs::read(&config).unwrap(), original);
+            std::fs::remove_dir_all(dir).unwrap();
+        }
+    }
+
+    #[test]
+    fn atomic_export_failure_preserves_existing_export_and_active_config() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        let original = br#"{"schema_version":999,"groups":[]}"#;
+        std::fs::write(&config, original).unwrap();
+        let controller = LibraryController::load(Some(config.clone()));
+        let export = dir.join("export.json");
+        let old_export = b"previous export bytes";
+        std::fs::write(&export, old_export).unwrap();
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&export)
+            .unwrap();
+        let group = controller.library.groups[0].id.clone();
+        assert!(
+            controller
+                .export_all_to(&export)
+                .unwrap_err()
+                .contains("replace failed: 32")
+        );
+        assert!(
+            controller
+                .export_group_to(&export, &group)
+                .unwrap_err()
+                .contains("replace failed: 32")
+        );
+        assert_eq!(std::fs::read(&export).unwrap(), old_export);
+        assert_eq!(std::fs::read(&config).unwrap(), original);
+        drop(lock);
+        assert!(controller.export_all_to(&export).is_ok());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn export_checks_missing_config_parent_and_refuses_unknown_identity() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        let controller = LibraryController::load(Some(config.clone()));
+        assert!(controller.export_all_to(&dir.join("CONFIG.JSON")).is_err());
+        assert!(!config.exists());
+        assert!(
+            controller
+                .export_all_to(&dir.join("independent.json"))
+                .is_ok()
+        );
+        let controller = LibraryController::load(Some(dir.join("missing-parent/config.json")));
+        let export = dir.join("keep.json");
+        std::fs::write(&export, b"keep").unwrap();
+        assert!(
+            controller
+                .export_all_to(&export)
+                .unwrap_err()
+                .contains("identity could not be established")
+        );
+        assert_eq!(std::fs::read(&export).unwrap(), b"keep");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn import_keeps_both_rollback_files_alive_across_future_dated_retention() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let controller = LibraryController::load(Some(config.clone()));
+        let good = serde_json::to_string(&sample_library()).unwrap();
+        for index in 0..10 {
+            std::fs::write(
+                dir.join(format!("config.backup.20990101-000000-{index:03}.json")),
+                &good,
+            )
+            .unwrap();
+        }
+        let export = dir.join("audit-import.json");
+        controller.export_all_to(&export).unwrap();
+        let mut controller = controller;
+        controller
+            .import_from(&export, crate::config_transfer::ImportMode::Merge)
+            .expect("import succeeds");
+        let names: Vec<String> = std::fs::read_dir(&dir)
+            .unwrap()
+            .filter_map(Result::ok)
+            .map(|entry| entry.file_name().to_string_lossy().into_owned())
+            .filter(|name| name.starts_with("config.backup."))
+            .collect();
+        // Future-dated names sort before current-time ones, so ten of them
+        // fill the whole retention window: both current-time rollback files
+        // (import pre-backup and the save's replaced backup) sit beyond it
+        // and survive only through protection — 10 kept + 2 protected.
+        assert_eq!(names.len(), 12);
+        let current_time_files = names
+            .iter()
+            .filter(|name| !name.starts_with("config.backup.20990101"))
+            .count();
+        assert_eq!(
+            current_time_files, 2,
+            "the import pre-backup and the replaced backup must both survive"
+        );
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn stale_selections_are_reconciled_and_combinations_require_live_ids() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let mut controller = LibraryController::load(Some(config.clone()));
+        let rows = controller.item_rows();
+        let first = rows[0].id.clone();
+        let second = rows[1].id.clone();
+        assert!(controller.toggle_batch_selection(&first));
+        assert!(controller.toggle_batch_selection(&second));
+
+        // Audit A4 probe: overwrite import regenerates every id; import
+        // itself reconciles the selection, and a combination save refuses
+        // to build an empty shell afterwards.
+        let export = dir.join("audit-a4.json");
+        controller.export_all_to(&export).unwrap();
+        controller
+            .import_from(&export, crate::config_transfer::ImportMode::Overwrite)
+            .expect("overwrite import succeeds");
+        assert!(controller.item(&first).is_none());
+        assert!(
+            controller.batch_selection_ids().is_empty(),
+            "stale ids must not linger after a whole-library replacement"
+        );
+        assert!(matches!(
+            controller.save_batch_combination("shell"),
+            Err(message) if message.contains("未选择项目")
+        ));
+
+        // Partial staleness via a deletion: the raw selection keeps the
+        // deleted id by design; reconciliation drops exactly that one and a
+        // saved combination only holds live ids.
+        let mut controller = LibraryController::load(Some(config.clone()));
+        let rows = controller.item_rows();
+        let (left, right) = (rows[0].id.clone(), rows[1].id.clone());
+        assert!(controller.toggle_batch_selection(&left));
+        assert!(controller.toggle_batch_selection(&right));
+        assert!(controller.delete_item(&left));
+        assert_eq!(controller.batch_selection_ids().len(), 2);
+        assert_eq!(controller.reconcile_batch_selection(), 1);
+        assert_eq!(controller.live_batch_selection_ids(), vec![right.clone()]);
+        let (combination_id, _) = controller.save_batch_combination("live-only").unwrap();
+        assert_eq!(
+            controller.combination_item_ids(&combination_id),
+            Some(vec![right])
+        );
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn set_pinned_and_window_bounds_are_transactional() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let mut controller = LibraryController::load(Some(config.clone()));
+        assert!(!controller.library.settings.pinned);
+
+        let backups_before = backup_file_count(&dir);
+        controller.set_pinned(true).unwrap();
+        assert!(controller.library.settings.pinned);
+        let reloaded = LibraryController::load(Some(config.clone()));
+        assert!(reloaded.library.settings.pinned);
+        // Audit A5: an identical value must not write another backup.
+        controller.set_pinned(true).unwrap();
+        assert_eq!(backup_file_count(&dir), backups_before + 1);
+
+        // A real file lock rolls the model back to the previous value.
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&config)
+            .unwrap();
+        assert!(controller.set_pinned(false).is_err());
+        assert!(
+            controller.library.settings.pinned,
+            "rollback keeps the committed pin"
+        );
+        drop(lock);
+
+        // Window bounds: identical writes are skipped, monitor changes write.
+        let mut bounds = crate::library_model::WindowBounds::default();
+        controller.set_window_bounds(bounds.clone()).unwrap();
+        let bounds_backups = backup_file_count(&dir);
+        controller.set_window_bounds(bounds.clone()).unwrap();
+        assert_eq!(backup_file_count(&dir), bounds_backups);
+        bounds.monitor_id = "DISPLAY2".into();
+        controller.set_window_bounds(bounds.clone()).unwrap();
+        assert_eq!(backup_file_count(&dir), bounds_backups + 1);
+        // A changed value under a real file lock fails and rolls back to the
+        // committed bounds.
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&config)
+            .unwrap();
+        let mut pending = controller.library.settings.window_bounds.clone().unwrap();
+        pending.x += 1;
+        assert!(controller.set_window_bounds(pending).is_err());
+        assert_eq!(
+            controller
+                .library
+                .settings
+                .window_bounds
+                .as_ref()
+                .map(|b| b.monitor_id.as_str()),
+            Some("DISPLAY2"),
+            "rollback keeps the committed bounds"
+        );
+        drop(lock);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    fn backup_file_count(directory: &std::path::Path) -> usize {
+        std::fs::read_dir(directory)
+            .unwrap()
+            .filter_map(Result::ok)
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with("config.backup.")
+            })
+            .count()
+    }
+
+    #[test]
+    fn move_item_to_index_is_refused_outside_manual_mode() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let mut controller = LibraryController::load(None);
+        let rows = controller.item_rows();
+        let (first, _second) = (rows[0].id.clone(), rows[1].id.clone());
+        let raw_first_position = |controller: &LibraryController| {
+            controller
+                .library
+                .active_category()
+                .unwrap()
+                .items
+                .iter()
+                .position(|item| item.id == first)
+                .unwrap()
+        };
+
+        // Audit B6: recent mode orders the grid by usage; a display slot is
+        // not a storage slot, so the in-category reorder is refused and the
+        // stored order stays untouched.
+        controller.set_sort_mode("recent");
+        assert_eq!(
+            controller.move_item_to_index_checked(&first, 0),
+            Ok(false),
+            "auto modes refuse in-category manual reorder"
+        );
+        assert_eq!(raw_first_position(&controller), 0);
+
+        // Manual mode keeps working and reports save failures distinctly.
+        controller.set_sort_mode("manual");
+        assert_eq!(controller.move_item_to_index_checked(&first, 1), Ok(true));
+        assert_eq!(raw_first_position(&controller), 1);
+        assert_eq!(
+            controller.move_item_to_index_checked("missing-id", 0),
+            Ok(false)
+        );
+    }
+
+    #[test]
+    fn delete_item_checked_distinguishes_save_failures() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let mut controller = LibraryController::load(Some(config.clone()));
+        let id = controller.item_rows()[0].id.clone();
+
+        assert_eq!(controller.delete_item_checked("missing-id"), Ok(false));
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(1)
+            .open(&config)
+            .unwrap();
+        assert!(controller.delete_item_checked(&id).is_err());
+        assert!(controller.item(&id).is_some(), "failure keeps the item");
+        // The legacy bool wrapper keeps collapsing failures into false.
+        assert!(!controller.delete_item(&id));
+        drop(lock);
+        assert_eq!(controller.delete_item_checked(&id), Ok(true));
+        assert!(controller.item(&id).is_none());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn import_preview_commit_and_cancel_stage_the_same_candidate() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let mut controller = LibraryController::load(Some(config.clone()));
+        let original_first = controller.item_rows()[0].id.clone();
+        let export = dir.join("audit-preview.json");
+        controller.export_all_to(&export).unwrap();
+
+        // Cancel discards the plan without any write.
+        let summary = controller
+            .prepare_import(&export, crate::config_transfer::ImportMode::Overwrite)
+            .unwrap();
+        assert!(!summary.is_empty());
+        assert!(controller.cancel_import());
+        assert!(
+            !controller.cancel_import(),
+            "second cancel has nothing pending"
+        );
+        assert_eq!(controller.item_rows()[0].id, original_first);
+
+        // Commit applies the previewed candidate once.
+        controller
+            .prepare_import(&export, crate::config_transfer::ImportMode::Overwrite)
+            .unwrap();
+        let report = controller.commit_import().unwrap();
+        assert!(report.groups_added > 0);
+        assert!(controller.undo_available(), "overwrite records undo");
+
+        // A library change between preview and commit forces a re-preview.
+        controller
+            .prepare_import(&export, crate::config_transfer::ImportMode::Overwrite)
+            .unwrap();
+        controller.set_pinned(true).unwrap();
+        assert!(matches!(
+            controller.commit_import(),
+            Err(message) if message.contains("重新预览")
+        ));
+        assert!(!controller.cancel_import(), "the stale plan is dropped");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn delete_undo_restores_items_categories_and_groups() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let mut controller = LibraryController::load(Some(config.clone()));
+
+        // Item undo returns the item to its original display index.
+        let first = controller.item_rows()[0].id.clone();
+        let second = controller.item_rows()[1].id.clone();
+        assert_eq!(controller.delete_item_checked(&first), Ok(true));
+        assert!(controller.undo_available());
+        assert!(controller.undo_last().unwrap().contains("恢复 1 个项目"));
+        assert_eq!(controller.item_rows()[0].id, first);
+        assert!(!controller.undo_available());
+        assert!(controller.undo_last().is_err(), "nothing left to undo");
+        assert_eq!(
+            controller.item_rows()[0].id,
+            first,
+            "failed undo keeps state"
+        );
+
+        // An unrelated later edit does not block the undo.
+        assert_eq!(controller.delete_item_checked(&second), Ok(true));
+        let survivor = controller.item_rows()[0].id.clone();
+        let survivor_id = survivor.clone();
+        let mut edited =
+            crate::library_model::ItemDraft::from_item(&controller.item(&survivor_id).unwrap());
+        edited.note = "unrelated later edit".into();
+        controller.update_item(&survivor_id, edited).unwrap();
+        assert!(controller.undo_last().is_ok());
+
+        // Category undo.
+        let category = controller.library().active_group().unwrap().categories[0].clone();
+        assert!(
+            controller
+                .delete_category_confirmed_checked(&category.id)
+                .unwrap()
+        );
+        assert!(controller.undo_last().unwrap().contains("恢复分类"));
+        assert!(
+            controller
+                .library()
+                .active_group()
+                .unwrap()
+                .categories
+                .iter()
+                .any(|existing| existing.id == category.id)
+        );
+
+        // Group undo.
+        let group = controller.library().groups[0].clone();
+        assert!(
+            controller
+                .delete_group_confirmed_checked(&group.id)
+                .unwrap()
+        );
+        assert!(controller.undo_last().unwrap().contains("恢复分组"));
+        assert!(
+            controller
+                .library()
+                .groups
+                .iter()
+                .any(|existing| existing.id == group.id)
+        );
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn overwrite_undo_removes_untouched_imports_and_restores_settings() {
+        let _serial = crate::infrastructure::windows::config_save::test_lock();
+        let dir = temp_config_dir();
+        let config = dir.join("config.json");
+        std::fs::write(&config, serde_json::to_string(&sample_library()).unwrap()).unwrap();
+        let mut controller = LibraryController::load(Some(config.clone()));
+        let export = dir.join("audit-undo.json");
+        controller.export_all_to(&export).unwrap();
+
+        // The settings only differ when they changed after the export.
+        controller.set_sort_mode("recent");
+        controller
+            .import_from(&export, crate::config_transfer::ImportMode::Overwrite)
+            .unwrap();
+        assert!(controller.undo_available());
+        let message = controller.undo_last().unwrap();
+        assert!(message.contains("移除"), "{message}");
+        assert!(
+            message.contains("设置已恢复"),
+            "settings rolled back: {message}"
+        );
+        assert_eq!(
+            controller.sort_mode(),
+            "recent",
+            "pre-import settings restored"
+        );
+
+        // An imported group edited afterwards is kept and reported.
+        controller
+            .import_from(&export, crate::config_transfer::ImportMode::Overwrite)
+            .unwrap();
+        let edited_id = controller.item_rows()[0].id.clone();
+        let mut edited =
+            crate::library_model::ItemDraft::from_item(&controller.item(&edited_id).unwrap());
+        edited.note = "edited after import".into();
+        controller.update_item(&edited_id, edited).unwrap();
+        let message = controller.undo_last().unwrap();
+        assert!(message.contains("已被后续编辑"), "{message}");
+        assert_eq!(controller.item_rows()[0].note, "edited after import");
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

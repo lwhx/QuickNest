@@ -21,6 +21,12 @@ mod implementation {
     const REQUEST_SCAN_BUDGET: usize = 64;
     const ROW_BUDGET: usize = 64;
     const DEFAULT_FAILURE_COOLDOWN: Duration = Duration::from_secs(60);
+    // Audit B3: bounded success cache. Entries beyond these caps are evicted
+    // oldest-first; an evicted source simply becomes a cache miss and is
+    // re-requested through the normal bounded queue.
+    const DEFAULT_MAX_CACHE_ENTRIES: usize = 256;
+    const DEFAULT_MAX_CACHE_BYTES: u64 = 32 * 1024 * 1024;
+    const DEFAULT_REVALIDATE_INTERVAL: Duration = Duration::from_secs(5);
 
     trait Queue {
         fn request(&self, source: &str) -> RequestStatus;
@@ -53,6 +59,18 @@ mod implementation {
 
     struct State {
         cache: HashMap<String, slint::Image>,
+        /// Audit B3: insertion order for oldest-first eviction, plus the
+        /// running pixel-byte total of cached images.
+        lru: VecDeque<String>,
+        cached_bytes: u64,
+        max_cache_entries: usize,
+        max_cache_bytes: u64,
+        /// Audit B3: last revalidation per source; one cached source per tick
+        /// older than the interval is re-requested so a replaced file on the
+        /// same path eventually refreshes.
+        revalidated: HashMap<String, Instant>,
+        cached_at: HashMap<String, Instant>,
+        revalidate_interval: Duration,
         failures: HashMap<String, Instant>,
         invalidated_at: HashMap<String, u64>,
         pending: HashMap<String, u64>,
@@ -69,6 +87,13 @@ mod implementation {
         fn default() -> Self {
             Self {
                 cache: HashMap::new(),
+                revalidated: HashMap::new(),
+                cached_at: HashMap::new(),
+                revalidate_interval: DEFAULT_REVALIDATE_INTERVAL,
+                max_cache_entries: DEFAULT_MAX_CACHE_ENTRIES,
+                max_cache_bytes: DEFAULT_MAX_CACHE_BYTES,
+                cached_bytes: 0,
+                lru: VecDeque::new(),
                 failures: HashMap::new(),
                 invalidated_at: HashMap::new(),
                 pending: HashMap::new(),
@@ -84,6 +109,61 @@ mod implementation {
     }
 
     impl State {
+        fn pixel_bytes(image: &slint::Image) -> u64 {
+            let size = image.size();
+            u64::from(size.width) * u64::from(size.height) * 4
+        }
+
+        /// Audit B3: records a cached image under the bounded LRU and evicts
+        /// oldest entries beyond the entry/byte caps. Grid rows keep their
+        /// cloned pixels; eviction only frees the cache side, and an evicted
+        /// source becomes a normal miss that the bounded queue re-requests.
+        fn remember_cached(&mut self, source: &str, image: &slint::Image) {
+            let new_bytes = Self::pixel_bytes(image);
+            if let Some(old) = self.cache.insert(source.to_owned(), image.clone()) {
+                self.cached_bytes = self.cached_bytes.saturating_sub(Self::pixel_bytes(&old));
+                if let Some(position) = self.lru.iter().position(|existing| existing == source) {
+                    self.lru.remove(position);
+                }
+            }
+            self.cached_bytes += new_bytes;
+            self.cached_at.insert(source.to_owned(), Instant::now());
+            self.lru.push_back(source.to_owned());
+            while self.lru.len() > self.max_cache_entries
+                || (self.cached_bytes > self.max_cache_bytes && self.lru.len() > 1)
+            {
+                let Some(evicted) = self.lru.pop_front() else {
+                    break;
+                };
+                if let Some(removed) = self.cache.remove(&evicted) {
+                    self.cached_bytes = self
+                        .cached_bytes
+                        .saturating_sub(Self::pixel_bytes(&removed));
+                }
+                self.revalidated.remove(&evicted);
+                self.cached_at.remove(&evicted);
+            }
+        }
+
+        /// Audit B3: the oldest cached source whose file may have changed and
+        /// that has no in-flight work. The lru order bounds the scan.
+        fn oldest_revalidatable(&self) -> Option<String> {
+            self.lru
+                .iter()
+                .find(|source| {
+                    !self.pending.contains_key(*source)
+                        && self
+                            .cached_at
+                            .get(*source)
+                            .is_some_and(|cached| cached.elapsed() >= self.revalidate_interval)
+                        && self
+                            .revalidated
+                            .get(*source)
+                            .is_none_or(|last| last.elapsed() >= self.revalidate_interval)
+                })
+                .cloned()
+        }
+
         fn rebuild_requests(&mut self) {
             self.requests = self
                 .visible
@@ -176,16 +256,56 @@ mod implementation {
 
     /// Forget success/failure for a changed source and retry on a later tick.
     /// In-flight results older than this invalidation cannot restore stale data.
-    #[allow(dead_code)]
     pub(crate) fn invalidate(source: &str) {
         let Some(context) = context() else { return };
         let mut state = context.state.borrow_mut();
         state.generation = context.queue.advance_generation();
         let generation = state.generation;
         state.invalidated_at.insert(source.to_owned(), generation);
-        state.cache.remove(source);
+        // Audit B3: the invalidation bookkeeping is bounded; oldest stamps
+        // beyond the cap can no longer influence any in-flight result.
+        if state.invalidated_at.len() > 128 {
+            let mut stamps: Vec<(String, u64)> = state
+                .invalidated_at
+                .iter()
+                .map(|(source, generation)| (source.clone(), *generation))
+                .collect();
+            stamps.sort_by_key(|(_, generation)| *generation);
+            while stamps.len() > 64 {
+                let (source, _) = stamps.remove(0);
+                state.invalidated_at.remove(&source);
+            }
+        }
+        if let Some(removed) = state.cache.remove(source) {
+            state.cached_bytes = state
+                .cached_bytes
+                .saturating_sub(State::pixel_bytes(&removed));
+        }
+        if let Some(position) = state.lru.iter().position(|existing| existing == source) {
+            state.lru.remove(position);
+        }
+        state.revalidated.remove(source);
+        state.cached_at.remove(source);
         state.failures.remove(source);
         state.pending.clear();
+        state.rebuild_requests();
+    }
+
+    /// Audit B3: forget every cached/failure decision after a whole-library
+    /// replacement (overwrite import, restore). The next refresh re-requests
+    /// all displayed sources through the bounded queue.
+    pub(crate) fn invalidate_all() {
+        let Some(context) = context() else { return };
+        let mut state = context.state.borrow_mut();
+        state.generation = context.queue.advance_generation();
+        state.pending.clear();
+        state.cache.clear();
+        state.lru.clear();
+        state.cached_bytes = 0;
+        state.failures.clear();
+        state.revalidated.clear();
+        state.cached_at.clear();
+        state.invalidated_at.clear();
         state.rebuild_requests();
     }
 
@@ -245,8 +365,16 @@ mod implementation {
                 match result.pixels.and_then(image_from_pixels) {
                     Some(image) => {
                         state.failures.remove(&result.key);
-                        state.cache.insert(result.key.clone(), image);
-                        state.mark_dirty(&result.key);
+                        // Audit B3: identical pixels (a revalidation of an
+                        // unchanged file) must not emit row notifications.
+                        let unchanged = state
+                            .cache
+                            .get(&result.key)
+                            .is_some_and(|existing| same_image(existing, &image));
+                        state.remember_cached(&result.key, &image);
+                        if !unchanged {
+                            state.mark_dirty(&result.key);
+                        }
                     }
                     None => {
                         if !state.cache.contains_key(&result.key) {
@@ -259,7 +387,19 @@ mod implementation {
             if state.disconnected {
                 return;
             }
+            // Audit B3: budgeted revalidation — at most one cached source per
+            // tick is re-requested so an externally replaced file eventually
+            // refreshes without the UI thread ever touching the file system.
             let mut submitted = 0;
+            if submitted < REQUEST_BUDGET
+                && let Some(source) = state.oldest_revalidatable()
+                && let RequestStatus::Accepted = self.queue.request(&source)
+            {
+                let generation = state.generation;
+                state.pending.insert(source.clone(), generation);
+                state.revalidated.insert(source.clone(), Instant::now());
+                submitted += 1;
+            }
             for _ in 0..state.requests.len().min(REQUEST_SCAN_BUDGET) {
                 if submitted == REQUEST_BUDGET {
                     break;
@@ -343,10 +483,22 @@ mod implementation {
     }
 
     fn same_image(left: &slint::Image, right: &slint::Image) -> bool {
-        // Slint Image(None) is not reflexively equal. Failed requests whose
-        // rows already show default artwork must not emit row notifications.
+        // Slint Image PartialEq is not content equality (an empty Image is
+        // not even reflexively equal). Compare decoded pixel bytes so an
+        // unchanged revalidation stays silent.
+        if left.size() != right.size() {
+            return false;
+        }
         let empty = |image: &slint::Image| image.size().width == 0 && image.size().height == 0;
-        (empty(left) && empty(right)) || left == right
+        if empty(left) && empty(right) {
+            return true;
+        }
+        match (left.to_rgba8(), right.to_rgba8()) {
+            (Some(left_buffer), Some(right_buffer)) => {
+                left_buffer.as_bytes() == right_buffer.as_bytes()
+            }
+            _ => false,
+        }
     }
 
     /// Drains and submits bounded work, then updates only matching displayed
@@ -880,9 +1032,92 @@ mod implementation {
                     .contains_key("source")
             );
         }
+
+        fn different_pixels() -> IconPixels {
+            IconPixels {
+                width: 2,
+                height: 1,
+                rgba: vec![0, 0, 255, 255, 255, 255, 0, 64],
+            }
+        }
+
+        /// Audit B3: the success cache evicts oldest-first beyond the entry
+        /// cap and tracks its pixel-byte total. A source evicted from the
+        /// cache is a plain miss: the bounded queue re-requests it, which the
+        /// revalidation/queue tests cover.
+        #[test]
+        fn success_cache_is_lru_bounded_by_entries_and_bytes() {
+            let _fixture = fixture(32);
+            let context = context().unwrap();
+            let image = image_from_pixels(pixels()).unwrap();
+            {
+                let mut state = context.state.borrow_mut();
+                state.max_cache_entries = 2;
+                state.max_cache_bytes = u64::MAX;
+                state.remember_cached("a", &image);
+                state.remember_cached("b", &image);
+                assert_eq!(state.lru.as_slices().0, &["a".to_string(), "b".to_string()]);
+                // Inserting "c" beyond the cap evicts "a" oldest-first.
+                state.remember_cached("c", &image);
+                assert!(!state.cache.contains_key("a"));
+                assert!(state.cache.contains_key("b") && state.cache.contains_key("c"));
+                assert_eq!(state.cached_bytes, 16, "two 2x1 RGBA images = 16 bytes");
+                // Touching "b" refreshes its order; inserting "d" then evicts
+                // "c", the least recent.
+                state.remember_cached("b", &image);
+                assert_eq!(state.cached_bytes, 16, "overwrite adjusts, never doubles");
+                state.remember_cached("d", &image);
+                assert!(!state.cache.contains_key("c"));
+                assert!(state.cache.contains_key("b") && state.cache.contains_key("d"));
+                assert_eq!(state.lru.len(), 2);
+                // The byte cap alone also evicts: one 64x64 image (16 KiB)
+                // exceeds a 4 KiB budget.
+                state.max_cache_bytes = 4096;
+                state.remember_cached("big", &slint::Image::default());
+                assert!(
+                    state.cache.contains_key("big"),
+                    "the newest entry always stays"
+                );
+                assert!(state.cache.len() <= 2, "byte cap evicted older entries");
+            }
+        }
+
+        /// Audit B3: budgeted revalidation re-requests one cached source per
+        /// tick; a changed file replaces the row image, an unchanged file
+        /// stays silent.
+        #[test]
+        fn revalidation_refreshes_changed_files_without_churn() {
+            let fixture = fixture(32);
+            let context = context().unwrap();
+            context.state.borrow_mut().revalidate_interval = Duration::ZERO;
+            show_rows(&fixture.ui, &[("row", "source")]);
+            assert_eq!(tick(&fixture.ui), 0);
+            let first = fixture.requests.try_recv().unwrap();
+            complete(&fixture, first.clone(), Some(pixels()));
+            assert_eq!(tick(&fixture.ui), 1);
+
+            // The next tick revalidates: an identical extraction keeps the
+            // row silent.
+            assert_eq!(tick(&fixture.ui), 0, "identical pixels must not patch");
+            let revalidated = fixture.requests.try_recv().unwrap();
+            assert_eq!(revalidated.0, "source");
+            complete(&fixture, revalidated, Some(pixels()));
+            assert_eq!(tick(&fixture.ui), 0, "no row notification for same image");
+
+            // A changed file replaces the displayed image.
+            assert_eq!(tick(&fixture.ui), 0);
+            let changed = fixture.requests.try_recv().unwrap();
+            complete(&fixture, changed, Some(different_pixels()));
+            assert_eq!(tick(&fixture.ui), 1);
+            let row = fixture.ui.get_items().row_data(0).unwrap();
+            let buffer = row.icon.to_rgba8().unwrap();
+            assert_eq!(buffer.as_bytes(), different_pixels().rgba);
+        }
     }
 }
 
+#[cfg(windows)]
+pub(super) use implementation::invalidate_all;
 #[cfg(windows)]
 pub(super) use implementation::{image_for, install, sync_visible_sources, tick};
 #[cfg(windows)]
@@ -904,6 +1139,9 @@ pub(super) fn tick(_ui: &super::MainWindow) -> usize {
 #[cfg(not(windows))]
 #[allow(dead_code)]
 pub(super) fn invalidate(_source: &str) {}
+#[cfg(not(windows))]
+#[allow(dead_code)]
+pub(super) fn invalidate_all() {}
 #[cfg(not(windows))]
 #[allow(dead_code)]
 pub(super) fn set_failure_cooldown(_cooldown: std::time::Duration) {}

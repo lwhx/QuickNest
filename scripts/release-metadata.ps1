@@ -174,10 +174,48 @@ function Get-QnReleaseToolVersion([string]$Tool) {
     if ($LASTEXITCODE -ne 0) { throw ('Cannot query tool version: ' + $Tool) }
     return ($text -join "`n").Replace("`r`n", "`n").Trim()
 }
+function Get-QnReleaseRecipeValue($Recipe, [string]$Key) {
+    if ($null -eq $Recipe) { return $null }
+    $property = $Recipe.PSObject.Properties[$Key]
+    if ($null -eq $property) { return $null }
+    return [string]$property.Value
+}
+function Assert-QnReleaseRecipe($Recipe) {
+    # The pinned release recipe must name exactly the nine release profile keys
+    # with values Cargo itself accepts. Returns the canonical v2 recipe string
+    # (LF separated, tab between key and value) used by the v2 fingerprint.
+    if ($null -eq $Recipe) { throw 'Build recipe is missing' }
+    $keys = @('opt-level','debug','debug-assertions','overflow-checks','lto','codegen-units','incremental','panic','strip')
+    $present = @($Recipe.PSObject.Properties.Name)
+    if ($present.Count -ne $keys.Count) { throw 'Build recipe must contain exactly the nine pinned release profile keys' }
+    $values = @{}
+    foreach ($key in $keys) {
+        $value = Get-QnReleaseRecipeValue $Recipe $key
+        if ($null -eq $value -or $value -cnotmatch '^[a-z0-9-]{1,20}$') { throw ('Invalid build recipe value: ' + $key) }
+        $values[$key] = $value
+    }
+    if ($values['opt-level'] -cnotin @('0','1','2','3','s','z')) { throw 'Invalid build recipe opt-level' }
+    if ($values['debug'] -cnotin @('0','1','2','none','limited','full','line-tables-only','true','false')) { throw 'Invalid build recipe debug' }
+    foreach ($booleanKey in @('debug-assertions','overflow-checks','incremental')) { if ($values[$booleanKey] -cnotin @('true','false')) { throw ('Invalid build recipe boolean: ' + $booleanKey) } }
+    if ($values['lto'] -cnotin @('true','false','off','thin','fat','local')) { throw 'Invalid build recipe lto' }
+    if ($values['codegen-units'] -cnotmatch '^[1-9][0-9]*$') { throw 'Invalid build recipe codegen-units' }
+    if ($values['panic'] -cnotin @('unwind','abort')) { throw 'Invalid build recipe panic' }
+    if ($values['strip'] -cnotin @('none','debuginfo','symbols')) { throw 'Invalid build recipe strip' }
+    $canonical = New-Object Text.StringBuilder
+    [void]$canonical.Append("quicknest-recipe-v2`n")
+    foreach ($key in $keys) { [void]$canonical.Append($key).Append("`t").Append($values[$key]).Append("`n") }
+    return $canonical.ToString()
+}
 function Get-QnReleaseBuildFingerprint($Info) {
     $dirtyText = ([bool]$Info.dirty).ToString().ToLowerInvariant()
-    $recipe = "quicknest-build-v1`nversion`t$($Info.version)`nsource_fingerprint`t$($Info.source_fingerprint)`nbase_head`t$($Info.base_head)`ndirty`t$dirtyText`ntarget`t$($Info.target)`nprofile`t$($Info.profile)`nrustc`t$(Get-QnReleaseTextHash $Info.rustc)`ncargo`t$(Get-QnReleaseTextHash $Info.cargo)`nupdate_key_status`t$($Info.update_key.status)`nupdate_key_blob_sha256`t$($Info.update_key.blob_sha256)`n"
-    return Get-QnReleaseTextHash $recipe
+    # v1 canonical string is kept byte-identical so legacy v1 runs stay recomputable.
+    $canonical = "quicknest-build-v1`nversion`t$($Info.version)`nsource_fingerprint`t$($Info.source_fingerprint)`nbase_head`t$($Info.base_head)`ndirty`t$dirtyText`ntarget`t$($Info.target)`nprofile`t$($Info.profile)`nrustc`t$(Get-QnReleaseTextHash $Info.rustc)`ncargo`t$(Get-QnReleaseTextHash $Info.cargo)`nupdate_key_status`t$($Info.update_key.status)`nupdate_key_blob_sha256`t$($Info.update_key.blob_sha256)`n"
+    $recipeProperty = $Info.PSObject.Properties['recipe']
+    if ($null -ne $recipeProperty -and $null -ne $recipeProperty.Value) {
+        # v2 appends the canonical recipe string; a recipe-less manifest still hashes as v1.
+        $canonical += Assert-QnReleaseRecipe $recipeProperty.Value
+    }
+    return Get-QnReleaseTextHash $canonical
 }
 function Assert-QnReleaseBuildInfo($Expected, $Actual) {
     if ($null -eq $Actual -or $Actual.provenance -cne 'recorded' -or $Actual.schema_version -ne 1) { throw 'Executable has unrecorded or unsupported provenance' }
@@ -188,6 +226,16 @@ function Assert-QnReleaseBuildInfo($Expected, $Actual) {
     }
     foreach ($name in @('status','blob_sha256')) {
         if ($Actual.update_key.$name -cne $Expected.update_key.$name) { throw ('Executable update key mismatch: ' + $name) }
+    }
+    # The recipe is optional for backward compatibility with v1 evidence: when
+    # either side records one, both must record one and they must be identical.
+    $expectedRecipeProperty = $Expected.PSObject.Properties['recipe']
+    $actualRecipeProperty = $Actual.PSObject.Properties['recipe']
+    $expectedRecipe = $null; if ($null -ne $expectedRecipeProperty) { $expectedRecipe = $expectedRecipeProperty.Value }
+    $actualRecipe = $null; if ($null -ne $actualRecipeProperty) { $actualRecipe = $actualRecipeProperty.Value }
+    if (($null -eq $expectedRecipe) -ne ($null -eq $actualRecipe)) { throw 'Executable build recipe presence mismatch' }
+    if ($null -ne $expectedRecipe) {
+        if ((Assert-QnReleaseRecipe $expectedRecipe) -cne (Assert-QnReleaseRecipe $actualRecipe)) { throw 'Executable build recipe mismatch' }
     }
     if ((Get-QnReleaseBuildFingerprint $Actual) -cne $Actual.build_fingerprint) { throw 'Executable build fingerprint does not match its recipe' }
 }
@@ -316,14 +364,162 @@ function Assert-QnReleaseDistributedFiles($Source, $Stage) {
         if ($original.Count -ne 1 -or $staged.Count -ne 1 -or $original[0].sha256 -cne $staged[0].sha256 -or $original[0].bytes -ne $staged[0].bytes) { throw 'Staging document/icon differs from frozen source' }
     }
 }
+function Assert-QnReleaseSnapshot([string]$ReleaseDirectory, $Source) {
+    # Verifies the frozen full source snapshot (run/source-files) against the
+    # source manifest: exact file-set equality and byte identity per file.
+    # This is the anchor that makes a relocated archive verifiable without the
+    # original repository.
+    [void](Assert-QnReleaseSourceManifest $Source)
+    $run = Assert-QnReleasePath $ReleaseDirectory
+    $snapshotRoot = Assert-QnReleasePath (Join-Path $run 'source-files') $run
+    $snapshotItem = Get-Item -LiteralPath $snapshotRoot -Force
+    if (-not $snapshotItem.PSIsContainer) { throw 'Source snapshot is not a directory' }
+    $manifest = @{}
+    foreach ($record in $Source.files) { $manifest[[string]$record.path] = $record }
+    $seen = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    foreach ($file in (Get-ChildItem -LiteralPath $snapshotRoot -Recurse -Force -File)) {
+        $relative = $file.FullName.Substring($snapshotRoot.Length + 1).Replace('\','/')
+        if (-not $manifest.ContainsKey($relative) -or -not $seen.Add($relative)) { throw ('Snapshot contains an unrecorded or duplicate source file: ' + $relative) }
+        $actual = Get-QnReleaseFileRecord $file.FullName $relative
+        $record = $manifest[$relative]
+        if ($actual.bytes -ne $record.bytes -or $actual.sha256 -cne $record.sha256) { throw ('Frozen snapshot file differs from the source manifest: ' + $relative) }
+    }
+    if ($seen.Count -ne $manifest.Count) { throw 'Frozen snapshot is missing recorded source files' }
+    return $snapshotRoot
+}
+function Assert-QnReleaseOriginalContext($Context, [string]$ReleaseDirectory) {
+    # The build-time absolute paths recorded in a schema-2 build manifest. They
+    # bind the installer compiler arguments even after the run is moved.
+    if ($null -eq $Context) { throw 'Original build context is missing' }
+    if (@($Context.PSObject.Properties.Name).Count -ne 4) { throw 'Original build context has unexpected fields' }
+    foreach ($name in @('repository_root','release_directory','staging_directory','source_snapshot_directory')) {
+        $property = $Context.PSObject.Properties[$name]
+        if ($null -eq $property -or $null -eq $property.Value -or [string]$property.Value -cnotmatch '^[A-Za-z]:\\') { throw ('Original build context path is missing: ' + $name) }
+        [void](Assert-QnReleasePath $property.Value)
+    }
+    $recordedRelease = [IO.Path]::GetFullPath($Context.release_directory).TrimEnd('\','/')
+    $recordedStaging = [IO.Path]::GetFullPath($Context.staging_directory).TrimEnd('\','/')
+    if ($recordedStaging -cne ($recordedRelease + '\staging')) { throw 'Original staging directory is not the release staging root' }
+    if ([IO.Path]::GetFullPath($Context.source_snapshot_directory).TrimEnd('\','/') -cne ($recordedRelease + '\source-files')) { throw 'Original snapshot directory is not the release source-files root' }
+    [void](Assert-QnReleasePath $ReleaseDirectory)
+    return $true
+}
+function Assert-QnReleaseFrozenArchive([string]$RunDirectory, [switch]$ProbeExecutable) {
+    # Archive-grade verification: only the run directory and its frozen evidence.
+    # Never invokes Cargo, Git or the current repository state, so the archive
+    # can be verified after being moved, renamed or handed to another machine.
+    $run = Assert-QnReleasePath $RunDirectory
+    if ([IO.File]::ReadAllText((Join-Path $run '.quicknest-release-run'), [Text.Encoding]::UTF8) -cne 'QuickNest local release v2') { throw 'Not a schema-2 frozen release archive' }
+    $release = Read-QnReleaseJson (Join-Path $run 'release-manifest.json')
+    if ($release.schema_version -ne 2) { throw 'Release manifest is not schema version 2' }
+    $references = @{
+        source_manifest='source-manifest.json'; build_manifest='build-manifest.json'
+        staging_manifest='staging-manifest.json'; setup_evidence='setup-evidence.json'
+        portable=('QuickNest-' + $release.version + '-portable.zip')
+        setup=('QuickNest-' + $release.version + '-setup.exe')
+    }
+    foreach ($name in $references.Keys) {
+        if ($release.$name.path -cne $references[$name]) { throw ('Incorrect release reference: ' + $name) }
+        [void](Assert-QnReleaseFileRecord $run $release.$name)
+    }
+    if ($release.installation_executed -ne $false -or $release.desktop_validation_executed -ne $false) { throw 'Release manifest makes unsupported runtime claims' }
+    $source = Read-QnReleaseJson (Join-Path $run 'source-manifest.json')
+    [void](Assert-QnReleaseSourceManifest $source)
+    if ($release.version -cne $source.version -or $release.source_fingerprint -cne $source.source_fingerprint) { throw 'Release/source provenance mismatch' }
+    # Source identity is re-derived from the frozen snapshot bytes, not from Git.
+    [void](Assert-QnReleaseSnapshot $run $source)
+    $build = Read-QnReleaseJson (Join-Path $run 'build-manifest.json')
+    if ($build.schema_version -ne 2) { throw 'Build manifest is not schema version 2; schema-1 runs lack the frozen snapshot and cannot be archive-verified' }
+    if ($build.version -cne $source.version) { throw 'Build manifest version mismatch' }
+    [void](Assert-QnReleaseFileRecord $run $build.source_manifest)
+    if ($build.source_manifest.path -cne 'source-manifest.json' -or $build.source_manifest.sha256 -cne $release.source_manifest.sha256) { throw 'Build manifest points at a different source manifest' }
+    $info = $build.build_info
+    if ($info.version -cne $source.version -or $info.source_fingerprint -cne $source.source_fingerprint -or $info.base_head -cne $source.base_head -or $info.dirty -cne $source.dirty) { throw 'Build/source provenance mismatch' }
+    Assert-QnReleaseBuildInfo $info $info
+    if ($release.build_fingerprint -cne $info.build_fingerprint) { throw 'Release/build fingerprint mismatch' }
+    $compiledRecipeProperty = $info.PSObject.Properties['recipe']
+    if ($null -eq $compiledRecipeProperty -or $null -eq $compiledRecipeProperty.Value) { throw 'Compiled recipe is missing from the schema-2 build manifest' }
+    if ((Assert-QnReleaseRecipe $build.build_recipe) -cne (Assert-QnReleaseRecipe $compiledRecipeProperty.Value)) { throw 'Manifest recipe differs from the compiled recipe' }
+    [void](Assert-QnReleaseOriginalContext $build.original_context $run)
+    foreach ($clearedName in @($build.cleared_profile_environment)) {
+        if ($null -eq $clearedName -or [string]$clearedName -cnotmatch '^CARGO_PROFILE_[A-Z0-9_]+$') { throw 'Invalid cleared profile environment record' }
+    }
+    $pinnedProfileEnvironment = $build.pinned_profile_environment
+    if ($null -eq $pinnedProfileEnvironment -or @($pinnedProfileEnvironment.PSObject.Properties.Name).Count -ne 9) { throw 'Pinned profile environment must record exactly the nine release keys' }
+    foreach ($property in $pinnedProfileEnvironment.PSObject.Properties) {
+        if ($property.Name -cnotmatch '^CARGO_PROFILE_RELEASE_[A-Z_]+$') { throw ('Invalid pinned profile environment name: ' + $property.Name) }
+    }
+    $stage = Read-QnReleaseJson (Join-Path $run 'staging-manifest.json')
+    if ($stage.schema_version -ne 1) { throw 'Unsupported staging manifest' }
+    [void](Assert-QnReleaseFileRecord $run $stage.build_manifest)
+    if ($stage.build_manifest.path -cne 'build-manifest.json' -or $stage.build_manifest.sha256 -cne $release.build_manifest.sha256) { throw 'Staging manifest points at a different build manifest' }
+    if ($stage.version -cne $source.version -or $stage.build_fingerprint -cne $info.build_fingerprint) { throw 'Staging/build provenance mismatch' }
+    $directory = Assert-QnReleaseStage $run $stage
+    $exeRecord = @($stage.files | Where-Object { $_.path -ceq 'quicknest.exe' })[0]
+    if ($build.executable.path -cne 'quicknest.exe' -or $exeRecord.sha256 -cne $build.executable.sha256 -or $exeRecord.bytes -ne $build.executable.bytes) { throw 'Staging executable differs from recorded build' }
+    [void](Assert-QnReleaseDistributedFiles $source $stage)
+    [void](Assert-QnReleaseFileRecord $run $build.cargo_log)
+    if ($build.cargo_exit_code -ne 0 -or $build.update_health_protocol_verified -ne $true -or $build.desktop_validation_executed -ne $false) { throw 'Invalid offline build evidence' }
+    $evidence = Read-QnReleaseJson (Join-Path $run 'setup-evidence.json')
+    if ($evidence.schema_version -ne 1 -or $evidence.evidence_level -cne 'frozen-input-and-compiler' -or $evidence.compiler_exit_code -ne 0 -or $evidence.installation_executed -ne $false -or $evidence.unpacking_verified -ne $false -or $evidence.desktop_validation_executed -ne $false) { throw 'Invalid installer compilation evidence or unsupported runtime claim' }
+    [void](Assert-QnReleaseFileRecord $run $evidence.staging_manifest)
+    if ($evidence.staging_manifest.path -cne 'staging-manifest.json' -or $evidence.staging_manifest.sha256 -cne $release.staging_manifest.sha256) { throw 'Installer used different frozen inputs' }
+    # The frozen installer script comes from the snapshot, never from the repo.
+    $frozenIss = @($source.files | Where-Object { $_.path -ceq 'installer/QuickNest.iss' })
+    if ($frozenIss.Count -ne 1 -or $evidence.installer_source_sha256 -cne $frozenIss[0].sha256) { throw 'Installer script differs from the frozen snapshot' }
+    [void](Assert-QnReleaseFileRecord $run $evidence.compiler_log)
+    if ($evidence.compiler_log.path -cne 'inno-compile.log') { throw 'Incorrect compiler log reference' }
+    if ($evidence.output.path -cne $release.setup.path -or $evidence.output.sha256 -cne $release.setup.sha256 -or $evidence.output.bytes -ne $release.setup.bytes) { throw 'Installer output differs from compiler evidence' }
+    # Compiler arguments are checked against the recorded build-time context,
+    # because the archive may no longer sit at its original location.
+    $context = $build.original_context
+    $expectedArguments = @(
+        ('/DMyAppVersion=' + $release.version), ('/DReleaseStageDir=' + $context.staging_directory),
+        ('/DReleaseOutputDir=' + $context.release_directory), (Join-Path $context.repository_root 'installer/QuickNest.iss')
+    )
+    if (($evidence.compiler_arguments -join "`n") -cne ($expectedArguments -join "`n")) { throw 'Installer compiler arguments did not bind the recorded frozen context' }
+    if ($evidence.compiler.path -cne 'ISCC.exe' -or $evidence.compiler.sha256 -cnotmatch '^[a-f0-9]{64}$' -or $evidence.compiler.bytes -le 0) { throw 'Invalid compiler identity record' }
+    $locks = Open-QnReleaseStageLocks $run $stage
+    try {
+        Assert-QnPortableArchive (Join-Path $run $release.portable.path) $stage
+        if ($ProbeExecutable) {
+            Assert-QnReleaseBuildInfo $info (Get-QnExecutableBuildInfo (Join-Path $directory 'quicknest.exe'))
+            $nonce = [Guid]::NewGuid().ToString('N')
+            $health = Invoke-QnReleaseProbe (Join-Path $directory 'quicknest.exe') ('--quicknest-update-health ' + $release.version + ' ' + $nonce)
+            if ($health -cne ("QuickNestHealth`t" + $release.version + "`t" + $nonce)) { throw 'Existing update-health protocol failed' }
+        }
+    } finally { foreach ($lock in $locks) { $lock.Dispose() } }
+    return [pscustomobject]@{ directory = $run; source = $source; build = $build; stage = $stage; evidence = $evidence; release = $release; staging_directory = $directory }
+}
+function Get-QnReleasePESubsystem([string]$Exe) {
+    # Optional record-only probe: parses the PE optional-header subsystem field.
+    # Callers only log the result; it is never a verification gate.
+    [void](Assert-QnReleasePath $Exe)
+    try {
+        $stream = [IO.File]::Open($Exe, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite)
+        try {
+            $header = New-Object byte[] 4096
+            $read = $stream.Read($header, 0, $header.Length)
+            if ($read -lt 256) { return 'unreadable' }
+            $peOffset = [BitConverter]::ToInt32($header, 0x3C)
+            if ($peOffset -lt 0 -or ($peOffset + 24 + 70) -gt $read) { return 'unreadable' }
+            if ($header[$peOffset] -ne 0x50 -or $header[$peOffset + 1] -ne 0x45 -or $header[$peOffset + 2] -ne 0 -or $header[$peOffset + 3] -ne 0) { return 'unreadable' }
+            $subsystem = [BitConverter]::ToUInt16($header, $peOffset + 24 + 68)
+            if ($subsystem -eq 2) { return 'windows-gui(2)' }
+            if ($subsystem -eq 3) { return 'windows-console(3)' }
+            return ('subsystem-' + $subsystem)
+        } finally { $stream.Dispose() }
+    } catch { return 'unreadable' }
+}
 function Read-QnReleaseContext([string]$Root, [string]$ReleaseDirectory, [switch]$ProbeExecutable) {
     $run = Assert-QnReleasePath $ReleaseDirectory
-    if ([IO.File]::ReadAllText((Join-Path $run '.quicknest-release-run'), [Text.Encoding]::UTF8) -cne 'QuickNest local release v1') { throw 'Not an allocated release directory' }
+    $marker = [IO.File]::ReadAllText((Join-Path $run '.quicknest-release-run'), [Text.Encoding]::UTF8)
+    if ($marker -cnotin @('QuickNest local release v1', 'QuickNest local release v2')) { throw 'Not an allocated release directory' }
     $source = Read-QnReleaseJson (Join-Path $run 'source-manifest.json')
     $build = Read-QnReleaseJson (Join-Path $run 'build-manifest.json')
     $stage = Read-QnReleaseJson (Join-Path $run 'staging-manifest.json')
     [void](Assert-QnReleaseSourceUnchanged $Root $source)
-    if ($build.schema_version -ne 1 -or $stage.schema_version -ne 1) { throw 'Unsupported release metadata' }
+    if (($build.schema_version -ne 1 -and $build.schema_version -ne 2) -or $stage.schema_version -ne 1) { throw 'Unsupported release metadata' }
     [void](Assert-QnReleaseFileRecord $run $build.source_manifest)
     if ($build.source_manifest.path -cne 'source-manifest.json') { throw 'Incorrect source manifest reference' }
     [void](Assert-QnReleaseFileRecord $run $stage.build_manifest)
@@ -331,6 +527,14 @@ function Read-QnReleaseContext([string]$Root, [string]$ReleaseDirectory, [switch
     $info = $build.build_info
     if ($info.version -cne $source.version -or $info.source_fingerprint -cne $source.source_fingerprint -or $info.base_head -cne $source.base_head -or $info.dirty -cne $source.dirty) { throw 'Build/source provenance mismatch' }
     Assert-QnReleaseBuildInfo $info $info
+    if ($build.schema_version -ge 2) {
+        # Schema 2: the manifest recipe must equal the compiled recipe, and the
+        # recorded build-time context must be structurally sound.
+        $compiledRecipeProperty = $info.PSObject.Properties['recipe']
+        if ($null -eq $compiledRecipeProperty -or $null -eq $compiledRecipeProperty.Value) { throw 'Compiled recipe is missing from the schema-2 build manifest' }
+        if ((Assert-QnReleaseRecipe $build.build_recipe) -cne (Assert-QnReleaseRecipe $compiledRecipeProperty.Value)) { throw 'Manifest recipe differs from the compiled recipe' }
+        [void](Assert-QnReleaseOriginalContext $build.original_context $run)
+    }
     if ($stage.version -cne $source.version -or $stage.build_fingerprint -cne $info.build_fingerprint) { throw 'Staging/build provenance mismatch' }
     $directory = Assert-QnReleaseStage $run $stage
     $exeRecord = @($stage.files | Where-Object { $_.path -ceq 'quicknest.exe' })[0]

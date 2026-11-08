@@ -1,0 +1,42 @@
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:123:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 123 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+   Compiling quicknest v1.2.1 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 46.97s
+     Running unittests src\main.rs (target\debug\deps\quicknest-d12e01ab5f07b1f8.exe)
+
+running 29 tests
+test dpi_validation::tests::adjacent_regions_use_half_open_boundaries ... ok
+test icon_ui::implementation::tests::changed_source_on_same_row_id_cannot_receive_old_icon ... ok
+test icon_ui::implementation::tests::disconnected_request_channel_never_creates_pending_work ... ok
+test icon_ui::implementation::tests::disconnected_result_channel_clears_pending_without_marking_failure ... ok
+test icon_ui::implementation::tests::each_tick_has_request_result_and_row_budgets ... ok
+test icon_ui::implementation::tests::failed_retry_reverts_a_previous_success_to_default_exactly_once ... ok
+test icon_ui::implementation::tests::failures_are_cached_without_row_updates_and_retry_after_cooldown_or_invalidation ... ok
+test icon_ui::implementation::tests::full_queue_marks_only_accepted_work_pending_and_later_ticks_refill_it ... ok
+test icon_ui::implementation::tests::malformed_rgba_keeps_existing_row_and_enters_failure_cooldown ... ok
+test icon_ui::implementation::tests::newer_shared_source_completion_revisits_rows_already_patched_in_an_earlier_tick ... ok
+test icon_ui::implementation::tests::older_native_completion_cannot_clear_new_generation_pending_for_same_source ... ok
+test icon_ui::implementation::tests::results_for_removed_or_switched_sources_only_populate_cache ... ok
+test icon_ui::implementation::tests::row_identity_check_prevents_backfill_into_a_reordered_unsynced_model ... ok
+test icon_ui::implementation::tests::tick_updates_shared_source_rows_in_place_and_preserves_all_other_state ... ok
+test ui_regression_tests::appearance_callbacks_immediately_sync_selection_and_report_save_failure ... ok
+test ui_regression_tests::batch_launch_includes_hidden_categories_in_its_results ... ok
+test ui_regression_tests::combination_delete_reports_commit_failure_and_retains_selection ... ok
+test ui_regression_tests::combination_failures_name_items_without_counting_them_as_started ... ok
+test ui_regression_tests::delayed_results_commit_once_and_refresh_once_per_batch ... ok
+test ui_regression_tests::delayed_statistics_commit_failure_is_not_reported_as_a_launch_failure ... ok
+test ui_regression_tests::delayed_statistics_defer_structural_refresh_until_the_gesture_ends ... ok
+test ui_regression_tests::deleting_empty_category_needs_no_confirmation ... ok
+test ui_regression_tests::deleting_nonempty_category_prepares_confirmation_without_nested_borrow ... ok
+test ui_regression_tests::production_modal_callbacks_clear_pending_without_saving_or_launching ... ok
+test ui_regression_tests::restore_and_overwrite_import_reapply_pinning_appearance_and_blur_policy ... ok
+test ui_regression_tests::settings_close_buttons_and_child_dialogs_change_real_visibility ... ok
+test update_ui_tests::active_result_finishes_its_own_check ... ok
+test update_ui_tests::cancelled_queued_result_cannot_finish_a_check ... ok
+test update_ui_tests::stale_queued_result_cannot_finish_a_new_check ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+

@@ -18,6 +18,9 @@ struct Request {
     old_sha256: String,
     parent: u32,
     nonce: String,
+    /// 父进程已登记的交接目录（handoff-{id}）；worker 仅在其内尽力写 failed 标记。
+    #[serde(default)]
+    handoff: Option<PathBuf>,
 }
 fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
     crate::update_net::reject_reparse_path(path)?;
@@ -49,7 +52,35 @@ fn copy_new(from: &Path, to: &Path) -> Result<(), String> {
     }
     dst.sync_all().map_err(|e| e.to_string())
 }
-pub(super) fn spawn(mut update: VerifiedUpdate, target: &Path) -> Result<Child, String> {
+pub(super) fn spawn(update: VerifiedUpdate, target: &Path) -> Result<Child, String> {
+    spawn_with(update, target, None, None, None, |text| {
+        authenticate(text, release_key()?)
+    })
+}
+
+/// 测试专用通道：签名验证替换为语法解析，最终执行的 worker 可替换为受控替身。
+/// 生产路径从不调用本函数；发布构建不编译测试代码。
+#[cfg(test)]
+pub(super) fn spawn_for_test(
+    update: VerifiedUpdate,
+    target: &Path,
+    worker_double: Option<&Path>,
+    handoff: Option<&Path>,
+    nonce: Option<&str>,
+) -> Result<Child, String> {
+    spawn_with(update, target, worker_double, handoff, nonce, |text| {
+        UpdateManifest::parse(text)
+    })
+}
+
+pub(super) fn spawn_with(
+    mut update: VerifiedUpdate,
+    target: &Path,
+    worker_override: Option<&Path>,
+    handoff_dir: Option<&Path>,
+    nonce_override: Option<&str>,
+    auth: impl FnOnce(&str) -> Result<UpdateManifest, String>,
+) -> Result<Child, String> {
     // Installer and ZIP need transactional package-specific implementations.
     // Never silently treat their bytes as an executable replacement.
     if update.package_kind() != PackageKind::Raw {
@@ -65,10 +96,24 @@ pub(super) fn spawn(mut update: VerifiedUpdate, target: &Path) -> Result<Child, 
         return Err("生产更新目标必须是当前进程的可执行文件".into());
     }
     crate::update_net::reject_reparse_path(&target)?;
-    authenticate(&update.signed_text, release_key()?)?;
+    auth(&update.signed_text)?;
     verify_package(&update.package_path, &update.manifest.package_sha256)?;
+    let nonce = match nonce_override {
+        Some(value) if value.len() == 32 && value.bytes().all(|b| b.is_ascii_hexdigit()) => {
+            value.to_string()
+        }
+        Some(_) => return Err("交接 nonce 无效".into()),
+        None => crate::update_net::random_token()?,
+    };
     let worker = update.scratch.join("worker.exe");
-    copy_new(&own, &worker)?;
+    let worker_exe = match worker_override {
+        // 测试替身仅替换最终执行的程序；生产路径始终复制自身并执行已验证副本。
+        Some(double) => double.to_path_buf(),
+        None => {
+            copy_new(&own, &worker)?;
+            worker
+        }
+    };
     let request = Request {
         signed_text: update.signed_text.clone(),
         target: target.clone(),
@@ -76,14 +121,15 @@ pub(super) fn spawn(mut update: VerifiedUpdate, target: &Path) -> Result<Child, 
         old_version: update.old_version.clone(),
         old_sha256: crate::update_net::sha256_file(&own, MAX_PACKAGE_BYTES)?,
         parent: std::process::id(),
-        nonce: crate::update_net::random_token()?,
+        nonce: nonce.clone(),
+        handoff: handoff_dir.map(|dir| dir.to_path_buf()),
     };
     let request_path = update.scratch.join("request.json");
     write_new(
         &request_path,
         &serde_json::to_vec(&request).map_err(|e| e.to_string())?,
     )?;
-    let mut worker_command = normal_command(&worker, &target)?;
+    let mut worker_command = normal_command(&worker_exe, &target)?;
     let mut child = worker_command
         .arg("--quicknest-update-worker")
         .arg(&request_path)
@@ -139,7 +185,8 @@ pub(super) fn entry(args: &[String]) -> Option<Result<(), String>> {
             let request_path = PathBuf::from(&args[2]);
             let result = run(&request_path);
             // Durable true outcome. Rollback failure includes the retained backup.
-            if let Some(dir) = request_path.parent() {
+            let outcome_written = (|| {
+                let dir = request_path.parent().ok_or("缺少 worker 目录")?;
                 let record = match &result {
                     Ok(detail) => serde_json::json!({"status":"updated", "detail":detail}),
                     Err(error) => serde_json::json!({"status":"failed", "detail":error}),
@@ -147,8 +194,14 @@ pub(super) fn entry(args: &[String]) -> Option<Result<(), String>> {
                 write_new(
                     &dir.join("outcome.json"),
                     &serde_json::to_vec(&record).map_err(|e| e.to_string())?,
-                )?;
+                )
+            })();
+            // C2：不可恢复失败且父进程已退出时，尽力把 failed 标记写入交接目录。
+            // 不做任何 UI 或消息框；失败与回滚位置的交付展示由主程序读取交接记录负责。
+            if let Err(error) = &result {
+                deliver_failure_marker(&request_path, error);
             }
+            outcome_written?;
             result.map(|_| ())
         })()),
         _ => None,
@@ -244,6 +297,53 @@ fn finish_apply(
             "ROLLBACK_FAILED：{reason}；未启动程序；请从 {} 手动恢复",
             backup.display()
         )),
+    }
+}
+/// Best-effort failure delivery: every error here is silently skipped, since
+/// outcome.json stays authoritative and the parent handoff record drives the
+/// user-visible delivery. Only when the parent process is already gone and the
+/// request carries a validated handoff directory is a failed marker written
+/// (create_new; never overwrites an existing marker).
+fn deliver_failure_marker(request_path: &Path, error: &str) {
+    let Ok(bytes) = std::fs::read(request_path) else {
+        return;
+    };
+    if bytes.len() > 100_000 {
+        return;
+    }
+    let Ok(request) = serde_json::from_slice::<Request>(&bytes) else {
+        return;
+    };
+    if request.nonce.len() != 32 || !request.nonce.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return;
+    }
+    let Some(handoff) = &request.handoff else {
+        return;
+    };
+    if parent_alive(request.parent) {
+        // 父进程仍在：由其就绪等待与退出路径读取 outcome，不重复标记。
+        return;
+    }
+    if !handoff.is_absolute() || !handoff.is_dir() {
+        return;
+    }
+    if crate::update_net::reject_reparse_path(handoff).is_err() {
+        return;
+    }
+    let record = serde_json::json!({"status":"failed","detail":error,"nonce":request.nonce});
+    let Ok(bytes) = serde_json::to_vec(&record) else {
+        return;
+    };
+    let _ = write_new(&handoff.join("failed.json"), &bytes);
+}
+fn parent_alive(pid: u32) -> bool {
+    unsafe {
+        OpenProcess(PROCESS_SYNCHRONIZE, false, pid)
+            .map(|handle| {
+                let _ = CloseHandle(handle);
+                true
+            })
+            .unwrap_or(false)
     }
 }
 fn validate_data_root(value: Option<&std::ffi::OsStr>) -> Result<(), String> {
@@ -734,5 +834,104 @@ mod tests {
         );
         assert!(matches!(result, ApplyOutcome::RollbackFailed { .. }));
         cleanup(&dir);
+    }
+    fn marker_request(parent: u32, handoff: Option<PathBuf>, dir: &Path) -> Request {
+        Request {
+            signed_text: String::new(),
+            target: dir.to_path_buf(),
+            package: dir.join("package.bin"),
+            old_version: "1.2.1".into(),
+            old_sha256: "0".repeat(64),
+            parent,
+            nonce: "ab".repeat(16),
+            handoff,
+        }
+    }
+    #[test]
+    fn failure_marker_only_when_parent_gone_and_handoff_valid() {
+        let dir = crate::update_net::private_temp_dir().unwrap();
+        let handoff = dir.join("handoff-marker");
+        std::fs::create_dir(&handoff).unwrap();
+        let request_path = dir.join("request.json");
+        std::fs::write(
+            &request_path,
+            serde_json::to_vec(&marker_request(0, Some(handoff.clone()), &dir)).unwrap(),
+        )
+        .unwrap();
+        // 父进程已不存在（pid 0 无法打开）→ 尽力写入 failed 标记
+        deliver_failure_marker(&request_path, "注入的不可恢复失败");
+        let marker = handoff.join("failed.json");
+        let value: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&marker).unwrap()).unwrap();
+        assert_eq!(value["status"], "failed");
+        assert_eq!(value["nonce"], "ab".repeat(16));
+        assert_eq!(value["detail"], "注入的不可恢复失败");
+        // create_new：重复投递不覆盖既有标记
+        deliver_failure_marker(&request_path, "第二次");
+        let value: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&marker).unwrap()).unwrap();
+        assert_eq!(value["detail"], "注入的不可恢复失败");
+        // 父进程存活：不写标记（由父进程就绪等待/退出路径交付）
+        let alive = dir.join("handoff-alive");
+        std::fs::create_dir(&alive).unwrap();
+        let request_path = dir.join("request-alive.json");
+        std::fs::write(
+            &request_path,
+            serde_json::to_vec(&marker_request(
+                std::process::id(),
+                Some(alive.clone()),
+                &dir,
+            ))
+            .unwrap(),
+        )
+        .unwrap();
+        deliver_failure_marker(&request_path, "x");
+        assert!(!alive.join("failed.json").exists());
+        // 请求未携带交接目录：不写标记
+        let none_dir = dir.join("handoff-none");
+        std::fs::create_dir(&none_dir).unwrap();
+        let request_path = dir.join("request-none.json");
+        std::fs::write(
+            &request_path,
+            serde_json::to_vec(&marker_request(0, None, &dir)).unwrap(),
+        )
+        .unwrap();
+        deliver_failure_marker(&request_path, "x");
+        assert!(std::fs::read_dir(&none_dir).unwrap().next().is_none());
+        // 交接目录不存在：尽力而为，不 panic、不创建
+        let request_path = dir.join("request-missing.json");
+        std::fs::write(
+            &request_path,
+            serde_json::to_vec(&marker_request(0, Some(dir.join("missing-dir")), &dir)).unwrap(),
+        )
+        .unwrap();
+        deliver_failure_marker(&request_path, "x");
+        assert!(!dir.join("missing-dir").exists());
+        std::fs::remove_file(&marker).unwrap();
+        std::fs::remove_dir(&handoff).unwrap();
+        std::fs::remove_dir(&alive).unwrap();
+        std::fs::remove_dir(&none_dir).unwrap();
+        cleanup(&dir);
+    }
+    #[test]
+    fn worker_request_handoff_field_is_optional_and_strict() {
+        let base = serde_json::json!({
+            "signed_text": "t",
+            "target": "C:\\x\\app.exe",
+            "package": "C:\\x\\package.bin",
+            "old_version": "1.2.1",
+            "old_sha256": "0".repeat(64),
+            "parent": 1,
+            "nonce": "ab".repeat(16)
+        });
+        let parsed: Request = serde_json::from_value(base.clone()).unwrap();
+        assert!(parsed.handoff.is_none());
+        let mut with = base.clone();
+        with["handoff"] = serde_json::json!("C:\\handoff");
+        let parsed: Request = serde_json::from_value(with).unwrap();
+        assert_eq!(parsed.handoff.as_deref(), Some(Path::new("C:\\handoff")));
+        let mut extra = base;
+        extra["unknown"] = serde_json::json!(1);
+        assert!(serde_json::from_value::<Request>(extra).is_err());
     }
 }

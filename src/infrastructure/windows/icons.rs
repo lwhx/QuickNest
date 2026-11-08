@@ -36,8 +36,16 @@ fn normalize_source(source: &str) -> String {
 /// time and size (or `missing`), plus the requested size. Custom icons use
 /// their own file identity through the same function. Program updates change
 /// the key, so stale entries stop being referenced and are pruned.
-pub fn cache_key(source: &str, size: u32) -> String {
-    let normalized = normalize_source(source);
+///
+/// Audit B4: the identity is computed on the PORTABLE-RESOLVED target — the
+/// same object extraction opens. A relative portable source seen from another
+/// working directory used to key as `missing` while extraction read the real
+/// file, freezing stale disk entries across restarts.
+/// Audit B4: the identity core behind [`cache_key`], with the portable root
+/// injected so tests can pin it deterministically.
+fn cache_key_with_root(source: &str, size: u32, root: Option<&std::path::Path>) -> String {
+    let resolved = crate::portable::resolve_with(root, source);
+    let normalized = normalize_source(&resolved.to_string_lossy());
     let mut hasher = blake3::Hasher::new();
     hasher.update(normalized.as_bytes());
     hasher.update(&[0]);
@@ -57,6 +65,10 @@ pub fn cache_key(source: &str, size: u32) -> String {
     }
     hasher.update(&size.to_le_bytes());
     hasher.finalize().to_hex().to_string()
+}
+
+pub fn cache_key(source: &str, size: u32) -> String {
+    cache_key_with_root(source, size, crate::portable::root_dir().as_deref())
 }
 
 fn cache_file(cache_dir: &std::path::Path, key: &str) -> std::path::PathBuf {
@@ -469,6 +481,38 @@ mod tests {
         let upper = cache_key("C:\\Windows\\System32\\cmd.exe", ICON_SIZE);
         assert_eq!(lower, upper);
         assert_ne!(lower, cache_key("C:\\Windows\\System32\\cmd.exe", 32));
+    }
+
+    /// Audit B4: the key must be derived from the portable-resolved target —
+    /// the object extraction actually opens — so a relative source keyed as
+    /// `missing` from another working directory cannot freeze stale disk
+    /// entries.
+    #[test]
+    fn cache_key_resolves_the_portable_root_before_metadata() {
+        let dir = temp_dir();
+        std::fs::create_dir_all(dir.join("tools")).expect("mkdir");
+        let file = dir.join("tools").join("app.exe");
+        std::fs::write(&file, b"app").expect("write");
+        let absolute = file.to_string_lossy().replace('/', "\\");
+        let relative = "tools\\app.exe";
+        let resolved = cache_key_with_root(relative, ICON_SIZE, Some(&dir));
+        assert_eq!(
+            resolved,
+            cache_key_with_root(&absolute, ICON_SIZE, Some(&dir)),
+            "relative portable source must key as the resolved file"
+        );
+        assert_ne!(
+            resolved,
+            cache_key_with_root("tools\\app.exe", ICON_SIZE, None),
+            "an unresolved relative path must not produce the resolved identity"
+        );
+        // The resolved file's metadata participates: replacing it changes the
+        // key, so stale disk entries stop being referenced.
+        std::fs::write(&file, b"app-v2").expect("rewrite");
+        assert_ne!(
+            resolved,
+            cache_key_with_root(relative, ICON_SIZE, Some(&dir))
+        );
     }
 
     #[test]

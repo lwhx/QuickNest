@@ -55,6 +55,13 @@ pub enum LaunchError {
     InvalidTarget(String),
     /// The structured arguments cannot be represented safely by this launcher.
     UnsafeCommand(String),
+    /// B8 (audit 2026-11-08): the declared item type contradicts the script
+    /// suffix of the target (.bat/.cmd/.ps1). Native argv encoding and the
+    /// Shell association fallback are wrong for scripts; the item must be
+    /// switched to an explicit command mode.
+    ScriptTypeMismatch {
+        target: String,
+    },
 }
 
 impl LaunchError {
@@ -76,6 +83,9 @@ impl LaunchError {
             Self::NoFileLocation => "该项目没有本地文件位置（Shell 项目）".to_string(),
             Self::InvalidTarget(value) => format!("不是有效的 URI：{value}"),
             Self::UnsafeCommand(reason) => format!("拒绝启动：{reason}"),
+            Self::ScriptTypeMismatch { target } => format!(
+                "目标“{target}”是脚本文件（.bat/.cmd/.ps1），但项目类型与执行模式不匹配；请把该项目改为“自定义命令”并选择 CMD 或 PowerShell 执行模式"
+            ),
         }
     }
 }
@@ -84,6 +94,24 @@ impl LaunchError {
 pub enum LaunchOutcome {
     Started { pid: u32 },
     Failed(LaunchError),
+}
+
+/// B8 (audit 2026-11-08): the dispatch-time guard. A declared type that
+/// contradicts the script suffix of its target must never reach the native
+/// launcher: `CreateProcessW` would encode arguments with native CRT rules
+/// and the failure path would hand the script to the Shell association —
+/// both bypass the dedicated CMD encoding and the command confirmation.
+/// Runs before any process creation, so neither the direct spawn nor the
+/// ShellExecute fallback can be reached for a mismatched item. This is a
+/// hard stop: confirming the item once (P2-17) explains the problem, but the
+/// launch stays refused until the type/mode is actually fixed.
+pub fn validate_launch_guard(item: &Item) -> Result<(), LaunchError> {
+    if item.has_script_mismatch() {
+        return Err(LaunchError::ScriptTypeMismatch {
+            target: item.launch.path.trim().to_string(),
+        });
+    }
+    Ok(())
 }
 
 /// Launches an item. EXE items use `CreateProcessW` (Shell fallback); LNK
@@ -103,6 +131,11 @@ pub fn launch_item(item: &Item, as_admin: bool) -> LaunchOutcome {
     // 便携版（基线 23 章）：相对路径项目按便携根解析后再分发。
     let item = item.with_resolved_target();
     let item = &item;
+    // B8：分发最前的类型一致性闸门——mismatch 项在任何原生执行
+    // （CreateProcessW 与 ShellExecute 回退）之前被结构化拒绝。
+    if let Err(error) = validate_launch_guard(item) {
+        return LaunchOutcome::Failed(error);
+    }
     match item.item_type {
         ItemKind::Exe => launch_exe(item, as_admin),
         ItemKind::Lnk => launch_lnk(item, as_admin),
@@ -463,6 +496,61 @@ pub fn open_item_location(item: &Item) -> LaunchOutcome {
             Err(error) => LaunchOutcome::Failed(LaunchError::Spawn {
                 win32: error.code().0 as u32,
             }),
+        }
+    }
+}
+
+/// D3 maintenance entries: opens a directory's CONTENTS in Explorer via the
+/// `explore` verb. Fails with the Win32 error when the verb is refused.
+pub fn open_directory(path: &std::path::Path) -> Result<(), u32> {
+    use windows::Win32::UI::Shell::ShellExecuteW;
+    use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
+    use windows::core::PCWSTR;
+    if !path.is_dir() {
+        return Err(2);
+    }
+    let wide = wide(&path.to_string_lossy());
+    // SAFETY: NUL-terminated wide buffers outlive the call; no elevation is
+    // requested and the verb only opens a folder window.
+    let result = unsafe {
+        ShellExecuteW(
+            None,
+            windows::core::w!("explore"),
+            PCWSTR(wide.as_ptr()),
+            None,
+            None,
+            SW_SHOWNORMAL,
+        )
+    };
+    if result.0 as isize > 32 {
+        Ok(())
+    } else {
+        // SAFETY: identity query for the failed ShellExecuteW above.
+        Err(unsafe { GetLastError().0 })
+    }
+}
+
+/// D3 maintenance entries: reveals one existing file (for example the crash
+/// log) in its containing folder, mirroring `open_item_location` without the
+/// item rules.
+pub fn reveal_path(path: &std::path::Path) -> Result<(), u32> {
+    use windows::Win32::UI::Shell::{ILCreateFromPathW, ILFree, SHOpenFolderAndSelectItems};
+    use windows::core::PCWSTR;
+    if !path.exists() {
+        return Err(2);
+    }
+    let path_wide = wide(&path.to_string_lossy());
+    // SAFETY: the PIDL is created, used and freed within this scope.
+    unsafe {
+        let pidl = ILCreateFromPathW(PCWSTR(path_wide.as_ptr()));
+        if pidl.is_null() {
+            return Err(GetLastError().0);
+        }
+        let result = SHOpenFolderAndSelectItems(pidl, None, 0);
+        ILFree(Some(pidl));
+        match result {
+            Ok(()) => Ok(()),
+            Err(error) => Err(error.code().0 as u32),
         }
     }
 }
@@ -1277,6 +1365,99 @@ mod tests {
             resolve_everything_path(&missing.to_string_lossy(), &[]),
             None
         );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    // B8 (audit 2026-11-08): a script target declared as EXE/File, or a
+    // command mode that contradicts the script suffix, is refused by the
+    // dispatch guard before any process creation — the native spawn, the
+    // ShellExecute association fallback and elevation requests are all
+    // unreachable. The probe file proves nothing executed.
+    #[test]
+    fn script_type_mismatch_is_refused_before_native_or_shell_execution() {
+        let dir =
+            std::env::temp_dir().join(format!("qn-b8-guard-{}", crate::library_model::new_uuid()));
+        std::fs::create_dir_all(&dir).expect("temp dir");
+        let script = dir.join("guard-probe.cmd");
+        // If any launcher path ran this script it would leave a probe file.
+        std::fs::write(&script, "@echo off\r\necho mismatch-ran> probe.txt\r\n").expect("script");
+        assert!(
+            script.exists(),
+            "the target exists, so the old native path would have been reached"
+        );
+
+        let mut item = exe_item(&script.to_string_lossy(), &[], "");
+        let target = script.to_string_lossy().into_owned();
+        assert_eq!(
+            validate_launch_guard(&item),
+            Err(LaunchError::ScriptTypeMismatch {
+                target: target.clone()
+            })
+        );
+        assert_eq!(
+            launch_item(&item, false),
+            LaunchOutcome::Failed(LaunchError::ScriptTypeMismatch {
+                target: target.clone()
+            })
+        );
+        // Elevation requests are guarded too (before any Shell runas).
+        item.launch.run_as_admin = true;
+        assert!(matches!(
+            launch_item(&item, true),
+            LaunchOutcome::Failed(LaunchError::ScriptTypeMismatch { .. })
+        ));
+        item.launch.run_as_admin = false;
+        assert!(matches!(
+            launch_item(&item, true),
+            LaunchOutcome::Failed(LaunchError::ScriptTypeMismatch { .. })
+        ));
+        // The structured message explains the command-mode fix.
+        match launch_item(&item, false) {
+            LaunchOutcome::Failed(error) => {
+                let message = error.message();
+                assert!(message.contains("自定义命令"), "{message}");
+                assert!(message.contains(&target), "{message}");
+            }
+            other => panic!("expected a structured refusal, got {other:?}"),
+        }
+        // No side effect: neither CreateProcessW nor the Shell fallback ran.
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        assert!(
+            !dir.join("probe.txt").exists(),
+            "the mismatched script must never execute, not even through the fallback"
+        );
+
+        // A plain File item pointing at a batch file is refused the same way.
+        let mut file_item = exe_item(&target, &[], "");
+        file_item.item_type = ItemKind::File;
+        assert!(matches!(
+            validate_launch_guard(&file_item),
+            Err(LaunchError::ScriptTypeMismatch { .. })
+        ));
+        assert!(matches!(
+            launch_item(&file_item, false),
+            LaunchOutcome::Failed(LaunchError::ScriptTypeMismatch { .. })
+        ));
+
+        // A command mode contradicting the script suffix is refused before
+        // the command engine's own checks (pure logic, nothing is spawned).
+        let mut command_item = exe_item("C:\\Apps\\run.ps1", &[], "");
+        command_item.item_type = ItemKind::Command;
+        command_item.launch.execution_mode = "cmd".into();
+        assert!(matches!(
+            launch_item(&command_item, false),
+            LaunchOutcome::Failed(LaunchError::ScriptTypeMismatch { .. })
+        ));
+
+        // Consistent items still pass the guard.
+        assert_eq!(
+            validate_launch_guard(&exe_item("C:\\Windows\\System32\\notepad.exe", &[], "")),
+            Ok(())
+        );
+        let mut cmd_mode = exe_item("C:\\Apps\\run.cmd", &[], "");
+        cmd_mode.item_type = ItemKind::Command;
+        cmd_mode.launch.execution_mode = "cmd".into();
+        assert_eq!(validate_launch_guard(&cmd_mode), Ok(()));
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

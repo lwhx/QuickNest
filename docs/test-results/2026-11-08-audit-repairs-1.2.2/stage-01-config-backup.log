@@ -1,0 +1,104 @@
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:123:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 123 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+   Compiling quicknest v1.2.1 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.27s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-86eb0e1b0b862b1b.exe)
+
+running 91 tests
+test infrastructure::windows::config_save::tests::all_backup_entry_points_share_bom_structure_and_schema_validation ... ok
+test infrastructure::windows::config_save::tests::backup_timestamp_names_sort_chronologically ... ok
+test infrastructure::windows::config_save::tests::backup_validation_cache_is_bounded_and_hits_do_not_deserialize ... ok
+test infrastructure::windows::config_save::tests::concurrent_creation_falls_back_to_replacing_whatever_appeared ... ok
+test infrastructure::windows::config_save::tests::export_rechecks_identity_after_temp_sync_and_shares_the_writer_lock ... ok
+test infrastructure::windows::config_save::tests::first_creation_moves_temp_into_place_without_leftovers ... ok
+test infrastructure::windows::config_save::tests::leased_backups_survive_retention_and_the_table_is_bounded ... ok
+test infrastructure::windows::config_save::tests::manual_backups_match_the_recovery_pattern ... ok
+test infrastructure::windows::config_save::tests::missing_directory_is_reported_without_touching_anything ... ok
+test infrastructure::windows::config_save::tests::new_manual_backup_and_restore_rollback_survive_future_dated_retention ... ok
+test infrastructure::windows::config_save::tests::pruning_keeps_the_ten_newest_valid_backups ... ok
+test infrastructure::windows::config_save::tests::pruning_rechecks_same_name_length_and_mtime_after_corruption_and_repair ... ok
+test infrastructure::windows::config_save::tests::pruning_stops_validation_after_retention_is_full_and_zero_keeps_nothing ... ok
+test infrastructure::windows::config_save::tests::recovery_and_manual_restore_validate_independently_of_maintenance_cache ... ok
+test infrastructure::windows::config_save::tests::recovery_holds_the_write_lock_against_concurrent_saves ... ok
+test infrastructure::windows::config_save::tests::recovery_refuses_a_still_valid_config ... ok
+test infrastructure::windows::config_save::tests::recovery_refuses_unknown_schema_even_when_its_structure_is_unrecognized ... ok
+test infrastructure::windows::config_save::tests::recovery_restores_latest_valid_backup_and_renames_corrupt_file ... ok
+test infrastructure::windows::config_save::tests::recovery_skips_backups_that_fail_content_read ... ok
+test infrastructure::windows::config_save::tests::recovery_without_valid_backup_enters_safe_mode_untouched ... ok
+test infrastructure::windows::config_save::tests::repeated_manual_backups_are_unique_and_invalid_source_is_rejected ... ok
+test infrastructure::windows::config_save::tests::repeated_pruning_shares_content_validity_across_backup_names ... ok
+test infrastructure::windows::config_save::tests::replace_failure_keeps_target_and_temp_for_diagnostics ... ok
+test infrastructure::windows::config_save::tests::replacement_backs_up_previous_content_without_leftovers ... ok
+test infrastructure::windows::config_save::tests::restore_failure_preserves_live_config_and_backup ... ok
+test infrastructure::windows::config_save::tests::restore_list_skips_broken_backups_and_sorts_newest_first ... ok
+test infrastructure::windows::config_save::tests::restore_refuses_a_broken_backup_without_touching_the_config ... ok
+test infrastructure::windows::config_save::tests::restore_replaces_the_live_config_and_keeps_the_previous_one ... ok
+test infrastructure::windows::config_save::tests::unreadable_backup_is_retained_while_a_slot_remains ... ok
+test infrastructure::windows::file_identity::tests::file_identity_checks_short_and_reparse_aliases_when_available ... ok
+test infrastructure::windows::file_identity::tests::file_identity_distinguishes_content_and_resolves_missing_parent_aliases ... ok
+test library_controller::tests::active_group_migration_persists_selection_and_preserves_combination_ids ... ok
+test library_controller::tests::adding_a_category_lands_in_the_active_group ... ok
+test library_controller::tests::adding_a_group_switches_the_selection_and_the_view ... ok
+test library_controller::tests::atomic_export_failure_preserves_existing_export_and_active_config ... ok
+test library_controller::tests::bool_option_and_setting_mutations_roll_back_on_save_failure ... ok
+test library_controller::tests::category_rows_follow_the_active_group ... ok
+test library_controller::tests::command_confirmation_covers_every_execution_identity_field ... ok
+test library_controller::tests::controller_reports_the_persisted_icon_size ... ok
+test library_controller::tests::deleting_a_category_with_items_confirmed_drops_them ... ok
+test library_controller::tests::deleting_a_category_with_items_needs_confirmation_then_migrates ... ok
+test library_controller::tests::deleting_a_non_empty_group_returns_a_pending_request ... ok
+test library_controller::tests::deleting_an_empty_category_removes_it_without_confirmation ... ok
+test library_controller::tests::editing_shortcut_preserves_metadata_only_for_identical_lnk_target ... ok
+test library_controller::tests::export_checks_missing_config_parent_and_refuses_unknown_identity ... ok
+test library_controller::tests::export_refuses_active_config_case_and_hardlink_including_schema999_safe_mode ... ok
+test library_controller::tests::external_drop_adds_to_the_requested_category ... ok
+test library_controller::tests::failed_import_rolls_back_and_invalid_restore_leaves_memory_and_disk_unchanged ... ok
+test library_controller::tests::failed_item_and_combination_commits_roll_back_memory_and_keep_selection ... ok
+test library_controller::tests::failed_launch_batch_rolls_back_every_item_and_preserves_the_live_file ... ok
+test library_controller::tests::grid_sort_keeps_first_duplicate_usage_and_legacy_manual_grouping ... ok
+test library_controller::tests::group_rows_mark_the_active_group ... ok
+test library_controller::tests::icon_size_parsing_and_metrics ... ok
+test library_controller::tests::import_and_restore_clear_previously_populated_pinyin_indices ... ok
+test library_controller::tests::import_keeps_both_rollback_files_alive_across_future_dated_retention ... ok
+test library_controller::tests::item_crud_round_trip ... ok
+test library_controller::tests::item_rows_follow_the_selected_category ... ok
+test library_controller::tests::item_rows_show_the_active_category_projects ... ok
+test library_controller::tests::item_validation_reaches_the_caller ... ok
+test library_controller::tests::launch_batch_commit_succeeds_even_if_backup_maintenance_cannot_delete_a_file ... ok
+test library_controller::tests::launch_batch_counts_events_saturates_and_updates_only_the_first_global_duplicate ... ok
+test library_controller::tests::launch_batch_writes_once_and_empty_or_deleted_events_leave_disk_untouched ... ok
+test library_controller::tests::load_enters_safe_mode_for_corrupt_config_without_backup ... ok
+test library_controller::tests::load_recovers_from_the_newest_valid_backup ... ok
+test library_controller::tests::load_rejects_incompatible_schema_versions_without_touching_the_file ... ok
+test library_controller::tests::loading_strips_a_utf8_bom ... ok
+test library_controller::tests::locked_live_file_rolls_back_update_import_restore_and_group_migration ... ok
+test library_controller::tests::manual_backup_creates_a_recoverable_file ... ok
+test library_controller::tests::migrating_content_keeps_it_and_removes_the_source_group ... ok
+test library_controller::tests::moving_a_category_reorders_the_rows ... ok
+test library_controller::tests::moving_a_group_reorders_the_rows ... ok
+test library_controller::tests::ordered_batch_selection_omits_deleted_items_in_visible_and_other_categories ... ok
+test library_controller::tests::ordered_batch_selection_preserves_items_across_category_and_group_switches ... ok
+test library_controller::tests::ordered_batch_selection_prioritizes_current_grid_sort_over_selection_order ... ok
+test library_controller::tests::ordered_batch_selection_returns_no_items_for_an_empty_selection ... ok
+test library_controller::tests::path_missing_only_checks_file_like_targets ... ok
+test library_controller::tests::renaming_a_category_reaches_the_model ... ok
+test library_controller::tests::renaming_and_color_reach_the_model ... ok
+test library_controller::tests::repeated_valid_selections_do_not_write_or_clear_a_save_error ... ok
+test library_controller::tests::safe_mode_refuses_manual_backups ... ok
+test library_controller::tests::safe_mode_refuses_repeated_selections_and_every_launch_batch ... ok
+test library_controller::tests::sample_library_has_the_baseline_groups_and_categories ... ok
+test library_controller::tests::save_failures_are_recorded_for_the_ui ... ok
+test library_controller::tests::search_keeps_pinyin_above_path_below_direct_names_and_respects_scope ... ok
+test library_controller::tests::search_respects_scope_and_ranks_by_match ... ok
+test library_controller::tests::search_reuses_cached_pinyin_and_rebuilds_it_after_a_name_change ... ok
+test library_controller::tests::search_skips_pinyin_cache_for_empty_ineligible_and_direct_name_queries ... ok
+test library_controller::tests::selections_repair_missing_or_stale_raw_fields_and_then_skip_writes ... ok
+test library_controller::tests::selections_validate_ids_before_accepting_matching_raw_fields ... ok
+test library_controller::tests::set_icon_size_normalizes_and_persists ... ok
+test library_controller::tests::unknown_schema_with_new_structure_stays_read_only_even_with_valid_backup ... ok
+
+test result: ok. 91 passed; 0 failed; 0 ignored; 0 measured; 247 filtered out; finished in 1.07s
+

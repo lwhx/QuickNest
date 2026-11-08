@@ -1,0 +1,179 @@
+# stage-06a 更新交接（C1/C2/C3）验证日志
+日期：2026-11-08；分支：fix/1.2.2-audit-followup；范围：src/updater.rs src/updater_worker.rs src/update_net.rs
+命令均为定向 --lib --test-threads=1，受控临时目录，无网络/无真实换版。
+
+## cargo test --locked --offline --lib updater:: -- --test-threads=1
+
+warning: variable `expectedKey` should have a snake case name
+   --> build.rs:146:14
+    |
+146 |         let (expectedKey, _) = RECIPE_KEYS[index];
+    |              ^^^^^^^^^^^ help: convert the identifier to snake case: `expected_key`
+    |
+    = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: variable `recipeText` should have a snake case name
+   --> build.rs:285:13
+    |
+285 |         let recipeText = recipe.expect(
+    |             ^^^^^^^^^^ help: convert the identifier to snake case: `recipe_text`
+
+warning: variable `fingerprintInput` should have a snake case name
+   --> build.rs:310:13
+    |
+310 |         let fingerprintInput = canonical + &canonical_recipe(&parsed);
+    |             ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `fingerprint_input`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:319:17
+    |
+319 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:343:17
+    |
+343 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: `quicknest` (build script) generated 5 warnings
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:138:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 138 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.59s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-86eb0e1b0b862b1b.exe)
+
+running 23 tests
+test updater::tests::canonical_versions_only ... ok
+test updater::tests::cleanup_gates_on_worker_exit_and_keeps_unknown_files ... ok
+test updater::tests::cleanup_refuses_entries_outside_scratch_and_reparse_points ... ok
+test updater::tests::corrupt_package_is_rejected_by_apply_gate ... ok
+test updater::tests::handoff_prepare_records_receipt_before_failure_and_completes_lifecycle ... ok
+test updater::tests::handoff_record_load_acknowledge_roundtrip ... ok
+test updater::tests::poll_outcome_handles_delayed_and_tampered_records ... ok
+test updater::tests::prepare_in_background_delivers_spawned_worker_via_channel ... ok
+test updater::tests::prepare_in_background_reports_failure_and_cleans_scratch ... ok
+test updater::tests::prepare_thread_continues_after_receiver_drop ... ok
+test updater::tests::production_never_trusts_disclosed_fixture ... ok
+test updater::tests::strict_manifest_rejects_ambiguous_fields ... ok
+test updater::worker::tests::ack_requires_open_parent_and_timeout_does_not_apply ... ok
+test updater::worker::tests::atomic_apply_preserves_old_backup_and_data ... ok
+test updater::worker::tests::corrupt_input_never_reaches_health_or_placement ... ok
+test updater::worker::tests::failure_marker_only_when_parent_gone_and_handoff_valid ... ok
+test updater::worker::tests::health_dispatch_requires_exact_compiled_version ... ok
+test updater::worker::tests::health_failure_actually_restores_old_version ... ok
+test updater::worker::tests::normal_relaunch_preserves_env_target_cwd_and_has_no_worker_args ... ok
+test updater::worker::tests::relaunch_reports_spawn_failure_and_immediate_exit ... ok
+test updater::worker::tests::relaunch_selects_only_verified_outcome_branch ... ok
+test updater::worker::tests::rollback_failure_is_explicit ... ok
+test updater::worker::tests::worker_request_handoff_field_is_optional_and_strict ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 343 filtered out; finished in 3.85s
+
+EXIT=0
+
+## cargo test --locked --offline --lib update_net:: -- --test-threads=1
+
+warning: variable `expectedKey` should have a snake case name
+   --> build.rs:146:14
+    |
+146 |         let (expectedKey, _) = RECIPE_KEYS[index];
+    |              ^^^^^^^^^^^ help: convert the identifier to snake case: `expected_key`
+    |
+    = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: variable `recipeText` should have a snake case name
+   --> build.rs:285:13
+    |
+285 |         let recipeText = recipe.expect(
+    |             ^^^^^^^^^^ help: convert the identifier to snake case: `recipe_text`
+
+warning: variable `fingerprintInput` should have a snake case name
+   --> build.rs:310:13
+    |
+310 |         let fingerprintInput = canonical + &canonical_recipe(&parsed);
+    |             ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `fingerprint_input`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:319:17
+    |
+319 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:343:17
+    |
+343 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: `quicknest` (build script) generated 5 warnings
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:138:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 138 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.60s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-86eb0e1b0b862b1b.exe)
+
+running 4 tests
+test update_net::tests::cancellation_precedes_network_and_cleans_file ... ok
+test update_net::tests::existing_download_file_is_never_overwritten ... ok
+test update_net::tests::hostile_urls_are_rejected ... ok
+test update_net::tests::strict_hex_and_stream_hash ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 362 filtered out; finished in 0.01s
+
+EXIT=0
+
+## cargo test --locked --offline --lib updater_validation:: -- --test-threads=1
+
+warning: variable `expectedKey` should have a snake case name
+   --> build.rs:146:14
+    |
+146 |         let (expectedKey, _) = RECIPE_KEYS[index];
+    |              ^^^^^^^^^^^ help: convert the identifier to snake case: `expected_key`
+    |
+    = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: variable `recipeText` should have a snake case name
+   --> build.rs:285:13
+    |
+285 |         let recipeText = recipe.expect(
+    |             ^^^^^^^^^^ help: convert the identifier to snake case: `recipe_text`
+
+warning: variable `fingerprintInput` should have a snake case name
+   --> build.rs:310:13
+    |
+310 |         let fingerprintInput = canonical + &canonical_recipe(&parsed);
+    |             ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `fingerprint_input`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:319:17
+    |
+319 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:343:17
+    |
+343 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: `quicknest` (build script) generated 5 warnings
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:138:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 138 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-86eb0e1b0b862b1b.exe)
+
+running 2 tests
+test updater_validation::tests::signed_fixture_acceptance ... ignored, requires ephemeral externally generated signing fixture
+test updater_validation::tests::unicode_signature_never_panics ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 364 filtered out; finished in 0.00s
+
+EXIT=0

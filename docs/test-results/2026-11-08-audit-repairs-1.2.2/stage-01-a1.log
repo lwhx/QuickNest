@@ -1,0 +1,5 @@
+error: unexpected argument 'infrastructure::windows::config_save::' found
+
+Usage: cargo.exe test [OPTIONS] [TESTNAME] [-- [ARGS]...]
+
+For more information, try '--help'.

@@ -10,7 +10,7 @@ use std::collections::{HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use crate::library_model::{Category, Group, Item, ItemKind, LaunchCombination, Library, Settings};
+use crate::library_model::{Category, Group, Item, LaunchCombination, Library, Settings};
 
 /// Marks the export wrapper so an import can tell an export from a plain
 /// configuration file.
@@ -409,18 +409,19 @@ fn unique_name(existing: &[String], base: &str) -> String {
     format!("{base} (导入 {})", crate::library_model::new_uuid())
 }
 
-fn is_command_like(kind: ItemKind) -> bool {
-    matches!(kind, ItemKind::Command | ItemKind::Automation)
-}
-
-/// Marks every command/automation item of the groups as unverified and
-/// returns how many were marked (baseline 8.4).
+/// Marks every confirmation-relevant item of the groups as unverified and
+/// returns how many were marked (baseline 8.4 + B8). The judgment is the
+/// shared model rule (`Item::confirmation_relevant`): command/automation
+/// items carry literal execution content, and a declared type that
+/// contradicts a script target hides execution content just the same.
+/// Imported files are untrusted, so previously confirmed items are marked
+/// again here — the flag can never be smuggled through an import.
 fn mark_unverified(groups: &mut [Group]) -> usize {
     let mut marked = 0;
     for group in groups {
         for category in &mut group.categories {
             for item in &mut category.items {
-                if is_command_like(item.item_type) {
+                if item.confirmation_relevant() {
                     item.launch.confirm_on_first_run = true;
                     marked += 1;
                 }
@@ -435,14 +436,14 @@ fn count_unverified(groups: &[Group]) -> usize {
         .iter()
         .flat_map(|group| &group.categories)
         .flat_map(|category: &Category| &category.items)
-        .filter(|item: &&Item| is_command_like(item.item_type) && item.launch.confirm_on_first_run)
+        .filter(|item: &&Item| item.requires_command_confirmation())
         .count()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::library_model::{Item, Library};
+    use crate::library_model::{Item, ItemKind, Library};
 
     fn item(id: &str, kind: ItemKind, target: &str) -> Item {
         Item::new(id, format!("item-{id}"), kind, target)
@@ -596,6 +597,65 @@ mod tests {
         assert!(
             !items[3].launch.confirm_on_first_run,
             "plain EXE is verified"
+        );
+    }
+
+    // B8（2026-11-08 审核）：脚本类型不匹配的项目同样按“需确认”判定标记；
+    // 导入不可信，已确认的项目也会被重新标记，确认状态无法随文件走私。
+    #[test]
+    fn imported_script_mismatch_items_are_marked_unverified() {
+        let mut library = library_with_one_group();
+        let mut document = export_group(&library, &library.groups[0].id).expect("export");
+        let items = &mut document.groups[0].categories[0].items;
+        items.push(item("script-as-exe", ItemKind::Exe, "C:\\Apps\\run.cmd"));
+        items.push(item("script-as-file", ItemKind::File, "C:\\Apps\\run.bat"));
+        // 文件里带 confirm=false 的命令项目：导入后必须重新标记。
+        let mut smuggled = item("smuggled-cmd", ItemKind::Command, "cmd.exe");
+        smuggled.launch.confirm_on_first_run = false;
+        items.push(smuggled);
+        // 普通 EXE 与一致的 CMD 命令不受影响。
+        items.push(item(
+            "plain-exe",
+            ItemKind::Exe,
+            "C:\\Windows\\System32\\notepad.exe",
+        ));
+        items.push(item("cmd-mode", ItemKind::Command, "C:\\Apps\\run.cmd"));
+
+        let imported =
+            parse_import(&serde_json::to_string(&document).expect("json")).expect("parse");
+        let report = apply_import(&mut library, &imported, ImportMode::Merge);
+        // seed EXE 与 plain-exe 不标记；两个 mismatch + smuggled-cmd + cmd-mode
+        // 标记（共 4 个需确认项）。
+        assert_eq!(
+            report.unverified_items, 4,
+            "two mismatches + two commands are unverified"
+        );
+        let group = library.groups.last().expect("group");
+        let items = &group.categories[0].items;
+        // 顺序：seed、script-as-exe、script-as-file、smuggled-cmd、plain-exe、cmd-mode。
+        assert!(
+            !items[0].launch.confirm_on_first_run,
+            "seed EXE stays verified"
+        );
+        assert!(
+            items[1].launch.confirm_on_first_run,
+            "script declared as EXE is unverified"
+        );
+        assert!(
+            items[2].launch.confirm_on_first_run,
+            "script declared as File is unverified"
+        );
+        assert!(
+            items[3].launch.confirm_on_first_run,
+            "confirm=false in the file cannot smuggle past import"
+        );
+        assert!(
+            !items[4].launch.confirm_on_first_run,
+            "plain EXE stays verified"
+        );
+        assert!(
+            items[5].launch.confirm_on_first_run,
+            "a consistent cmd-mode script command is unverified"
         );
     }
 

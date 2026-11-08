@@ -40,6 +40,12 @@ pub enum SaveOutcome {
 pub enum SaveError {
     /// Another write transaction (save or recovery) holds the write lock.
     Busy,
+    /// Export must never replace the active config, including safe mode.
+    ActiveConfigExport,
+    /// Export protection could not establish the destination/config identity.
+    FileIdentity { os_error: std::io::Error },
+    /// The bounded rollback-protection lease table is full (audit A3).
+    MaintenanceLimit,
     /// The temp file could not be created or written; nothing touched.
     TempFile { os_error: std::io::Error },
     /// ReplaceFileW or MoveFileExW failed. The previous config is intact
@@ -62,6 +68,18 @@ impl std::fmt::Display for SaveError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Busy => f.write_str("another write transaction is active"),
+            Self::ActiveConfigExport => {
+                f.write_str("export refused: destination is the active config")
+            }
+            Self::FileIdentity { os_error } => {
+                write!(
+                    f,
+                    "export refused: file identity could not be established: {os_error}"
+                )
+            }
+            Self::MaintenanceLimit => {
+                f.write_str("rollback protection lease table is temporarily full")
+            }
             Self::TempFile { os_error } => write!(f, "temp file failed: {os_error}"),
             Self::ReplaceFailed {
                 win32_error,
@@ -320,6 +338,73 @@ fn acquire_write_lock() -> Option<std::sync::MutexGuard<'static, ()>> {
     }
 }
 
+/// Bounded registry of backup files a caller still relies on (audit A3).
+/// A held lease keeps the file alive across later prunes — for example a
+/// pre-import backup that must outlive the import's own save prune, or a
+/// pending undo rollback point. Paths are exact `PathBuf`s as produced by
+/// this module (`backup_path_for` / `SaveOutcome::Replaced`); every flow
+/// that leases a path received it from one of those, so no aliasing
+/// resolution is needed. Dropping the lease only unregisters the path; it
+/// never touches the file.
+const LEASE_LIMIT: usize = 64;
+static PROTECTED_BACKUPS: OnceLock<Mutex<HashMap<PathBuf, usize>>> = OnceLock::new();
+
+fn protected_backups() -> &'static Mutex<HashMap<PathBuf, usize>> {
+    PROTECTED_BACKUPS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// RAII handle keeping one backup path out of every prune while held.
+#[derive(Debug)]
+pub(crate) struct BackupLease {
+    path: PathBuf,
+}
+
+impl Drop for BackupLease {
+    fn drop(&mut self) {
+        let mut leases = protected_backups()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        if let Some(count) = leases.get_mut(&self.path) {
+            *count -= 1;
+            if *count == 0 {
+                leases.remove(&self.path);
+            }
+        }
+    }
+}
+
+/// Starts protecting `path` across subsequent prunes. Fails with
+/// [`SaveError::MaintenanceLimit`] when the bounded table is exhausted; the
+/// caller must then abort the operation instead of silently losing the
+/// rollback guarantee. Lock ordering note: this registry mutex is never held
+/// while acquiring or holding the write lock, so prune (write lock →
+/// registry snapshot) and lease management (registry only) cannot deadlock.
+pub(crate) fn lease_backup(path: &Path) -> Result<BackupLease, SaveError> {
+    let mut leases = protected_backups()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    // The entry must not be inserted before the bound check: a full table
+    // refuses a new path without disturbing existing leases.
+    if !leases.contains_key(path) && leases.len() >= LEASE_LIMIT {
+        return Err(SaveError::MaintenanceLimit);
+    }
+    let count = leases.entry(path.to_path_buf()).or_insert(0);
+    *count += 1;
+    Ok(BackupLease {
+        path: path.to_path_buf(),
+    })
+}
+
+/// Snapshot of the currently leased paths for prune filtering.
+fn leased_backup_paths() -> Vec<PathBuf> {
+    protected_backups()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner())
+        .keys()
+        .cloned()
+        .collect()
+}
+
 /// Atomic save per baseline 15.2-15.6. Every failure keeps the previous
 /// config; failure details carry the Win32 error and the kept temp path.
 pub fn save_atomic(target: &Path, content: &str) -> Result<SaveOutcome, SaveError> {
@@ -330,14 +415,57 @@ pub fn save_atomic(target: &Path, content: &str) -> Result<SaveOutcome, SaveErro
 }
 
 fn save_atomic_locked(target: &Path, content: &str) -> Result<SaveOutcome, SaveError> {
+    save_atomic_checked_locked(target, content, || Ok(()))
+}
+
+fn check_export_target(target: &Path, active_config: Option<&Path>) -> Result<(), SaveError> {
+    if let Some(active) = active_config {
+        let same = super::file_identity::same_file(target, active)
+            .map_err(|os_error| SaveError::FileIdentity { os_error })?;
+        if same {
+            return Err(SaveError::ActiveConfigExport);
+        }
+    }
+    Ok(())
+}
+
+/// Export shares the config writer's lock and exact temp/sync/replace chain.
+/// It remains available in safe mode, but may never overwrite the active file.
+pub(crate) fn export_atomic(
+    target: &Path,
+    active_config: Option<&Path>,
+    content: &str,
+) -> Result<SaveOutcome, SaveError> {
+    let Some(_guard) = acquire_write_lock() else {
+        return Err(SaveError::Busy);
+    };
+    save_atomic_checked_locked(target, content, || {
+        check_export_target(target, active_config)
+    })
+}
+
+fn save_atomic_checked_locked(
+    target: &Path,
+    content: &str,
+    mut check: impl FnMut() -> Result<(), SaveError>,
+) -> Result<SaveOutcome, SaveError> {
+    check()?;
     let (directory, name) = split_target(target)?;
     let temp_path = write_temp(target, content)?;
-    if !target.exists() && move_into_place(&temp_path, target)? {
-        return Ok(SaveOutcome::Created);
+    let mut recheck = || {
+        check().inspect_err(|_| {
+            let _ = fs::remove_file(&temp_path);
+        })
+    };
+    if !target.exists() {
+        recheck()?;
+        if move_into_place(&temp_path, target)? {
+            return Ok(SaveOutcome::Created);
+        }
     }
-    // Either the target pre-existed or it appeared concurrently; ReplaceFileW
-    // backs up whatever is there instead of losing it. On success it consumes
-    // the temp file; on failure the temp stays for diagnostics (15.4).
+    // Re-query after writing/syncing and again after a raced first creation.
+    // The same write lock also excludes this process's config saves/recovery.
+    recheck()?;
     let backup = backup_path_for(&directory, &name);
     replace_via_replacefile(target, &temp_path, &backup)
         .map(|()| SaveOutcome::Replaced(Replaced { backup }))
@@ -503,10 +631,16 @@ pub fn prune_backups(target: &Path, keep: usize) -> usize {
     let Some(_guard) = acquire_write_lock() else {
         return 0;
     };
-    prune_backups_locked(target, keep)
+    prune_backups_locked(target, keep, &[])
 }
 
-fn prune_backups_locked(target: &Path, keep: usize) -> usize {
+/// `always_keep` paths (plus everything currently leased through
+/// [`lease_backup`]) survive this prune regardless of retention order:
+/// the file this very operation just created or relies on must never be
+/// deleted by its own maintenance (audit A3). Protected entries consume a
+/// retention slot, so the directory stays bounded at `keep` plus transient
+/// unreadable files.
+pub(crate) fn prune_backups_locked(target: &Path, keep: usize, always_keep: &[PathBuf]) -> usize {
     let Ok((directory, name)) = split_target(target) else {
         return 0;
     };
@@ -530,21 +664,35 @@ fn prune_backups_locked(target: &Path, keep: usize) -> usize {
     backups.sort_unstable_by(|left, right| right.file_name().cmp(&left.file_name()));
     let mut kept = 0_usize;
     let mut removed = 0_usize;
+    let leased = leased_backup_paths();
     let mut cache = backup_validation_cache()
         .lock()
         .unwrap_or_else(|poison| poison.into_inner());
     for backup in backups {
+        let protected = always_keep.iter().any(|path| path == &backup) || leased.contains(&backup);
         // Once retention is full, even a valid older backup must be deleted;
-        // reading or deserializing it cannot affect that decision.
-        if kept < keep
-            && fs::read(&backup)
-                .ok()
-                .is_some_and(|content| cache.is_valid(&content))
-        {
+        // reading or deserializing it cannot affect that decision. Protected
+        // files survive without a content check: this operation just created
+        // them from known-good bytes, or a caller still relies on them.
+        if kept >= keep && !protected {
+            if fs::remove_file(&backup).is_ok() {
+                removed += 1;
+            }
+            continue;
+        }
+        if protected {
             kept += 1;
             continue;
         }
-        if fs::remove_file(&backup).is_ok() {
+        // A failed read never proves invalid content (audit A2): sync and
+        // backup tools may hold handles that deny read sharing while still
+        // allowing deletion. Retain the file without consuming a slot.
+        let Ok(content) = fs::read(&backup) else {
+            continue;
+        };
+        if cache.is_valid(&content) {
+            kept += 1;
+        } else if fs::remove_file(&backup).is_ok() {
             removed += 1;
         }
     }
@@ -579,7 +727,10 @@ pub fn backup_now(target: &Path) -> Result<PathBuf, SaveError> {
         return Err(SaveError::TempFile { os_error });
     }
     drop(file);
-    prune_backups_locked(target, 10);
+    // The backup this call just created must survive its own prune even when
+    // ten older backups carry future-dated names (clock skew, copies from a
+    // faster machine — audit A3).
+    prune_backups_locked(target, 10, std::slice::from_ref(&backup));
     Ok(backup)
 }
 
@@ -683,11 +834,13 @@ pub(crate) fn restore_backup_with_library(
         fs::read_to_string(backup).map_err(|os_error| SaveError::TempFile { os_error })?;
     let library = parse_supported_library(&content).ok_or(SaveError::InvalidBackup)?;
     let outcome = save_atomic_locked(target, &content)?;
-    prune_backups_locked(target, 10);
+    // The rollback point this restore created survives its own prune; the
+    // restore is only reversible while that file exists.
     let replaced = match outcome {
         SaveOutcome::Created => backup.to_path_buf(),
         SaveOutcome::Replaced(replaced) => replaced.backup,
     };
+    prune_backups_locked(target, 10, std::slice::from_ref(&replaced));
     Ok((replaced, library))
 }
 
@@ -732,6 +885,165 @@ mod tests {
             .map(|entry| entry.path())
             .filter(|path| path.extension().map(|ext| ext == "tmp").unwrap_or(false))
             .collect()
+    }
+
+    #[test]
+    fn export_rechecks_identity_after_temp_sync_and_shares_the_writer_lock() {
+        let _serialization = test_guard();
+        let directory = temp_dir("export-recheck");
+        let active = directory.join("config.json");
+        let export = directory.join("export.json");
+        fs::write(&active, b"active bytes").unwrap();
+        fs::write(&export, b"old export").unwrap();
+        let guard = acquire_write_lock().unwrap();
+        assert!(matches!(
+            export_atomic(&export, Some(&active), "new"),
+            Err(SaveError::Busy)
+        ));
+        let mut checks = 0;
+        let error = save_atomic_checked_locked(&export, "new", || {
+            checks += 1;
+            if checks == 2 {
+                fs::remove_file(&export).unwrap();
+                fs::hard_link(&active, &export).unwrap();
+            }
+            check_export_target(&export, Some(&active))
+        })
+        .unwrap_err();
+        assert!(matches!(error, SaveError::ActiveConfigExport));
+        assert_eq!(checks, 2);
+        assert_eq!(fs::read(&active).unwrap(), b"active bytes");
+        assert!(leftover_temps(&directory).is_empty());
+        drop(guard);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn unreadable_backup_is_retained_while_a_slot_remains() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let _serialization = test_guard();
+        let directory = temp_dir("prune-unreadable");
+        let target = directory.join("config.json");
+        let good = serde_json::to_string(&crate::library_model::Library::default()).unwrap();
+        fs::write(&target, &good).unwrap();
+        let valid = directory.join("config.backup.20990101-000000-001.json");
+        let unreadable = directory.join("config.backup.20990101-000000-002.json");
+        let invalid = directory.join("config.backup.20990101-000000-003.json");
+        fs::write(&valid, &good).unwrap();
+        fs::write(&unreadable, &good).unwrap();
+        fs::write(&invalid, "corrupt").unwrap();
+        // Audit A2: deny read sharing while still allowing deletion — the
+        // handle shape sync and backup tools hold.
+        let locked = OpenOptions::new()
+            .write(true)
+            .share_mode(2 | 4) // FILE_SHARE_WRITE | FILE_SHARE_DELETE
+            .open(&unreadable)
+            .unwrap();
+        assert!(
+            fs::read(&unreadable).is_err(),
+            "control: read must be denied"
+        );
+        assert_eq!(
+            prune_backups(&target, 10),
+            1,
+            "only provably invalid content may be removed"
+        );
+        assert!(unreadable.exists() && valid.exists());
+        // Even at keep=1 nothing is removed while the lock is held: the
+        // unreadable file is reached with its retention slot still open, so
+        // it is retained, and the valid backup takes the slot. An unknown
+        // read error is never treated as invalid content (audit A2).
+        assert_eq!(prune_backups(&target, 1), 0);
+        assert!(unreadable.exists() && valid.exists());
+        drop(locked);
+        // Readable again, the pair is simply two valid backups: keep=1
+        // removes the older one as a positional retention decision.
+        assert_eq!(prune_backups(&target, 1), 1);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn new_manual_backup_and_restore_rollback_survive_future_dated_retention() {
+        let _serialization = test_guard();
+        let directory = temp_dir("prune-rollback");
+        let target = directory.join("config.json");
+        let good = serde_json::to_string(&crate::library_model::Library::default()).unwrap();
+        fs::write(&target, &good).unwrap();
+        for index in 0..10 {
+            fs::write(
+                directory.join(format!("config.backup.20990101-000000-{index:03}.json")),
+                &good,
+            )
+            .unwrap();
+        }
+        // Audit A3: clock skew or copies from a faster machine place the
+        // fresh backup beyond every future-dated name.
+        let created = backup_now(&target).unwrap();
+        assert!(
+            created.exists(),
+            "the just-created manual backup must survive its own prune"
+        );
+        assert_eq!(backup_names(&directory).len(), 11);
+        // A restore is only reversible while its rollback point exists, so
+        // that file survives its own prune as well.
+        let replaced = restore_backup(&target, &created).unwrap();
+        assert!(
+            replaced.exists(),
+            "the rollback point must survive its own prune"
+        );
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn leased_backups_survive_retention_and_the_table_is_bounded() {
+        let _serialization = test_guard();
+        let directory = temp_dir("prune-lease");
+        let target = directory.join("config.json");
+        let good = serde_json::to_string(&crate::library_model::Library::default()).unwrap();
+        fs::write(&target, &good).unwrap();
+        for index in 0..10 {
+            fs::write(
+                directory.join(format!("config.backup.20990101-000000-{index:03}.json")),
+                &good,
+            )
+            .unwrap();
+        }
+        let rollback = directory.join("config.backup.20200101-000000-000.json");
+        fs::write(&rollback, &good).unwrap();
+        let lease = lease_backup(&rollback).unwrap();
+        assert_eq!(
+            prune_backups(&target, 10),
+            0,
+            "the leased rollback point survives beyond retention"
+        );
+        assert!(rollback.exists());
+        drop(lease);
+        assert_eq!(
+            prune_backups(&target, 10),
+            1,
+            "without the lease the file is beyond retention again"
+        );
+
+        // The lease table is bounded; exhaustion is an explicit error, never
+        // a silent loss of protection. Lease paths need not exist — identity
+        // here is bookkeeping, not a filesystem query.
+        let mut leases = Vec::new();
+        let mut exhausted = false;
+        for index in 0..LEASE_LIMIT + 2 {
+            match lease_backup(&directory.join(format!("lease-{index}"))) {
+                Ok(lease) => leases.push(lease),
+                Err(SaveError::MaintenanceLimit) => {
+                    exhausted = true;
+                    break;
+                }
+                Err(error) => panic!("unexpected lease error: {error}"),
+            }
+        }
+        assert!(exhausted, "the bounded table must eventually refuse");
+        drop(leases);
+        let retried = lease_backup(&directory.join("lease-again")).unwrap();
+        drop(retried);
+        fs::remove_dir_all(directory).unwrap();
     }
 
     #[test]

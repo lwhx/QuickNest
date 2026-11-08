@@ -1,0 +1,4 @@
+rows {"fixture_digest":"dc75b5f49e128251c859d2e80e75ed0f5e3c7d8091a2b7e4098380f1c05b1718","items":5000,"manual_item_rows_ms":1.6035000000000001}
+rows {"fixture_digest":"439e0714ff2526c1593cc42a4500d933751fd0cac66f7590d09072dcbb11628f","items":10000,"manual_item_rows_ms":3.5734}
+search {"cold_empty_ms":0.3435,"cold_pinyin_ms":5.7687,"fixture_digest":"4e73b79eb76def6ab76f1c6fd81369ec95a33443a8176d89797bd393feedddd0","hot_pinyin_ms":0.6248,"items":1000}
+search {"cold_empty_ms":4.1434999999999995,"cold_pinyin_ms":76.0194,"fixture_digest":"f8f432ca6f828ca4fd2525cc99914ffd95d64b465b144a1c616bd486a233b859","hot_pinyin_ms":8.560599999999999,"items":10000}

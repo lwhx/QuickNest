@@ -1,0 +1,39 @@
+{
+  "scope": "Pure arithmetic counterexamples to main.rs:4394-4399; no monitor or system DPI changes",
+  "bounds": {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+  },
+  "cases": [
+    {
+      "edge": "right",
+      "x": 2500,
+      "y": 500,
+      "predicate_result": true,
+      "inside_primary": false
+    },
+    {
+      "edge": "left",
+      "x": -500,
+      "y": 500,
+      "predicate_result": true,
+      "inside_primary": false
+    },
+    {
+      "edge": "top",
+      "x": 600,
+      "y": -400,
+      "predicate_result": true,
+      "inside_primary": false
+    },
+    {
+      "edge": "bottom",
+      "x": 600,
+      "y": 1400,
+      "predicate_result": true,
+      "inside_primary": false
+    }
+  ]
+}

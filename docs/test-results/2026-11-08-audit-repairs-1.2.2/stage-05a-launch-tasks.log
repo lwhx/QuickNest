@@ -1,0 +1,172 @@
+# stage-05a launch-tasks / B8 script guard / B9 queue — 2026-11-08T19:59:04+08:00
+# command: cargo test --locked --offline --lib -- library_model:: config_transfer:: launch_tasks:: infrastructure::windows::launch:: -- --test-threads=1
+warning: variable `expectedKey` should have a snake case name
+   --> build.rs:146:14
+    |
+146 |         let (expectedKey, _) = RECIPE_KEYS[index];
+    |              ^^^^^^^^^^^ help: convert the identifier to snake case: `expected_key`
+    |
+    = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: variable `recipeText` should have a snake case name
+   --> build.rs:285:13
+    |
+285 |         let recipeText = recipe.expect(
+    |             ^^^^^^^^^^ help: convert the identifier to snake case: `recipe_text`
+
+warning: variable `fingerprintInput` should have a snake case name
+   --> build.rs:310:13
+    |
+310 |         let fingerprintInput = canonical + &canonical_recipe(&parsed);
+    |             ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `fingerprint_input`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:319:17
+    |
+319 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: variable `constName` should have a snake case name
+   --> build.rs:343:17
+    |
+343 |             let constName = format!("BUILD_RECIPE_{}", key.to_uppercase().replace('-', "_"));
+    |                 ^^^^^^^^^ help: convert the identifier to snake case: `const_name`
+
+warning: `quicknest` (build script) generated 5 warnings
+warning: quicknest@1.2.1: warning: Exported component 'PillButton' doesn't inherit Window. No code will be generated for it
+warning: quicknest@1.2.1:    --> E:\Programs\ZCODE\01\QuickNest\ui\main_window.slint:138:18
+warning: quicknest@1.2.1:     |
+warning: quicknest@1.2.1: 138 | export component PillButton inherits Rectangle {
+warning: quicknest@1.2.1:     |                  ^^^^^^^^^^
+   Compiling quicknest v1.2.1 (E:\Programs\ZCODE\01\QuickNest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.11s
+     Running unittests src\lib.rs (target\debug\deps\quicknest-86eb0e1b0b862b1b.exe)
+
+running 105 tests
+test config_transfer::tests::ambiguous_or_missing_combination_references_never_bind_to_live_items ... ok
+test config_transfer::tests::combinations_round_trip_plain_and_full_with_repaired_ids ... ok
+test config_transfer::tests::export_all_carries_groups_and_settings ... ok
+test config_transfer::tests::export_group_carries_only_that_group_without_settings ... ok
+test config_transfer::tests::export_round_trips_through_parse_import ... ok
+test config_transfer::tests::export_wrapper_version_is_checked ... ok
+test config_transfer::tests::group_export_excludes_cross_group_dangling_and_empty_combinations ... ok
+test config_transfer::tests::imported_command_items_are_marked_unverified ... ok
+test config_transfer::tests::imported_script_mismatch_items_are_marked_unverified ... ok
+test config_transfer::tests::merge_regenerates_ids_and_renames_collisions ... ok
+test config_transfer::tests::overwrite_legacy_document_clears_old_combinations_and_preserves_category_selection ... ok
+test config_transfer::tests::overwrite_replaces_groups_and_settings ... ok
+test config_transfer::tests::plain_configuration_files_are_accepted ... ok
+test config_transfer::tests::unique_name_counts_up ... ok
+test config_transfer::tests::unsupported_schema_and_garbage_are_rejected ... ok
+test infrastructure::windows::launch::tests::argument_quoting_rules ... ok
+test infrastructure::windows::launch::tests::cmd_arguments_batch_path_and_metacharacters_are_literal ... ok
+test infrastructure::windows::launch::tests::cmd_arguments_native_literals_match_actual_windows_argv ... 
+running 1 test
+test infrastructure::windows::launch::tests::cmd_arguments_native_probe_child ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 365 filtered out; finished in 0.00s
+
+
+running 1 test
+test infrastructure::windows::launch::tests::cmd_arguments_native_probe_child ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 365 filtered out; finished in 0.00s
+
+ok
+test infrastructure::windows::launch::tests::cmd_arguments_native_probe_child ... ignored
+test infrastructure::windows::launch::tests::cmd_arguments_reject_shell_expansion_and_quote_injection_before_launch ... ok
+test infrastructure::windows::launch::tests::command_cmd_mode_runs_the_script ... ok
+test infrastructure::windows::launch::tests::command_line_starts_with_the_quoted_path_and_ends_with_nul ... ok
+test infrastructure::windows::launch::tests::command_missing_target_and_display ... ok
+test infrastructure::windows::launch::tests::command_powershell_mode_runs_the_script ... ok
+test infrastructure::windows::launch::tests::empty_and_missing_targets_are_rejected_before_spawning ... ok
+test infrastructure::windows::launch::tests::everything_handoff_and_path_resolution ... ok
+test infrastructure::windows::launch::tests::file_and_folder_targets_are_validated ... ok
+test infrastructure::windows::launch::tests::msi_advertised_missing_link_requests_install_repair ... ok
+test infrastructure::windows::launch::tests::msi_shell_failures_are_mapped_to_repair_guidance ... ok
+test infrastructure::windows::launch::tests::script_type_mismatch_is_refused_before_native_or_shell_execution ... ok
+test infrastructure::windows::launch::tests::shell_and_unc_targets_have_no_file_location ... ok
+test infrastructure::windows::launch::tests::spawning_cmd_honours_arguments_and_workdir ... ok
+test infrastructure::windows::launch::tests::unsupported_kinds_report_a_structured_error ... ok
+test infrastructure::windows::launch::tests::uri_scheme_validation ... ok
+test infrastructure::windows::launch::tests::uri_targets_are_validated ... ok
+test launch_tasks::tests::cancel_racing_a_running_task_reports_running_and_waiting_reports_cancelled ... ok
+test launch_tasks::tests::cancellation_wakes_waiters_without_running_their_work ... ok
+test launch_tasks::tests::queuing_does_not_report_a_result_and_completion_is_delivered_once ... ok
+test launch_tasks::tests::scheduled_tasks_get_independent_monotonic_ids ... ok
+test launch_tasks::tests::seal_rejects_new_schedules_but_keeps_already_queued_tasks ... ok
+test launch_tasks::tests::shutdown_settle_cancels_waiting_drains_and_reaches_zero_running ... ok
+test library_model::card_ui_tests::default_artwork_follows_the_item_type ... ok
+test library_model::card_ui_tests::missing_reason_only_exists_for_broken_targets ... ok
+test library_model::combination_tests::add_combination_trims_and_defaults_the_name ... ok
+test library_model::combination_tests::combinations_round_trip_through_serialization ... ok
+test library_model::combination_tests::legacy_configs_load_without_combinations ... ok
+test library_model::combination_tests::remove_combination_reports_whether_it_existed ... ok
+test library_model::delay_tests::delay_defaults_to_zero_and_round_trips ... ok
+test library_model::delay_tests::legacy_items_load_without_delay ... ok
+test library_model::everything_tests::everything_defaults_to_disabled_standard_path ... ok
+test library_model::everything_tests::everything_settings_round_trip_and_legacy_load ... ok
+test library_model::execution_mode_tests::execution_mode_normalizes_unknown_to_direct ... ok
+test library_model::execution_mode_tests::execution_mode_round_trips_and_legacy_loads_as_direct ... ok
+test library_model::hot_zone_tests::hot_zone_defaults_to_disabled_left ... ok
+test library_model::hot_zone_tests::hot_zone_edge_normalizes_unknown_values ... ok
+test library_model::hot_zone_tests::hot_zone_settings_round_trip ... ok
+test library_model::migration_tests::migrated_config_survives_a_mutate_serialize_round_trip ... ok
+test library_model::migration_tests::v1_1_config_migrates_with_user_data_intact ... ok
+test library_model::script_guard_tests::confirmation_covers_commands_automation_and_script_mismatch_once ... ok
+test library_model::script_guard_tests::script_mismatch_covers_declared_type_and_mode_contradictions ... ok
+test library_model::script_guard_tests::script_targets_are_recognized_case_insensitively ... ok
+test library_model::sort_mode_tests::favorite_sorts_to_the_top ... ok
+test library_model::sort_mode_tests::frequent_sorts_by_launch_count_descending ... ok
+test library_model::sort_mode_tests::legacy_items_load_without_usage_state ... ok
+test library_model::sort_mode_tests::manual_and_unknown_do_not_consume_usage_and_missing_ids_stay_stable ... ok
+test library_model::sort_mode_tests::manual_and_unknown_keep_the_input_order ... ok
+test library_model::sort_mode_tests::rank_map_matches_the_linear_reference_on_deterministic_duplicate_fixtures ... ok
+test library_model::sort_mode_tests::recent_sorts_by_last_used_descending ... ok
+test library_model::sort_mode_tests::sort_mode_normalizes_and_round_trips ... ok
+test library_model::sort_mode_tests::sorting_preserves_first_duplicate_ranks_ties_and_missing_id_order ... ok
+test library_model::tests::accent_color_validates_hex_form ... ok
+test library_model::tests::active_group_migration_repairs_explicit_and_fallback_selection ... ok
+test library_model::tests::add_item_to_category_targets_other_groups ... ok
+test library_model::tests::adding_a_group_makes_it_active_and_rejects_duplicates ... ok
+test library_model::tests::argument_line_splits_with_quotes ... ok
+test library_model::tests::argument_windows_crt_examples_and_exhaustive_roundtrip ... ok
+test library_model::tests::argument_windows_roundtrip_preserves_editor_values ... ok
+test library_model::tests::automation_draft_may_omit_the_target ... ok
+test library_model::tests::backdrop_defaults_none_and_round_trips ... ok
+test library_model::tests::default_workdir_follows_baseline_3_3 ... ok
+test library_model::tests::deleting_a_non_empty_group_requires_confirmation ... ok
+test library_model::tests::deleting_an_empty_group_removes_it ... ok
+test library_model::tests::deleting_the_active_group_moves_the_selection ... ok
+test library_model::tests::draft_from_path_infers_name_type_and_workdir ... ok
+test library_model::tests::draft_validates_and_round_trips ... ok
+test library_model::tests::icon_source_prefers_custom_and_skips_uris ... ok
+test library_model::tests::item_kind_inference_from_paths ... ok
+test library_model::tests::item_kinds_and_window_states_serialize_as_snake_case ... ok
+test library_model::tests::migrating_moves_categories_and_keeps_content ... ok
+test library_model::tests::migrating_onto_a_conflicting_category_id_rehomes_it ... ok
+test library_model::tests::moving_a_group_reorders_the_list ... ok
+test library_model::tests::moving_an_item_across_groups_appends_to_the_target ... ok
+test library_model::tests::moving_an_item_to_an_index_reorders_and_clamps ... ok
+test library_model::tests::msi_advertised_flag_defaults_and_round_trips ... ok
+test library_model::tests::opacity_clamps_into_the_baseline_16_2_range ... ok
+test library_model::tests::persisted_shape_matches_baseline_14_2 ... ok
+test library_model::tests::rename_rejects_blank_and_unknown_groups ... ok
+test library_model::tests::rounded_corners_defaults_on_and_round_trips ... ok
+test library_model::tests::selecting_a_category_is_remembered_per_group ... ok
+test library_model::tests::selecting_a_group_switches_its_categories ... ok
+test library_model::tests::serialization_round_trips_the_whole_library ... ok
+test library_model::tests::settings_carry_the_baseline_defaults ... ok
+test library_model::tests::shell_and_unc_targets_are_not_missing_and_have_no_file_icon ... ok
+test library_model::tests::shell_namespace_and_unc_targets_are_recognized ... ok
+test library_model::tests::uuids_are_unique_and_shaped ... ok
+
+test result: ok. 104 passed; 0 failed; 1 ignored; 0 measured; 261 filtered out; finished in 1.46s
+
+# exit: 0
+
+# cross-check full lib: cargo test --locked --offline --lib -- --test-threads=1 — 2026-11-08T20:00:16+08:00
+
+test result: ok. 363 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 19.02s
+
+# exit: 0

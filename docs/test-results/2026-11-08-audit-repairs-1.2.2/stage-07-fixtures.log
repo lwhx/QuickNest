@@ -1,0 +1,3 @@
+PASS refusal: snapshot validator itself refuses a missing snapshot root
+Release fixtures passed: 69 negative cases; version=1.2.1; no application/installer/desktop was run
+Fixture artifacts: C:\Users\Administrator\AppData\Local\Temp\QuickNest-release-fixtures\run-4d495f300d144ec3ba8e118cda4b0f10

@@ -86,6 +86,13 @@ export global UiContext {
 // hit areas, including the title bar's WindowMoveArea. Unhandled keys bubble.
 component ButtonKeyboardScope inherits FocusScope {
     in property <bool> interactive: true;
+    // Audit A7: instances overlaying sibling regions (title bar) delegate
+    // the two global routes explicitly; instance bindings evaluate in the
+    // MainWindow context, so no component-root cross-reference is needed.
+    in property <bool> route-escape: false;
+    in property <bool> route-search-shortcut: false;
+    callback escape-route();
+    callback search-route();
     callback activated();
     property <string> held-key;
     width: 0px;
@@ -105,6 +112,14 @@ component ButtonKeyboardScope inherits FocusScope {
     key-pressed(event) => {
         if (root.interactive && (event.text == Key.Return || event.text == Key.Space)) {
             if (root.held-key == "" && !event.repeat) { root.held-key = event.text; }
+            accept
+        } else if (route-escape && event.text == "\u{1b}") {
+            root.escape-route();
+            accept
+        } else if (route-search-shortcut
+            && event.modifiers.control
+            && (event.text == "f" || event.text == "F")) {
+            root.search-route();
             accept
         } else { reject }
     }
@@ -393,6 +408,15 @@ export component MainWindow inherits Window {
     callback settings-open-requested();
     callback settings-panel-closed();
     in-out property <bool> settings-panel-visible;
+    // Audit D4: a committed delete/overwrite import can be undone while the
+    // status-bar entry is visible.
+    in-out property <bool> undo-available;
+    callback undo-requested();
+    // Audit D3: hotkey display and maintenance entries.
+    in property <string> hotkey-configured: "";
+    in property <string> hotkey-status: "";
+    callback open-data-directory();
+    callback open-crash-log();
     // P1-17: external-drag feedback (baseline 5.6): the hovered group/category
     // id, a grid highlight flag and a status-bar hint.
     in property <string> drop-group-id;
@@ -411,6 +435,14 @@ export component MainWindow inherits Window {
     callback search-dismissed();
     // P2-03 keyboard flow (baseline 13.4).
     callback search-move(int);
+    // Audit D5: paged selection and first/last jumps.
+    callback search-page(int);
+    callback search-jump(int);
+    // Audit B7: keyboard navigation must keep the selected row fully
+    // visible. Rust owns the reveal math through these readouts.
+    in-out property <length> search-scroll-offset <=> search-scroll.content-y;
+    out property <length> search-visible-height: search-scroll.visible-height;
+    out property <length> search-content-height: search-viewport.height;
     callback search-activate();
     callback search-activate-admin();
     callback search-open-location();
@@ -431,6 +463,24 @@ export component MainWindow inherits Window {
         }
         if (event.text == "\u{F701}" || event.text == "\u{F703}") {
             root.search-move(1);
+            return true;
+        }
+        // Audit D5: paged and jump navigation; unmodified Home/End stay with
+        // the LineEdit's text editing.
+        if (event.text == Key.PageUp) {
+            root.search-page(-1);
+            return true;
+        }
+        if (event.text == Key.PageDown) {
+            root.search-page(1);
+            return true;
+        }
+        if (event.modifiers.control && event.text == Key.Home) {
+            root.search-jump(0);
+            return true;
+        }
+        if (event.modifiers.control && event.text == Key.End) {
+            root.search-jump(root.search-results.length - 1);
             return true;
         }
         if (event.text == "\u{000a}") {
@@ -1339,6 +1389,14 @@ export component MainWindow inherits Window {
                     font-size: 12px;
                     vertical-alignment: center;
                 }
+                // Audit D4: the last destructive commit can be undone until
+                // the next undoable commit replaces it.
+                undo-entry := PillButton {
+                    label: "撤销";
+                    visible: root.undo-available;
+                    height: 24px;
+                    clicked => { root.undo-requested(); }
+                }
                 view-entry := Rectangle {
                     width: 36px;
                     height: 24px;
@@ -1528,6 +1586,16 @@ export component MainWindow inherits Window {
                 }
                 settings-focus := ButtonKeyboardScope {
                     interactive: !root.any-modal-open;
+                    route-escape: true;
+                    route-search-shortcut: !root.any-modal-open;
+                    escape-route => {
+                        if (root.item-press-active || root.item-drag-active) {
+                            root.cancel-item-drag();
+                        } else {
+                            root.escape-pressed();
+                        }
+                    }
+                    search-route => { root.search-requested(); }
                     activated => { root.settings-open-requested(); }
                 }
                 settings-focus-ring := Rectangle {
@@ -1669,6 +1737,8 @@ export component MainWindow inherits Window {
         }
     }
 
+    // Audit B7 readouts live with the other search properties above; the
+    // reveal math runs on the Rust side (reveal_search_selection).
     // P2-01: search center (baseline 2.6/13). Covers the content below the
     // title bar; clicking the dim backdrop closes it. Kept instantiated so the
     // LineEdit keeps its edit pipeline across open/close cycles.
@@ -2615,7 +2685,7 @@ export component MainWindow inherits Window {
                             }
                         }
                         HorizontalLayout {
-                            spacing: 10px;
+                            spacing: 6px;
                             Button {
                                 text: root.update-check-busy ? "正在检查更新…" : "检查更新";
                                 enabled: !root.update-check-busy;
@@ -2625,10 +2695,39 @@ export component MainWindow inherits Window {
                             Button { text: "历史备份恢复…"; clicked => { root.backup-menu-opened(); } }
                             Button { text: "配置导入导出…"; clicked => { root.transfer-menu-opened(); } }
                         }
+                        // Audit D3: the hotkey display stays in the scroll
+                        // content; the maintenance buttons live in the
+                        // footer (always reachable, like 关闭).
+                        Rectangle { height: 1px; background: root.theme.border; }
+                        Text { text: "快捷键与维护"; font-size: 12px; color: root.theme.subtle; }
+                        HorizontalLayout {
+                            spacing: 6px;
+                            Text { text: "呼出热键"; width: 64px; font-size: 12px; color: root.theme.muted; vertical-alignment: center; }
+                            hotkey-configured-text := Text {
+                                text: root.hotkey-configured;
+                                font-size: 12px;
+                                color: root.theme.text;
+                                vertical-alignment: center;
+                                overflow: elide;
+                                horizontal-stretch: 1;
+                                accessible-role: text;
+                                accessible-label: root.hotkey-configured;
+                            }
+                        }
+                        Text {
+                            visible: root.hotkey-status != "";
+                            text: root.hotkey-status;
+                            font-size: 11px;
+                            color: root.theme.warning;
+                            wrap: word-wrap;
+                        }
                     }
                 }
                 HorizontalLayout {
                     spacing: 10px;
+                    Button { text: "打开数据目录"; clicked => { root.open-data-directory(); } }
+                    Button { text: "定位崩溃日志"; clicked => { root.open-crash-log(); } }
+                    Rectangle { horizontal-stretch: 1; }
                     Text {
                         text: root.update-confirm-status != "" ? root.update-confirm-status : root.validation-status;
                         color: root.theme.subtle;
