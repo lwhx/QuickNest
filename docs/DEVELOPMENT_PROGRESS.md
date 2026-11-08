@@ -3,7 +3,7 @@
 - 开发基线：QuickNest V1.2 正式开发基线。
 - 工程版本：**1.2.1**；1.2.0 为已公开历史版本，0.1.0 仅为 P0 原型历史版本。
 - 更新日期：2026-11-08。
-- 当前阶段：**1.2.1 本地优化候选，七项实施完成，统一验证、性能对照与本地交付校验已通过；P4 完整发布尚未验收通过**。
+- 当前阶段：**v1.2.1 已发布（tag `v1.2.1`，Release ID 437994041），七项实施完成，统一验证、性能对照与本地交付校验已通过；P4 完整发布矩阵尚未验收通过**。
 - 当前状态入口：[1.2.1 优化记录](OPTIMIZATIONS_1.2.1.md)。此前 [五项修复](AUDIT_FOLLOWUP_2026-11-08.md)、[审核修复](AUDIT_REPAIRS_2026-11-07.md) 与 [历史发布构建](AUDIT_FIXES_2026-11-07.md) 的测试数和哈希只属于对应构建。
 - 本轮范围：无变化选择零写入、LaunchRecord 批量事务及有界 BLAKE3 备份校验缓存；manual 快速路径与 first-rank map；图标 set_row_data 增量、32 有界非阻塞队列/current model generation/失败冷却；PreparedQuery 借用拼音 cache；PillButton/设置入口键盘与 a11y；正式 modal_ui 共用注册及 NameDialog/滚动 editor；Cargo 单版本 1.2.1 与来源指纹内嵌、共享 staging、本地产物独立核验。
 - 统一验证：fmt/check/clippy 退出码 0；安全集合 lib 324（3 ignored）、bin 29、ui_layout 8、icon_queue 13、其余集成 12、doc 3，0 失败；预检 96 入口、产物校验 39 项反例。明细与日志见 [验证记录](test-results/2026-11-08-optimizations-1.2.1/VALIDATION.md)。

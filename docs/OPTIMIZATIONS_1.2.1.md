@@ -1,6 +1,6 @@
 # QuickNest 1.2.1 本地优化记录
 
-更新日期：2026-11-08。工程版本 **1.2.1**，当前为本地优化候选；七项实施已完成并通过统一源码门禁、安全回归、性能对照与本地交付校验。本文不继承历史构建通过数、快测统计、包大小或哈希，全部最终结果见下文实际证据。
+更新日期：2026-11-08。工程版本 **1.2.1**；同日以 tag `v1.2.1` 发布到 GitHub Releases（[Release ID 437994041](https://github.com/lwhx/QuickNest/releases/tag/v1.2.1)，正式发布、非草稿/预发布）。七项实施已完成并通过统一源码门禁、安全回归、性能对照与本地交付校验。本文不继承历史构建通过数、快测统计、包大小或哈希，全部最终结果见下文实际证据。
 
 当前入口：[README](../README.md)、[候选说明](../RELEASE_NOTES.md)、[开发进度](DEVELOPMENT_PROGRESS.md)、[P4 验证记录](P4_VALIDATION.md)。测试设施、安全命令与排障统一见 [TEST_HARNESS.md](TEST_HARNESS.md)。已公开 v1.2.0 的附件及历史哈希保持不变，原发布说明完整保留于 [releases/1.2.0.md](releases/1.2.0.md)；此前 [五项后续修复](AUDIT_FOLLOWUP_2026-11-08.md) 和 [发布构建](AUDIT_FIXES_2026-11-07.md) 只认证各自历史批次。
 
@@ -68,6 +68,7 @@ Slint 保留一条非阻塞提示（导出的非 Window `PillButton` 不生成�
 | ZIP 内部文件、标记、重复项及字节一致性 | 独立校验确认 4 个规范条目、空 portable 标记、无重复/额外条目、逐字节哈希与冻结 staging 一致 |
 | setup 冻结 staging 输入及编译器/输出证据 | `setup-evidence.json` 记录冻结 staging manifest、ISCC.exe 身份与参数、编译日志及输出哈希；编译退出码 0 |
 | 独立验证命令、退出码与日志 | `scripts/verify-release-artifacts.ps1 -ReleaseDirectory <run>` 退出码 0，日志 [verify-release-final.log](test-results/2026-11-08-optimizations-1.2.1/verify-release-final.log)；构建入口内部亦执行同一校验 |
+| GitHub 发布 | tag `v1.2.1`（轻量标签，指向 `1ceb690`）；Release ID 437994041，published 2026-11-08T02:50:30Z，draft=false、prerelease=false；资产 setup ID 722686233、ZIP ID 722686284，均为 uploaded 状态且字节数与本地哈希复核一致 |
 | setup 安装/独立解包/桌面验收 | 未执行，不能由编译与输入一致性代替 |
 
 实际冻结输入、EXE 内嵌来源与共享 staging 用来核对本地过程一致性。允许 dirty 工作树并准确标记实际指纹；base HEAD 仅为基准提交，不能冒称未提交源码构建来源。该来源记录不构成第三方签名或跨机器可复现构建证明。
